@@ -11,6 +11,10 @@ import '../application/tasks_state.dart';
 import '../domain/task.dart';
 import '../domain/task_status.dart';
 
+const _detailSupportPanelRadius = 18.0;
+const _detailSupportPanelInset = 14.0;
+const _detailActionSectionSpacing = 12.0;
+
 class TaskDetailScreen extends StatelessWidget {
   const TaskDetailScreen({super.key, required this.taskId});
 
@@ -352,7 +356,7 @@ class _ActionSection extends StatelessWidget {
     required this.title,
     required this.description,
     required this.children,
-    this.spacing = 12,
+    this.spacing = _detailActionSectionSpacing,
   });
 
   final String title;
@@ -417,10 +421,10 @@ class _MetaSection extends StatelessWidget {
     return DecoratedBox(
       decoration: BoxDecoration(
         color: theme.appSurfaces.cardMuted,
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(_detailSupportPanelRadius),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(14),
+        padding: const EdgeInsets.all(_detailSupportPanelInset),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -459,11 +463,11 @@ class _ShelvedTaskNotice extends StatelessWidget {
     return DecoratedBox(
       decoration: BoxDecoration(
         color: theme.appSurfaces.revisitPanel,
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(_detailSupportPanelRadius),
         border: Border.all(color: theme.appSurfaces.holdingBorder),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(14),
+        padding: const EdgeInsets.all(_detailSupportPanelInset),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
