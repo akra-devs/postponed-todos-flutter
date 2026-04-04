@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/theme/app_spacing_tokens.dart';
+
 class TaskEmptyStateCard extends StatelessWidget {
   const TaskEmptyStateCard({
     super.key,
@@ -15,12 +17,12 @@ class TaskEmptyStateCard extends StatelessWidget {
     final theme = Theme.of(context);
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(AppSpacingTokens.heroInset),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(title, style: theme.textTheme.titleMedium),
-            const SizedBox(height: 8),
+            const SizedBox(height: AppSpacingTokens.eyebrowGap),
             Text(message, style: theme.textTheme.bodyMedium),
           ],
         ),

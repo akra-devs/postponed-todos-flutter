@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../core/theme/app_spacing_tokens.dart';
 import '../application/tasks_cubit.dart';
 import '../application/tasks_state.dart';
 import 'task_detail_screen.dart';
@@ -23,13 +24,13 @@ class PostponingTasksScreen extends StatelessWidget {
 
             final tasks = state.postponingTasks;
             return ListView(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(AppSpacingTokens.screenInset),
               children: [
                 Text(
                   '지금 당장 하진 않지만, 아직 붙잡고 있는 일들',
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: AppSpacingTokens.cardInset),
                 if (tasks.isEmpty)
                   const TaskEmptyStateCard(
                     title: '아직 넣어둔 일이 없어요',
@@ -38,7 +39,9 @@ class PostponingTasksScreen extends StatelessWidget {
                 else
                   ...tasks.map(
                     (task) => Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
+                      padding: const EdgeInsets.only(
+                        bottom: AppSpacingTokens.listGap,
+                      ),
                       child: TaskListCard(
                         task: task,
                         onTap: () => Navigator.of(

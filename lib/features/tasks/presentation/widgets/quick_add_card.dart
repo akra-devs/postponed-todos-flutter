@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/theme/app_spacing_tokens.dart';
+
 class QuickAddCard extends StatefulWidget {
   const QuickAddCard({super.key, required this.onSubmit});
 
@@ -25,17 +27,17 @@ class _QuickAddCardState extends State<QuickAddCard> {
   Widget build(BuildContext context) {
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(AppSpacingTokens.heroInset),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text('가볍게 넣어두기', style: Theme.of(context).textTheme.titleLarge),
-            const SizedBox(height: 8),
+            const SizedBox(height: AppSpacingTokens.eyebrowGap),
             Text(
               '캘린더까지는 아니지만 잊고 싶지 않은 일을 빠르게 적어둘 수 있어요.',
               style: Theme.of(context).textTheme.bodyMedium,
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: AppSpacingTokens.cardInset),
             TextField(
               controller: _titleController,
               textInputAction: TextInputAction.done,
@@ -45,7 +47,7 @@ class _QuickAddCardState extends State<QuickAddCard> {
                 labelText: '할 일 제목',
               ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: AppSpacingTokens.listGap),
             TextField(
               controller: _noteController,
               minLines: 2,
@@ -55,7 +57,7 @@ class _QuickAddCardState extends State<QuickAddCard> {
                 labelText: '메모',
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: AppSpacingTokens.cardInset),
             FilledButton(
               onPressed: _submitting ? null : _handleSubmit,
               child: Text(_submitting ? '넣는 중...' : '미뤄둔 일 넣기'),

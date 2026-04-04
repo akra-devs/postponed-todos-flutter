@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../core/theme/app_spacing_tokens.dart';
 import '../application/tasks_cubit.dart';
 import 'postponing_tasks_screen.dart';
 import 'shelved_tasks_screen.dart';
@@ -33,10 +34,12 @@ class _TasksShellScreenState extends State<TasksShellScreen> {
           top: false,
           child: Padding(
             padding: EdgeInsets.only(
-              left: 16,
-              right: 16,
-              top: 12,
-              bottom: MediaQuery.of(sheetContext).viewInsets.bottom + 16,
+              left: AppSpacingTokens.cardInset,
+              right: AppSpacingTokens.cardInset,
+              top: AppSpacingTokens.listGap,
+              bottom:
+                  MediaQuery.of(sheetContext).viewInsets.bottom +
+                  AppSpacingTokens.cardInset,
             ),
             child: SingleChildScrollView(
               child: QuickAddCard(
