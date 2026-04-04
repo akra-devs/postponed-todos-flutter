@@ -1,0 +1,31 @@
+# OS / editor
+.DS_Store
+.idea/
+*.iml
+
+# Dart / Flutter
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub/
+build/
+coverage/
+
+# Generated docs
+**/doc/api/
+
+# Flutter platform-generated files
+**/ios/Flutter/.last_build_id
+android/local.properties
+ios/Flutter/Generated.xcconfig
+ios/Flutter/flutter_export_environment.sh
+ios/Flutter/ephemeral/
+linux/flutter/ephemeral/
+macos/Flutter/ephemeral/
+windows/flutter/ephemeral/
+
+# Android Studio outputs
+android/app/debug/
+android/app/profile/
+android/app/release/
