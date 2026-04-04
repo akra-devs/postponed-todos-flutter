@@ -7,6 +7,22 @@ import '../../../../core/theme/app_spacing_tokens.dart';
 import '../../../../core/theme/app_theme_ext.dart';
 import '../../domain/task_recommendation_service.dart';
 
+const EdgeInsets _ctaButtonPadding = EdgeInsets.symmetric(
+  horizontal: 14,
+  vertical: 12,
+);
+const EdgeInsets _eyebrowChipPadding = EdgeInsets.symmetric(
+  horizontal: 10,
+  vertical: 5,
+);
+const EdgeInsets _scorePillPadding = EdgeInsets.symmetric(
+  horizontal: 12,
+  vertical: 8,
+);
+const double _secondaryContextDotSize = 8;
+const double _secondaryContextDotTopOffset = 6;
+const double _secondaryContextContentGap = 10;
+
 class HomeRecommendationCard extends StatelessWidget {
   const HomeRecommendationCard({
     super.key,
@@ -116,24 +132,14 @@ class HomeRecommendationCard extends StatelessWidget {
               children: [
                 FilledButton(
                   onPressed: onOpen,
-                  style: FilledButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 14,
-                      vertical: 12,
-                    ),
-                  ),
+                  style: FilledButton.styleFrom(padding: _ctaButtonPadding),
                   child: Text(
                     isRevisit ? UiCopy.holdingRestore : UiCopy.homePrimary,
                   ),
                 ),
                 FilledButton.tonal(
                   onPressed: onSnooze,
-                  style: FilledButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 14,
-                      vertical: 12,
-                    ),
-                  ),
+                  style: FilledButton.styleFrom(padding: _ctaButtonPadding),
                   child: Text(
                     isRevisit ? UiCopy.restoreDefer : UiCopy.homeSnooze,
                     textAlign: TextAlign.center,
@@ -141,12 +147,7 @@ class HomeRecommendationCard extends StatelessWidget {
                 ),
                 OutlinedButton(
                   onPressed: onShelf,
-                  style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 14,
-                      vertical: 12,
-                    ),
-                  ),
+                  style: OutlinedButton.styleFrom(padding: _ctaButtonPadding),
                   child: Text(
                     isRevisit ? '상세 보기' : UiCopy.homeHolding,
                     textAlign: TextAlign.center,
@@ -179,7 +180,7 @@ class _EyebrowLabel extends StatelessWidget {
         borderRadius: BorderRadius.circular(AppRadiusTokens.pill),
       ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+        padding: _eyebrowChipPadding,
         child: Text(
           label,
           style: theme.appTextRoles.eyebrow.copyWith(
@@ -212,7 +213,7 @@ class _CalmScorePill extends StatelessWidget {
         borderRadius: BorderRadius.circular(AppRadiusTokens.md),
       ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        padding: _scorePillPadding,
         child: Text(
           label,
           style: theme.appTextRoles.emphasisLabel.copyWith(
@@ -294,15 +295,15 @@ class _SecondaryContextPanel extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              width: 8,
-              height: 8,
-              margin: const EdgeInsets.only(top: 6),
+              width: _secondaryContextDotSize,
+              height: _secondaryContextDotSize,
+              margin: const EdgeInsets.only(top: _secondaryContextDotTopOffset),
               decoration: BoxDecoration(
                 color: highlighted ? colorScheme.primary : colorScheme.outline,
                 shape: BoxShape.circle,
               ),
             ),
-            const SizedBox(width: 10),
+            const SizedBox(width: _secondaryContextContentGap),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
