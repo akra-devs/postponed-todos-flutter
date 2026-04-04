@@ -43,6 +43,10 @@ class TaskDetailScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   Text(task.status.description),
+                  if (task.status == TaskStatus.shelved) ...[
+                    const SizedBox(height: 16),
+                    _ShelvedTaskNotice(task: task),
+                  ],
                   if ((task.note ?? '').isNotEmpty) ...[
                     const SizedBox(height: 16),
                     Text('메모', style: Theme.of(context).textTheme.titleMedium),
@@ -152,6 +156,7 @@ class TaskDetailScreen extends StatelessWidget {
           onPressed: () => task.isEligibleForHoldingBoxRevisitSuggestion
               ? cubit.confirmHoldingBoxRevisit(task)
               : cubit.reopenFromShelved(task),
+          emphasis: _ActionEmphasis.primary,
         ),
       );
       if (task.isEligibleForHoldingBoxRevisitSuggestion) {
@@ -159,6 +164,7 @@ class TaskDetailScreen extends StatelessWidget {
           _ActionButton(
             label: UiCopy.restoreDefer,
             onPressed: () => cubit.dismissHoldingBoxRevisit(task),
+            emphasis: _ActionEmphasis.secondary,
           ),
         );
       }
@@ -169,12 +175,14 @@ class TaskDetailScreen extends StatelessWidget {
         _ActionButton(
           label: UiCopy.detailComplete,
           onPressed: () => cubit.transition(task, TaskStatus.done),
+          emphasis: _ActionEmphasis.secondary,
         ),
       );
       actions.add(
         _ActionButton(
           label: UiCopy.detailDrop,
           onPressed: () => cubit.transition(task, TaskStatus.dropped),
+          emphasis: _ActionEmphasis.secondary,
         ),
       );
     }
@@ -225,14 +233,68 @@ class TaskDetailScreen extends StatelessWidget {
   }
 }
 
-class _ActionButton extends StatelessWidget {
-  const _ActionButton({required this.label, required this.onPressed});
+class _ShelvedTaskNotice extends StatelessWidget {
+  const _ShelvedTaskNotice({required this.task});
 
-  final String label;
-  final VoidCallback onPressed;
+  final Task task;
 
   @override
   Widget build(BuildContext context) {
-    return FilledButton.tonal(onPressed: onPressed, child: Text(label));
+    final theme = Theme.of(context);
+
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: const Color(0xFFF6F1E8),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: const Color(0xFFE2D5C2)),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(14),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              '보류함에 잠시 내려둔 일이에요',
+              style: theme.textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              task.isEligibleForHoldingBoxRevisitSuggestion
+                  ? '지금은 다시 꺼내보기 괜찮은 시점이라, 복원 버튼을 먼저 두었어요.'
+                  : '급하지 않다면 이대로 둬도 괜찮아요. 필요해질 때 복원하면 다시 미루는 중으로 돌아가요.',
+              style: theme.textTheme.bodyMedium?.copyWith(height: 1.5),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+enum _ActionEmphasis { defaultTone, primary, secondary }
+
+class _ActionButton extends StatelessWidget {
+  const _ActionButton({
+    required this.label,
+    required this.onPressed,
+    this.emphasis = _ActionEmphasis.defaultTone,
+  });
+
+  final String label;
+  final VoidCallback onPressed;
+  final _ActionEmphasis emphasis;
+
+  @override
+  Widget build(BuildContext context) {
+    switch (emphasis) {
+      case _ActionEmphasis.primary:
+        return FilledButton(onPressed: onPressed, child: Text(label));
+      case _ActionEmphasis.secondary:
+        return OutlinedButton(onPressed: onPressed, child: Text(label));
+      case _ActionEmphasis.defaultTone:
+        return FilledButton.tonal(onPressed: onPressed, child: Text(label));
+    }
   }
 }

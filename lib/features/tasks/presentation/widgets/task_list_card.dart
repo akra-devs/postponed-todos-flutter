@@ -15,6 +15,7 @@ class TaskListCard extends StatelessWidget {
     final colorScheme = theme.colorScheme;
     final isCoolingDown = task.resurfaceAt?.isAfter(DateTime.now()) ?? false;
     final hasNote = (task.note ?? '').isNotEmpty;
+    final isShelved = task.status == TaskStatus.shelved;
 
     return Material(
       color: Colors.transparent,
@@ -23,17 +24,19 @@ class TaskListCard extends StatelessWidget {
         onTap: onTap,
         child: Ink(
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: isShelved ? const Color(0xFFFCFBF7) : Colors.white,
             borderRadius: BorderRadius.circular(24),
             border: Border.all(
-              color: task.status == TaskStatus.shelved
-                  ? colorScheme.primary.withValues(alpha: 0.14)
+              color: isShelved
+                  ? const Color(0xFFDCCFBC)
                   : colorScheme.outlineVariant.withValues(alpha: 0.6),
             ),
             boxShadow: [
               BoxShadow(
-                color: colorScheme.shadow.withValues(alpha: 0.035),
-                blurRadius: 20,
+                color: colorScheme.shadow.withValues(
+                  alpha: isShelved ? 0.025 : 0.035,
+                ),
+                blurRadius: isShelved ? 18 : 20,
                 offset: const Offset(0, 8),
               ),
             ],
@@ -88,9 +91,14 @@ class TaskListCard extends StatelessWidget {
                           _StatusChip(
                             label: task.status.label,
                             tone: task.status == TaskStatus.shelved
-                                ? _ChipTone.accent
+                                ? _ChipTone.shelf
                                 : _ChipTone.neutral,
                           ),
+                          if (isShelved && task.shelvedAt != null)
+                            _StatusChip(
+                              label: '보관 ${_daysSince(task.shelvedAt!)}일째',
+                              tone: _ChipTone.muted,
+                            ),
                           if (isCoolingDown)
                             const _StatusChip(
                               label: '조금 더 둘래 · 다시 보기 대기 중',
@@ -99,11 +107,23 @@ class TaskListCard extends StatelessWidget {
                           if (task.status == TaskStatus.shelved &&
                               task.isEligibleForHoldingBoxRevisitSuggestion)
                             const _StatusChip(
-                              label: '다시 꺼내보기 제안 가능',
+                              label: '다시 꺼내볼 때가 됐어요',
                               tone: _ChipTone.warm,
                             ),
                         ],
                       ),
+                      if (isShelved) ...[
+                        const SizedBox(height: 12),
+                        Text(
+                          task.isEligibleForHoldingBoxRevisitSuggestion
+                              ? '준비되면 다시 꺼내볼 수 있어요.'
+                              : '지금은 서두르지 말고 여기 두어도 괜찮아요.',
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: const Color(0xFF7B7368),
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
                     ],
                   ),
                 ),
@@ -113,6 +133,11 @@ class TaskListCard extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  static int _daysSince(DateTime from) {
+    final difference = DateTime.now().difference(from).inDays;
+    return difference < 1 ? 1 : difference;
   }
 }
 
@@ -131,20 +156,22 @@ class _LeadingIntentMarker extends StatelessWidget {
       height: 40,
       decoration: BoxDecoration(
         color: isShelved
-            ? colorScheme.primary.withValues(alpha: 0.10)
+            ? const Color(0xFFF0E7D8)
             : colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(14),
       ),
       child: Icon(
         isShelved ? Icons.inventory_2_outlined : Icons.access_time_rounded,
         size: 20,
-        color: isShelved ? colorScheme.primary : colorScheme.onSurfaceVariant,
+        color: isShelved
+            ? const Color(0xFF7D6E58)
+            : colorScheme.onSurfaceVariant,
       ),
     );
   }
 }
 
-enum _ChipTone { neutral, muted, accent, warm }
+enum _ChipTone { neutral, muted, shelf, warm }
 
 class _StatusChip extends StatelessWidget {
   const _StatusChip({required this.label, required this.tone});
@@ -163,11 +190,11 @@ class _StatusChip extends StatelessWidget {
         backgroundColor = colorScheme.surfaceContainerHighest;
         foregroundColor = colorScheme.onSurfaceVariant;
       case _ChipTone.muted:
-        backgroundColor = colorScheme.secondaryContainer.withValues(alpha: 0.5);
-        foregroundColor = colorScheme.onSecondaryContainer;
-      case _ChipTone.accent:
-        backgroundColor = colorScheme.primaryContainer.withValues(alpha: 0.8);
-        foregroundColor = colorScheme.onPrimaryContainer;
+        backgroundColor = const Color(0xFFF1ECE2);
+        foregroundColor = const Color(0xFF6F6557);
+      case _ChipTone.shelf:
+        backgroundColor = const Color(0xFFE7DED0);
+        foregroundColor = const Color(0xFF665B4D);
       case _ChipTone.warm:
         backgroundColor = const Color(0xFFFFF1DD);
         foregroundColor = const Color(0xFF8A4B00);
