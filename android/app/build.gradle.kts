@@ -7,7 +7,10 @@ plugins {
 
 android {
     namespace = "com.sjlee.postponed_todos"
-    compileSdk = flutter.compileSdkVersion
+    // Pin to a widely available stable Android SDK instead of inheriting
+    // Flutter's newest default (currently API 36), which may not be installed
+    // on Windows developer machines yet.
+    compileSdk = 35
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
@@ -25,7 +28,7 @@ android {
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
-        targetSdk = flutter.targetSdkVersion
+        targetSdk = 35
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }

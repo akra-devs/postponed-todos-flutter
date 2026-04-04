@@ -4,9 +4,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../core/theme/app_theme.dart';
 import '../features/tasks/application/default_task_recommendation_service.dart';
 import '../features/tasks/application/tasks_cubit.dart';
-import '../features/tasks/data/drift_task_repository.dart';
-import '../features/tasks/data/local/app_database.dart';
+import '../features/tasks/data/task_repository.dart';
 import '../features/tasks/presentation/tasks_home_screen.dart';
+import 'app_services.dart';
 
 class PostponedTodosApp extends StatefulWidget {
   const PostponedTodosApp({super.key});
@@ -16,21 +16,21 @@ class PostponedTodosApp extends StatefulWidget {
 }
 
 class _PostponedTodosAppState extends State<PostponedTodosApp> {
-  late final AppDatabase _database;
-  late final DriftTaskRepository _repository;
+  late final AppServices _services;
+  late final TaskRepository _repository;
   late final DefaultTaskRecommendationService _recommendationService;
 
   @override
   void initState() {
     super.initState();
-    _database = AppDatabase();
-    _repository = DriftTaskRepository(_database);
+    _services = createAppServices();
+    _repository = _services.repository;
     _recommendationService = const DefaultTaskRecommendationService();
   }
 
   @override
   void dispose() {
-    _database.close();
+    _services.dispose();
     super.dispose();
   }
 

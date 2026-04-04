@@ -45,6 +45,7 @@ class TaskSuggestionEventsTable extends Table {
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
+  // ignore: use_super_parameters
   AppDatabase.forTesting(QueryExecutor executor) : super(executor);
 
   @override
