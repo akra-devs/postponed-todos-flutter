@@ -1,4 +1,4 @@
-package com.sjlee.postponed_todos
+package kr.akra.postponedtodos
 
 import io.flutter.embedding.android.FlutterActivity
 

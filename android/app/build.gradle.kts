@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.sjlee.postponed_todos"
+    namespace = "kr.akra.postponedtodos"
     // Pin to a widely available stable Android SDK instead of inheriting
     // Flutter's newest default (currently API 36), which may not be installed
     // on Windows developer machines yet.
@@ -24,7 +24,7 @@ android {
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.sjlee.postponed_todos"
+        applicationId = "kr.akra.postponedtodos"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
