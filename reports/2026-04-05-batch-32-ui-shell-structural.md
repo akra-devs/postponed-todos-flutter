@@ -1,0 +1,37 @@
+# Work Report
+
+- Date: 2026-04-05
+- Agent: Implementer
+- Task: Implement the first UI shell batch (3-tab shell, split lists, shell-level quick add, route-level task detail).
+- Summary: Introduced a 3-tab shell with Home/미루는 중/보류함, split postponing and shelved lists into dedicated screens, moved quick add to a shell-level FAB sheet, and replaced the bottom-sheet detail flow with a route-based TaskDetailScreen while preserving existing task logic and home exposure wiring.
+- Files Changed:
+  - `lib/app/app.dart`
+  - `lib/features/tasks/presentation/tasks_home_screen.dart`
+  - `lib/features/tasks/presentation/postponing_tasks_screen.dart`
+  - `lib/features/tasks/presentation/shelved_tasks_screen.dart`
+  - `lib/features/tasks/presentation/task_detail_screen.dart`
+  - `lib/features/tasks/presentation/tasks_shell_screen.dart`
+  - `lib/features/tasks/presentation/widgets/task_empty_state_card.dart`
+  - `lib/features/tasks/presentation/widgets/task_list_card.dart`
+  - `lib/features/tasks/presentation/widgets/task_detail_sheet.dart` (removed)
+  - `reports/2026-04-05-batch-32-ui-shell-structural.md`
+- What Was Implemented:
+  - Added a shell scaffold with bottom navigation and a shared FAB-driven quick add sheet.
+  - Trimmed the home screen to summary + home recommendations + holding revisit surfaces, with direct entry buttons into the list tabs.
+  - Split postponing and shelved lists into their own screens with shared list-card and empty-state widgets.
+  - Replaced the bottom-sheet detail with a route-based `TaskDetailScreen` and routed list/detail entry points through it.
+  - Kept `TasksCubit`, recommendation ranking, suggestion exposure dedupe logic, and transition actions unchanged.
+- Key Decisions:
+  - Used `IndexedStack` for tab persistence so tab switches do not recreate the screen subtree unnecessarily.
+  - Kept quick add wired to the existing cubit path so new items appear through the same repository/watch flow.
+  - Left home recommendation/revisit exposure tracking inside `TasksHomeScreen` so the existing post-frame dedupe behavior stays localized.
+- Validation / Evidence:
+  - `dart format lib test` — passed.
+  - `flutter analyze` — passed with `No issues found!`.
+  - `flutter test` — passed with `All tests passed!`.
+- Known Risks / Gaps:
+  - No dedicated automated shell-navigation test is retained in the suite; shell structural safety is verified primarily by implementation review plus the existing app/widget/integration coverage that continued to pass after the refactor.
+  - Scroll retention is implemented structurally via `IndexedStack`, but not separately asserted by automation in this batch.
+- Commit: (pending)
+- Next Recommended Step:
+  - If this shell structure is accepted, follow with a Reviewer/QA pass focused on route ergonomics and tab-state behavior under richer real-task data.

@@ -5,7 +5,7 @@ import '../core/theme/app_theme.dart';
 import '../features/tasks/application/default_task_recommendation_service.dart';
 import '../features/tasks/application/tasks_cubit.dart';
 import '../features/tasks/data/task_repository.dart';
-import '../features/tasks/presentation/tasks_home_screen.dart';
+import '../features/tasks/presentation/tasks_shell_screen.dart';
 import 'app_services.dart';
 
 class PostponedTodosApp extends StatefulWidget {
@@ -44,7 +44,7 @@ class _PostponedTodosAppState extends State<PostponedTodosApp> {
           debugShowCheckedModeBanner: false,
           title: '미뤄둔 할일들',
           theme: buildAppTheme(),
-          home: const TasksHomeScreen(),
+          home: const TasksShellScreen(),
         ),
       ),
     );

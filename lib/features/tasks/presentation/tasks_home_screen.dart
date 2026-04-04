@@ -8,11 +8,14 @@ import '../domain/task.dart';
 import '../domain/task_recommendation_service.dart';
 import '../domain/task_status.dart';
 import 'widgets/home_recommendation_card.dart';
-import 'widgets/quick_add_card.dart';
-import 'widgets/task_detail_sheet.dart';
+import 'widgets/task_empty_state_card.dart';
+import 'task_detail_screen.dart';
 
 class TasksHomeScreen extends StatefulWidget {
-  const TasksHomeScreen({super.key});
+  const TasksHomeScreen({super.key, this.onViewPostponing, this.onViewShelved});
+
+  final VoidCallback? onViewPostponing;
+  final VoidCallback? onViewShelved;
 
   @override
   State<TasksHomeScreen> createState() => _TasksHomeScreenState();
@@ -43,12 +46,10 @@ class _TasksHomeScreenState extends State<TasksHomeScreen> {
               padding: const EdgeInsets.all(20),
               children: [
                 const _StatusSummary(),
-                const SizedBox(height: 16),
-                QuickAddCard(
-                  onSubmit: (title, note) => context.read<TasksCubit>().addTask(
-                    title: title,
-                    note: note,
-                  ),
+                const SizedBox(height: 12),
+                _QuickEntrySection(
+                  onViewPostponing: widget.onViewPostponing,
+                  onViewShelved: widget.onViewShelved,
                 ),
                 const SizedBox(height: 20),
                 _SectionHeader(
@@ -57,7 +58,7 @@ class _TasksHomeScreenState extends State<TasksHomeScreen> {
                 ),
                 const SizedBox(height: 12),
                 if (state.recommendations.isEmpty)
-                  const _EmptyState(
+                  const TaskEmptyStateCard(
                     title: '지금은 추천할 일이 없어요',
                     message: '쿨다운이 끝난 일이 생기면 여기에서 다시 꺼내볼 수 있어요.',
                   )
@@ -84,7 +85,7 @@ class _TasksHomeScreenState extends State<TasksHomeScreen> {
                 ),
                 const SizedBox(height: 12),
                 if (state.holdingBoxRevisitSuggestions.isEmpty)
-                  const _EmptyState(
+                  const TaskEmptyStateCard(
                     title: '지금은 조용히 두고 있어요',
                     message: '보류함에 넣은 지 14일이 지난 일만 낮은 강도로 다시 꺼내볼 수 있게 가져와요.',
                   )
@@ -102,45 +103,6 @@ class _TasksHomeScreenState extends State<TasksHomeScreen> {
                             .dismissHoldingBoxRevisit(recommendation.task),
                         onShelf: () =>
                             _openDetail(context, recommendation.task),
-                      ),
-                    ),
-                  ),
-                const SizedBox(height: 24),
-                _SectionHeader(
-                  title: '미루는 중',
-                  subtitle: '지금 당장 하진 않지만, 아직 붙잡고 있는 일들',
-                ),
-                const SizedBox(height: 12),
-                if (state.postponingTasks.isEmpty)
-                  const _EmptyState(
-                    title: '아직 넣어둔 일이 없어요',
-                    message: '캘린더까지는 아니지만 잊고 싶지 않은 일을 가볍게 적어둘 수 있어요.',
-                  )
-                else
-                  ...state.postponingTasks.map(
-                    (task) => Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: _TaskCard(
-                        task: task,
-                        onTap: () => _openDetail(context, task),
-                      ),
-                    ),
-                  ),
-                const SizedBox(height: 24),
-                _SectionHeader(title: '보류함', subtitle: '당분간 거리를 두기로 한 일들'),
-                const SizedBox(height: 12),
-                if (state.shelvedTasks.isEmpty)
-                  const _EmptyState(
-                    title: '보류함은 아직 비어 있어요',
-                    message: '지금은 잠시 멀리 두고 싶은 일은 보류함으로 옮길 수 있어요.',
-                  )
-                else
-                  ...state.shelvedTasks.map(
-                    (task) => Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: _TaskCard(
-                        task: task,
-                        onTap: () => _openDetail(context, task),
                       ),
                     ),
                   ),
@@ -195,12 +157,7 @@ class _TasksHomeScreenState extends State<TasksHomeScreen> {
   }
 
   Future<void> _openDetail(BuildContext context, Task task) {
-    return showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      showDragHandle: true,
-      builder: (_) => TaskDetailSheet(taskId: task.id),
-    );
+    return Navigator.of(context).push(TaskDetailScreen.route(task.id));
   }
 
   Future<void> _confirmShelve(BuildContext context, Task task) async {
@@ -269,6 +226,55 @@ class _StatusSummary extends StatelessWidget {
   }
 }
 
+class _QuickEntrySection extends StatelessWidget {
+  const _QuickEntrySection({
+    required this.onViewPostponing,
+    required this.onViewShelved,
+  });
+
+  final VoidCallback? onViewPostponing;
+  final VoidCallback? onViewShelved;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('목록 바로가기', style: theme.textTheme.titleMedium),
+        const SizedBox(height: 8),
+        BlocBuilder<TasksCubit, TasksState>(
+          builder: (context, state) {
+            return Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: onViewPostponing,
+                    child: Text(
+                      '미루는 중 (${state.postponingTasks.length})',
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: onViewShelved,
+                    child: Text(
+                      '보류함 (${state.shelvedTasks.length})',
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ),
+              ],
+            );
+          },
+        ),
+      ],
+    );
+  }
+}
+
 class _SummaryCard extends StatelessWidget {
   const _SummaryCard({required this.label, required this.value});
 
@@ -310,96 +316,6 @@ class _SectionHeader extends StatelessWidget {
         const SizedBox(height: 4),
         Text(subtitle, style: theme.textTheme.bodyMedium),
       ],
-    );
-  }
-}
-
-class _EmptyState extends StatelessWidget {
-  const _EmptyState({required this.title, required this.message});
-
-  final String title;
-  final String message;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(title, style: theme.textTheme.titleMedium),
-            const SizedBox(height: 8),
-            Text(message, style: theme.textTheme.bodyMedium),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _TaskCard extends StatelessWidget {
-  const _TaskCard({required this.task, required this.onTap});
-
-  final Task task;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final isCoolingDown = task.resurfaceAt?.isAfter(DateTime.now()) ?? false;
-    return Card(
-      child: InkWell(
-        borderRadius: BorderRadius.circular(20),
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(task.title, style: theme.textTheme.titleMedium),
-              if ((task.note ?? '').isNotEmpty) ...[
-                const SizedBox(height: 8),
-                Text(task.note!, style: theme.textTheme.bodyMedium),
-              ],
-              const SizedBox(height: 12),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  _StatusChip(label: task.status.label),
-                  if (isCoolingDown)
-                    const _StatusChip(label: '조금 더 둘래 · 다시 보기 대기 중'),
-                  if (task.status == TaskStatus.shelved &&
-                      task.isEligibleForHoldingBoxRevisitSuggestion)
-                    const _StatusChip(label: '다시 꺼내보기 제안 가능'),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _StatusChip extends StatelessWidget {
-  const _StatusChip({required this.label});
-
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(999),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-        child: Text(label),
-      ),
     );
   }
 }
