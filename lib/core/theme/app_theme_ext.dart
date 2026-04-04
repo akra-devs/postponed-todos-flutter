@@ -8,6 +8,11 @@ class AppSurfaceTokens extends ThemeExtension<AppSurfaceTokens> {
     required this.cardMuted,
     required this.holdingSurface,
     required this.holdingBorder,
+    required this.holdingHeroSurface,
+    required this.holdingHeroHighlight,
+    required this.holdingHeroBackground,
+    required this.holdingHeroIconSurface,
+    required this.holdingHeroBody,
     required this.reasonPanel,
     required this.revisitPanel,
     required this.subtleAccent,
@@ -17,6 +22,11 @@ class AppSurfaceTokens extends ThemeExtension<AppSurfaceTokens> {
   final Color cardMuted;
   final Color holdingSurface;
   final Color holdingBorder;
+  final Color holdingHeroSurface;
+  final Color holdingHeroHighlight;
+  final Color holdingHeroBackground;
+  final Color holdingHeroIconSurface;
+  final Color holdingHeroBody;
   final Color reasonPanel;
   final Color revisitPanel;
   final Color subtleAccent;
@@ -27,6 +37,11 @@ class AppSurfaceTokens extends ThemeExtension<AppSurfaceTokens> {
     Color? cardMuted,
     Color? holdingSurface,
     Color? holdingBorder,
+    Color? holdingHeroSurface,
+    Color? holdingHeroHighlight,
+    Color? holdingHeroBackground,
+    Color? holdingHeroIconSurface,
+    Color? holdingHeroBody,
     Color? reasonPanel,
     Color? revisitPanel,
     Color? subtleAccent,
@@ -36,6 +51,13 @@ class AppSurfaceTokens extends ThemeExtension<AppSurfaceTokens> {
       cardMuted: cardMuted ?? this.cardMuted,
       holdingSurface: holdingSurface ?? this.holdingSurface,
       holdingBorder: holdingBorder ?? this.holdingBorder,
+      holdingHeroSurface: holdingHeroSurface ?? this.holdingHeroSurface,
+      holdingHeroHighlight: holdingHeroHighlight ?? this.holdingHeroHighlight,
+      holdingHeroBackground:
+          holdingHeroBackground ?? this.holdingHeroBackground,
+      holdingHeroIconSurface:
+          holdingHeroIconSurface ?? this.holdingHeroIconSurface,
+      holdingHeroBody: holdingHeroBody ?? this.holdingHeroBody,
       reasonPanel: reasonPanel ?? this.reasonPanel,
       revisitPanel: revisitPanel ?? this.revisitPanel,
       subtleAccent: subtleAccent ?? this.subtleAccent,
@@ -50,6 +72,27 @@ class AppSurfaceTokens extends ThemeExtension<AppSurfaceTokens> {
       cardMuted: Color.lerp(cardMuted, other.cardMuted, t)!,
       holdingSurface: Color.lerp(holdingSurface, other.holdingSurface, t)!,
       holdingBorder: Color.lerp(holdingBorder, other.holdingBorder, t)!,
+      holdingHeroSurface: Color.lerp(
+        holdingHeroSurface,
+        other.holdingHeroSurface,
+        t,
+      )!,
+      holdingHeroHighlight: Color.lerp(
+        holdingHeroHighlight,
+        other.holdingHeroHighlight,
+        t,
+      )!,
+      holdingHeroBackground: Color.lerp(
+        holdingHeroBackground,
+        other.holdingHeroBackground,
+        t,
+      )!,
+      holdingHeroIconSurface: Color.lerp(
+        holdingHeroIconSurface,
+        other.holdingHeroIconSurface,
+        t,
+      )!,
+      holdingHeroBody: Color.lerp(holdingHeroBody, other.holdingHeroBody, t)!,
       reasonPanel: Color.lerp(reasonPanel, other.reasonPanel, t)!,
       revisitPanel: Color.lerp(revisitPanel, other.revisitPanel, t)!,
       subtleAccent: Color.lerp(subtleAccent, other.subtleAccent, t)!,
@@ -61,6 +104,11 @@ class AppSurfaceTokens extends ThemeExtension<AppSurfaceTokens> {
     cardMuted: scheme.surfaceContainerLow,
     holdingSurface: AppColorTokens.warmSurface,
     holdingBorder: AppColorTokens.warmBorder,
+    holdingHeroSurface: AppColorTokens.holdingHeroSurface,
+    holdingHeroHighlight: AppColorTokens.holdingHeroHighlight,
+    holdingHeroBackground: AppColorTokens.holdingHeroBackground,
+    holdingHeroIconSurface: AppColorTokens.holdingHeroIconSurface,
+    holdingHeroBody: AppColorTokens.holdingHeroBody,
     reasonPanel: scheme.surfaceContainerLowest,
     revisitPanel: AppColorTokens.warmMuted,
     subtleAccent: AppColorTokens.warmAccent,

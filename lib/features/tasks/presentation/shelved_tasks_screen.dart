@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../core/theme/app_elevation_tokens.dart';
+import '../../../core/theme/app_radius_tokens.dart';
+import '../../../core/theme/app_spacing_tokens.dart';
+import '../../../core/theme/app_theme_ext.dart';
 import '../application/tasks_cubit.dart';
 import '../application/tasks_state.dart';
 import 'task_detail_screen.dart';
@@ -12,13 +16,15 @@ class ShelvedTasksScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final surfaces = theme.appSurfaces;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F4EF),
+      backgroundColor: surfaces.holdingSurface,
       appBar: AppBar(
         title: const Text('보류함'),
-        backgroundColor: const Color(0xFFF5F4EF),
+        backgroundColor: surfaces.holdingSurface,
       ),
       body: DecoratedBox(
         decoration: BoxDecoration(
@@ -26,8 +32,8 @@ class ShelvedTasksScreen extends StatelessWidget {
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              const Color(0xFFF1EFE7),
-              const Color(0xFFF7F6F2),
+              surfaces.holdingHeroHighlight,
+              surfaces.holdingHeroBackground,
               colorScheme.surface,
             ],
           ),
@@ -41,10 +47,15 @@ class ShelvedTasksScreen extends StatelessWidget {
 
               final tasks = state.shelvedTasks;
               return ListView(
-                padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
+                padding: const EdgeInsets.fromLTRB(
+                  AppSpacingTokens.lg,
+                  AppSpacingTokens.sm,
+                  AppSpacingTokens.lg,
+                  AppSpacingTokens.lg,
+                ),
                 children: [
                   _HoldingBoxIntroCard(taskCount: tasks.length),
-                  const SizedBox(height: 18),
+                  const SizedBox(height: AppSpacingTokens.md + 2),
                   Text(
                     tasks.isEmpty ? '지금은 조용히 쉬는 칸' : '안전하게 내려둔 일들',
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -59,7 +70,7 @@ class ShelvedTasksScreen extends StatelessWidget {
                       height: 1.5,
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: AppSpacingTokens.md),
                   if (tasks.isEmpty)
                     const TaskEmptyStateCard(
                       title: '아직 내려둔 일이 없어요',
@@ -97,22 +108,23 @@ class _HoldingBoxIntroCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final surfaces = theme.appSurfaces;
 
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: const Color(0xFFEEE8DB),
-        borderRadius: BorderRadius.circular(28),
-        border: Border.all(color: const Color(0xFFD9D0BE)),
+        color: surfaces.holdingHeroSurface,
+        borderRadius: BorderRadius.circular(AppRadiusTokens.xl + 4),
+        border: Border.all(color: surfaces.holdingBorder),
         boxShadow: [
           BoxShadow(
             color: colorScheme.shadow.withValues(alpha: 0.04),
-            blurRadius: 24,
-            offset: const Offset(0, 10),
+            blurRadius: AppElevationTokens.heroBlur,
+            offset: const Offset(0, AppElevationTokens.heroOffsetY),
           ),
         ],
       ),
       child: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(AppSpacingTokens.lg),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -122,12 +134,15 @@ class _HoldingBoxIntroCard extends StatelessWidget {
                   width: 42,
                   height: 42,
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.6),
-                    borderRadius: BorderRadius.circular(14),
+                    color: surfaces.holdingHeroIconSurface,
+                    borderRadius: BorderRadius.circular(AppRadiusTokens.sm),
                   ),
-                  child: const Icon(Icons.inventory_2_outlined),
+                  child: Icon(
+                    Icons.inventory_2_outlined,
+                    color: theme.appStatus.shelvedFg,
+                  ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: AppSpacingTokens.sm),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -151,12 +166,12 @@ class _HoldingBoxIntroCard extends StatelessWidget {
                 _CountPill(count: taskCount),
               ],
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: AppSpacingTokens.md),
             Text(
               '보류함은 포기한 곳이 아니라, 지금 당장 붙잡지 않아도 되는 일을 조용히 두는 자리예요. 다시 꺼낼 준비가 되면 복원부터 하면 돼요.',
               style: theme.textTheme.bodyMedium?.copyWith(
                 height: 1.55,
-                color: const Color(0xFF5C5448),
+                color: surfaces.holdingHeroBody,
               ),
             ),
           ],
@@ -173,18 +188,24 @@ class _CountPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final surfaces = theme.appSurfaces;
+
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.72),
-        borderRadius: BorderRadius.circular(999),
+        color: surfaces.holdingHeroIconSurface,
+        borderRadius: BorderRadius.circular(AppRadiusTokens.pill),
       ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacingTokens.sm,
+          vertical: AppSpacingTokens.xs,
+        ),
         child: Text(
           '$count개',
-          style: Theme.of(context).textTheme.labelLarge?.copyWith(
+          style: theme.textTheme.labelLarge?.copyWith(
             fontWeight: FontWeight.w700,
-            color: const Color(0xFF5C5448),
+            color: surfaces.holdingHeroBody,
           ),
         ),
       ),
