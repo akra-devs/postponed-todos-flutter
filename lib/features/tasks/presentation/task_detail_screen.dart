@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../core/config/ui_copy.dart';
+import '../../../core/theme/app_elevation_tokens.dart';
+import '../../../core/theme/app_radius_tokens.dart';
+import '../../../core/theme/app_spacing_tokens.dart';
+import '../../../core/theme/app_theme_ext.dart';
 import '../application/tasks_cubit.dart';
 import '../application/tasks_state.dart';
 import '../domain/task.dart';
@@ -50,9 +54,7 @@ class TaskDetailScreen extends StatelessWidget {
                       title: '메모',
                       child: Text(
                         task.note!,
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          height: 1.55,
-                        ),
+                        style: theme.textTheme.bodyMedium,
                       ),
                     ),
                   ],
@@ -223,18 +225,23 @@ class _TaskSummaryCard extends StatelessWidget {
 
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
+        color: theme.appSurfaces.card,
+        borderRadius: BorderRadius.circular(AppRadiusTokens.xl),
+        border: Border.all(
+          color: task.status == TaskStatus.shelved
+              ? theme.appSurfaces.holdingBorder.withValues(alpha: 0.7)
+              : colorScheme.outlineVariant.withValues(alpha: 0.5),
+        ),
         boxShadow: [
           BoxShadow(
             color: colorScheme.shadow.withValues(alpha: 0.04),
-            blurRadius: 18,
-            offset: const Offset(0, 10),
+            blurRadius: AppElevationTokens.cardBlur - 2,
+            offset: const Offset(0, AppElevationTokens.heroOffsetY),
           ),
         ],
       ),
       child: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(AppSpacingTokens.lg),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -242,10 +249,7 @@ class _TaskSummaryCard extends StatelessWidget {
             const SizedBox(height: 14),
             Text(task.title, style: theme.textTheme.headlineSmall),
             const SizedBox(height: 10),
-            Text(
-              task.status.description,
-              style: theme.textTheme.bodyMedium?.copyWith(height: 1.55),
-            ),
+            Text(task.status.description, style: theme.textTheme.bodyMedium),
           ],
         ),
       ),
@@ -261,36 +265,28 @@ class _StatusPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final statusTokens = theme.appStatus;
     final (background, foreground) = switch (status) {
       TaskStatus.postponing => (
-        colorScheme.primaryContainer,
-        colorScheme.onPrimaryContainer,
+        statusTokens.postponingBg,
+        statusTokens.postponingFg,
       ),
-      TaskStatus.shelved => (const Color(0xFFF1E7D7), const Color(0xFF6B4E1E)),
-      TaskStatus.done => (
-        colorScheme.secondaryContainer,
-        colorScheme.onSecondaryContainer,
-      ),
-      TaskStatus.dropped => (
-        colorScheme.surfaceContainerHighest,
-        colorScheme.onSurfaceVariant,
-      ),
+      TaskStatus.shelved => (statusTokens.shelvedBg, statusTokens.shelvedFg),
+      TaskStatus.done => (statusTokens.doneBg, statusTokens.doneFg),
+      TaskStatus.dropped => (statusTokens.droppedBg, statusTokens.droppedFg),
     };
 
     return DecoratedBox(
       decoration: BoxDecoration(
         color: background,
-        borderRadius: BorderRadius.circular(999),
+        borderRadius: BorderRadius.circular(AppRadiusTokens.pill),
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
         child: Text(
           label,
-          style: Theme.of(context).textTheme.labelLarge?.copyWith(
-            color: foreground,
-            fontWeight: FontWeight.w700,
-          ),
+          style: theme.textTheme.labelLarge?.copyWith(color: foreground),
         ),
       ),
     );
@@ -309,10 +305,7 @@ class _SuggestionCard extends StatelessWidget {
 
     return _InfoSectionCard(
       title: title,
-      child: Text(
-        description,
-        style: theme.textTheme.bodyMedium?.copyWith(height: 1.5),
-      ),
+      child: Text(description, style: theme.textTheme.bodyMedium),
     );
   }
 }
@@ -329,20 +322,15 @@ class _InfoSectionCard extends StatelessWidget {
 
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(20),
+        color: theme.appSurfaces.cardMuted,
+        borderRadius: BorderRadius.circular(AppRadiusTokens.lg),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(AppSpacingTokens.md),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              title,
-              style: theme.textTheme.titleSmall?.copyWith(
-                fontWeight: FontWeight.w700,
-              ),
-            ),
+            Text(title, style: theme.textTheme.titleSmall),
             const SizedBox(height: 8),
             child,
           ],
@@ -371,8 +359,11 @@ class _ActionSection extends StatelessWidget {
 
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: theme.appSurfaces.card,
         borderRadius: BorderRadius.circular(22),
+        border: Border.all(
+          color: theme.colorScheme.outlineVariant.withValues(alpha: 0.45),
+        ),
       ),
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -418,7 +409,7 @@ class _MetaSection extends StatelessWidget {
 
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerLow,
+        color: theme.appSurfaces.cardMuted,
         borderRadius: BorderRadius.circular(18),
       ),
       child: Padding(
@@ -426,12 +417,7 @@ class _MetaSection extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              '기록',
-              style: theme.textTheme.titleSmall?.copyWith(
-                fontWeight: FontWeight.w700,
-              ),
-            ),
+            Text('기록', style: theme.textTheme.titleSmall),
             const SizedBox(height: 8),
             for (var index = 0; index < rows.length; index++) ...[
               Text(rows[index], style: theme.textTheme.bodySmall),
@@ -464,27 +450,22 @@ class _ShelvedTaskNotice extends StatelessWidget {
 
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: const Color(0xFFF6F1E8),
+        color: theme.appSurfaces.revisitPanel,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: const Color(0xFFE2D5C2)),
+        border: Border.all(color: theme.appSurfaces.holdingBorder),
       ),
       child: Padding(
         padding: const EdgeInsets.all(14),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              '보류함에 잠시 내려둔 일이에요',
-              style: theme.textTheme.titleSmall?.copyWith(
-                fontWeight: FontWeight.w700,
-              ),
-            ),
+            Text('보류함에 잠시 내려둔 일이에요', style: theme.textTheme.titleSmall),
             const SizedBox(height: 6),
             Text(
               task.isEligibleForHoldingBoxRevisitSuggestion
                   ? '지금은 다시 꺼내보기 괜찮은 시점이라, 복원 버튼을 먼저 두었어요.'
                   : '급하지 않다면 이대로 둬도 괜찮아요. 필요해질 때 복원하면 다시 미루는 중으로 돌아가요.',
-              style: theme.textTheme.bodyMedium?.copyWith(height: 1.5),
+              style: theme.textTheme.bodyMedium,
             ),
           ],
         ),

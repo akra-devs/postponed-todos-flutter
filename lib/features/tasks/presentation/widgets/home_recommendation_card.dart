@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/config/ui_copy.dart';
+import '../../../../core/theme/app_elevation_tokens.dart';
+import '../../../../core/theme/app_radius_tokens.dart';
+import '../../../../core/theme/app_spacing_tokens.dart';
+import '../../../../core/theme/app_theme_ext.dart';
 import '../../domain/task_recommendation_service.dart';
 
 class HomeRecommendationCard extends StatelessWidget {
@@ -21,6 +25,7 @@ class HomeRecommendationCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final surfaces = theme.appSurfaces;
     final isRevisit = recommendation.suggestHoldingRevisit;
     final supportsHoldingSuggestion = recommendation.suggestHoldingBox;
     final reason = recommendation.reasons.isEmpty
@@ -31,8 +36,8 @@ class HomeRecommendationCard extends StatelessWidget {
 
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(28),
+        color: surfaces.card,
+        borderRadius: BorderRadius.circular(AppRadiusTokens.xl),
         border: Border.all(
           color: isRevisit
               ? colorScheme.primary.withValues(alpha: 0.14)
@@ -41,13 +46,13 @@ class HomeRecommendationCard extends StatelessWidget {
         boxShadow: [
           BoxShadow(
             color: colorScheme.shadow.withValues(alpha: 0.04),
-            blurRadius: 24,
-            offset: const Offset(0, 10),
+            blurRadius: AppElevationTokens.heroBlur,
+            offset: const Offset(0, AppElevationTokens.heroOffsetY),
           ),
         ],
       ),
       child: Padding(
-        padding: const EdgeInsets.all(14),
+        padding: const EdgeInsets.all(AppSpacingTokens.sm),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -62,18 +67,15 @@ class HomeRecommendationCard extends StatelessWidget {
                         label: isRevisit ? '보류함에서 조심스럽게 다시' : '오늘은 이 일만 다시',
                         highlighted: isRevisit,
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: AppSpacingTokens.xs),
                       Text(
                         recommendation.task.title,
-                        style: theme.textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w700,
-                          height: 1.25,
-                        ),
+                        style: theme.textTheme.titleMedium,
                       ),
                     ],
                   ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: AppSpacingTokens.sm),
                 _CalmScorePill(
                   label: isRevisit ? '가볍게' : '추천',
                   highlighted: isRevisit,
@@ -81,16 +83,15 @@ class HomeRecommendationCard extends StatelessWidget {
               ],
             ),
             if ((recommendation.task.note ?? '').isNotEmpty) ...[
-              const SizedBox(height: 8),
+              const SizedBox(height: AppSpacingTokens.xs),
               Text(
                 recommendation.task.note!,
                 style: theme.textTheme.bodyMedium?.copyWith(
                   color: colorScheme.onSurfaceVariant,
-                  height: 1.45,
                 ),
               ),
             ],
-            const SizedBox(height: 12),
+            const SizedBox(height: AppSpacingTokens.sm),
             _ReasonPanel(
               label: isRevisit ? '왜 다시 보여주냐면' : '지금 꺼내본 이유',
               body: reason,
@@ -108,10 +109,10 @@ class HomeRecommendationCard extends StatelessWidget {
                 highlighted: isRevisit,
               ),
             ],
-            const SizedBox(height: 12),
+            const SizedBox(height: AppSpacingTokens.sm),
             Wrap(
-              spacing: 8,
-              runSpacing: 8,
+              spacing: AppSpacingTokens.xs,
+              runSpacing: AppSpacingTokens.xs,
               children: [
                 FilledButton(
                   onPressed: onOpen,
@@ -119,9 +120,6 @@ class HomeRecommendationCard extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(
                       horizontal: 14,
                       vertical: 12,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
                     ),
                   ),
                   child: Text(
@@ -135,9 +133,6 @@ class HomeRecommendationCard extends StatelessWidget {
                       horizontal: 14,
                       vertical: 12,
                     ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
                   ),
                   child: Text(
                     isRevisit ? UiCopy.restoreDefer : UiCopy.homeSnooze,
@@ -150,9 +145,6 @@ class HomeRecommendationCard extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(
                       horizontal: 14,
                       vertical: 12,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
                     ),
                   ),
                   child: Text(
@@ -177,20 +169,20 @@ class _EyebrowLabel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     return DecoratedBox(
       decoration: BoxDecoration(
         color: highlighted
             ? colorScheme.primaryContainer.withValues(alpha: 0.75)
             : colorScheme.surfaceContainerHighest.withValues(alpha: 0.9),
-        borderRadius: BorderRadius.circular(999),
+        borderRadius: BorderRadius.circular(AppRadiusTokens.pill),
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
         child: Text(
           label,
-          style: Theme.of(context).textTheme.labelMedium?.copyWith(
-            fontWeight: FontWeight.w700,
+          style: theme.textTheme.labelMedium?.copyWith(
             color: highlighted
                 ? colorScheme.onPrimaryContainer
                 : colorScheme.onSurfaceVariant,
@@ -209,20 +201,21 @@ class _CalmScorePill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final surfaces = theme.appSurfaces;
     return DecoratedBox(
       decoration: BoxDecoration(
         color: highlighted
             ? colorScheme.primary.withValues(alpha: 0.08)
-            : colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(16),
+            : surfaces.cardMuted,
+        borderRadius: BorderRadius.circular(AppRadiusTokens.md),
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         child: Text(
           label,
-          style: Theme.of(context).textTheme.labelLarge?.copyWith(
-            fontWeight: FontWeight.w700,
+          style: theme.textTheme.labelLarge?.copyWith(
             color: highlighted ? colorScheme.primary : colorScheme.onSurface,
           ),
         ),
@@ -250,26 +243,22 @@ class _ReasonPanel extends StatelessWidget {
       decoration: BoxDecoration(
         color: highlighted
             ? colorScheme.primary.withValues(alpha: 0.05)
-            : colorScheme.surfaceContainerLowest,
-        borderRadius: BorderRadius.circular(20),
+            : theme.appSurfaces.reasonPanel,
+        borderRadius: BorderRadius.circular(AppRadiusTokens.lg),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.all(AppSpacingTokens.sm),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               label,
               style: theme.textTheme.labelMedium?.copyWith(
-                fontWeight: FontWeight.w700,
                 color: colorScheme.onSurfaceVariant,
               ),
             ),
             const SizedBox(height: 4),
-            Text(
-              body,
-              style: theme.textTheme.bodyMedium?.copyWith(height: 1.4),
-            ),
+            Text(body, style: theme.textTheme.bodyMedium),
           ],
         ),
       ),
@@ -296,11 +285,11 @@ class _SecondaryContextPanel extends StatelessWidget {
       decoration: BoxDecoration(
         color: highlighted
             ? colorScheme.secondaryContainer.withValues(alpha: 0.45)
-            : colorScheme.surfaceContainerHighest.withValues(alpha: 0.75),
-        borderRadius: BorderRadius.circular(20),
+            : theme.appSurfaces.cardMuted.withValues(alpha: 0.9),
+        borderRadius: BorderRadius.circular(AppRadiusTokens.lg),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.all(AppSpacingTokens.sm),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -318,18 +307,12 @@ class _SecondaryContextPanel extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    title,
-                    style: theme.textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
+                  Text(title, style: theme.textTheme.titleSmall),
                   const SizedBox(height: 3),
                   Text(
                     description,
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: colorScheme.onSurfaceVariant,
-                      height: 1.35,
                     ),
                   ),
                 ],
