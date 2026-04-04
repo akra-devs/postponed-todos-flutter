@@ -39,42 +39,44 @@ class TaskDetailScreen extends StatelessWidget {
             final theme = Theme.of(context);
 
             return SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacingTokens.screenInset,
+                AppSpacingTokens.listGap,
+                AppSpacingTokens.screenInset,
+                AppSpacingTokens.sectionGapLarge,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _TaskSummaryCard(task: task),
                   if (task.status == TaskStatus.shelved) ...[
-                    const SizedBox(height: 16),
+                    const SizedBox(height: AppSpacingTokens.cardInset),
                     _ShelvedTaskNotice(task: task),
                   ],
                   if ((task.note ?? '').isNotEmpty) ...[
-                    const SizedBox(height: 20),
+                    const SizedBox(height: AppSpacingTokens.sectionGap),
                     _InfoSectionCard(
                       title: '메모',
-                      child: Text(
-                        task.note!,
-                        style: theme.textTheme.bodyMedium,
-                      ),
+                      child: Text(task.note!, style: theme.appTextRoles.body),
                     ),
                   ],
                   if (task.isHoldingBoxSuggestionCandidate) ...[
-                    const SizedBox(height: 20),
+                    const SizedBox(height: AppSpacingTokens.sectionGap),
                     const _SuggestionCard(
                       title: UiCopy.holdingSuggestionTitle,
                       description: UiCopy.holdingSuggestionDescription,
                     ),
                   ],
                   if (task.isEligibleForHoldingBoxRevisitSuggestion) ...[
-                    const SizedBox(height: 20),
+                    const SizedBox(height: AppSpacingTokens.sectionGap),
                     const _SuggestionCard(
                       title: UiCopy.holdingRevisitTitle,
                       description: UiCopy.holdingRevisitDescription,
                     ),
                   ],
-                  const SizedBox(height: 24),
+                  const SizedBox(height: AppSpacingTokens.sectionGapLarge),
                   ..._buildActionSections(context, task),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: AppSpacingTokens.sectionGapLarge),
                   _MetaSection(task: task),
                 ],
               ),
@@ -101,7 +103,7 @@ class TaskDetailScreen extends StatelessWidget {
               emphasis: _ActionEmphasis.primary,
               expand: true,
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: AppSpacingTokens.actionGap),
             _ActionButton(
               label: UiCopy.homeHolding,
               onPressed: () => _confirmShelve(context, task, cubit),
@@ -132,7 +134,7 @@ class TaskDetailScreen extends StatelessWidget {
               expand: true,
             ),
             if (task.isEligibleForHoldingBoxRevisitSuggestion) ...[
-              const SizedBox(height: 10),
+              const SizedBox(height: AppSpacingTokens.actionGap),
               _ActionButton(
                 label: UiCopy.restoreDefer,
                 onPressed: () => cubit.dismissHoldingBoxRevisit(task),
@@ -150,11 +152,11 @@ class TaskDetailScreen extends StatelessWidget {
         _ActionSection(
           title: '정리하기',
           description: '이 일의 흐름을 여기서 마감할 수도 있어요.',
-          spacing: 10,
+          spacing: AppSpacingTokens.actionGap,
           children: [
             Wrap(
-              spacing: 10,
-              runSpacing: 10,
+              spacing: AppSpacingTokens.actionGap,
+              runSpacing: AppSpacingTokens.actionGap,
               children: [
                 _ActionButton(
                   label: UiCopy.detailComplete,
@@ -174,7 +176,12 @@ class TaskDetailScreen extends StatelessWidget {
     }
 
     return sections
-        .expand((section) => [section, const SizedBox(height: 16)])
+        .expand(
+          (section) => [
+            section,
+            const SizedBox(height: AppSpacingTokens.cardInset),
+          ],
+        )
         .toList()
       ..removeLast();
   }
@@ -241,15 +248,15 @@ class _TaskSummaryCard extends StatelessWidget {
         ],
       ),
       child: Padding(
-        padding: const EdgeInsets.all(AppSpacingTokens.lg),
+        padding: const EdgeInsets.all(AppSpacingTokens.heroInset),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _StatusPill(label: task.status.label, status: task.status),
             const SizedBox(height: 14),
-            Text(task.title, style: theme.textTheme.headlineSmall),
-            const SizedBox(height: 10),
-            Text(task.status.description, style: theme.textTheme.bodyMedium),
+            Text(task.title, style: theme.appTextRoles.heroTitle),
+            const SizedBox(height: AppSpacingTokens.actionGap),
+            Text(task.status.description, style: theme.appTextRoles.body),
           ],
         ),
       ),
@@ -286,7 +293,7 @@ class _StatusPill extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
         child: Text(
           label,
-          style: theme.textTheme.labelLarge?.copyWith(color: foreground),
+          style: theme.appTextRoles.emphasisLabel.copyWith(color: foreground),
         ),
       ),
     );
@@ -305,7 +312,7 @@ class _SuggestionCard extends StatelessWidget {
 
     return _InfoSectionCard(
       title: title,
-      child: Text(description, style: theme.textTheme.bodyMedium),
+      child: Text(description, style: theme.appTextRoles.body),
     );
   }
 }
@@ -326,12 +333,12 @@ class _InfoSectionCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(AppRadiusTokens.lg),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(AppSpacingTokens.md),
+        padding: const EdgeInsets.all(AppSpacingTokens.cardInset),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(title, style: theme.textTheme.titleSmall),
-            const SizedBox(height: 8),
+            Text(title, style: theme.appTextRoles.panelTitle),
+            const SizedBox(height: AppSpacingTokens.xs),
             child,
           ],
         ),
@@ -366,20 +373,20 @@ class _ActionSection extends StatelessWidget {
         ),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(AppSpacingTokens.cardInset),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               title,
-              style: theme.textTheme.titleMedium?.copyWith(
+              style: theme.appTextRoles.cardTitle.copyWith(
                 fontWeight: FontWeight.w700,
               ),
             ),
-            const SizedBox(height: 6),
+            const SizedBox(height: AppSpacingTokens.comfortableTextGap),
             Text(
               description,
-              style: theme.textTheme.bodySmall?.copyWith(
+              style: theme.appTextRoles.supportingBody.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
                 height: 1.45,
               ),
@@ -417,11 +424,12 @@ class _MetaSection extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('기록', style: theme.textTheme.titleSmall),
-            const SizedBox(height: 8),
+            Text('기록', style: theme.appTextRoles.panelTitle),
+            const SizedBox(height: AppSpacingTokens.xs),
             for (var index = 0; index < rows.length; index++) ...[
-              Text(rows[index], style: theme.textTheme.bodySmall),
-              if (index != rows.length - 1) const SizedBox(height: 6),
+              Text(rows[index], style: theme.appTextRoles.supportingBody),
+              if (index != rows.length - 1)
+                const SizedBox(height: AppSpacingTokens.comfortableTextGap),
             ],
           ],
         ),
@@ -459,13 +467,13 @@ class _ShelvedTaskNotice extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('보류함에 잠시 내려둔 일이에요', style: theme.textTheme.titleSmall),
-            const SizedBox(height: 6),
+            Text('보류함에 잠시 내려둔 일이에요', style: theme.appTextRoles.panelTitle),
+            const SizedBox(height: AppSpacingTokens.comfortableTextGap),
             Text(
               task.isEligibleForHoldingBoxRevisitSuggestion
                   ? '지금은 다시 꺼내보기 괜찮은 시점이라, 복원 버튼을 먼저 두었어요.'
                   : '급하지 않다면 이대로 둬도 괜찮아요. 필요해질 때 복원하면 다시 미루는 중으로 돌아가요.',
-              style: theme.textTheme.bodyMedium,
+              style: theme.appTextRoles.body,
             ),
           ],
         ),

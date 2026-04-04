@@ -50,7 +50,7 @@ class TaskListCard extends StatelessWidget {
             ],
           ),
           child: Padding(
-            padding: const EdgeInsets.all(AppSpacingTokens.md),
+            padding: const EdgeInsets.all(AppSpacingTokens.cardInset),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -66,7 +66,7 @@ class TaskListCard extends StatelessWidget {
                           Expanded(
                             child: Text(
                               task.title,
-                              style: theme.textTheme.titleMedium,
+                              style: theme.appTextRoles.cardTitle,
                             ),
                           ),
                           const SizedBox(width: AppSpacingTokens.xs),
@@ -82,12 +82,12 @@ class TaskListCard extends StatelessWidget {
                           task.note!,
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
-                          style: theme.textTheme.bodyMedium?.copyWith(
+                          style: theme.appTextRoles.body.copyWith(
                             color: colorScheme.onSurfaceVariant,
                           ),
                         ),
                       ],
-                      const SizedBox(height: AppSpacingTokens.sm),
+                      const SizedBox(height: AppSpacingTokens.listGap),
                       Wrap(
                         spacing: AppSpacingTokens.xs,
                         runSpacing: AppSpacingTokens.xs,
@@ -117,12 +117,12 @@ class TaskListCard extends StatelessWidget {
                         ],
                       ),
                       if (isShelved) ...[
-                        const SizedBox(height: AppSpacingTokens.sm),
+                        const SizedBox(height: AppSpacingTokens.listGap),
                         Text(
                           task.isEligibleForHoldingBoxRevisitSuggestion
                               ? '준비되면 다시 꺼내볼 수 있어요.'
                               : '지금은 서두르지 말고 여기 두어도 괜찮아요.',
-                          style: theme.textTheme.bodySmall?.copyWith(
+                          style: theme.appTextRoles.supportingBody.copyWith(
                             color: AppColorTokens.warmForeground,
                             fontWeight: FontWeight.w600,
                           ),
@@ -217,7 +217,7 @@ class _StatusChip extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
         child: Text(
           label,
-          style: theme.textTheme.labelMedium?.copyWith(color: foregroundColor),
+          style: theme.appTextRoles.eyebrow.copyWith(color: foregroundColor),
         ),
       ),
     );

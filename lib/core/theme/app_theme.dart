@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'app_color_tokens.dart';
 import 'app_radius_tokens.dart';
+import 'app_text_role_tokens.dart';
 import 'app_theme_ext.dart';
 import 'app_typography.dart';
 
@@ -93,6 +94,7 @@ ThemeData buildAppTheme() {
         mutedBg: AppColorTokens.warmMutedStrong,
         mutedFg: const Color(0xFF6F6557),
       ),
+      AppTextRoleTokens.fromTextTheme(textTheme),
     ],
   );
 }

@@ -48,29 +48,29 @@ class ShelvedTasksScreen extends StatelessWidget {
               final tasks = state.shelvedTasks;
               return ListView(
                 padding: const EdgeInsets.fromLTRB(
-                  AppSpacingTokens.lg,
-                  AppSpacingTokens.sm,
-                  AppSpacingTokens.lg,
-                  AppSpacingTokens.lg,
+                  AppSpacingTokens.screenInset,
+                  AppSpacingTokens.listGap,
+                  AppSpacingTokens.screenInset,
+                  AppSpacingTokens.sectionGap,
                 ),
                 children: [
                   _HoldingBoxIntroCard(taskCount: tasks.length),
-                  const SizedBox(height: AppSpacingTokens.md + 2),
+                  const SizedBox(height: 18),
                   Text(
                     tasks.isEmpty ? '지금은 조용히 쉬는 칸' : '안전하게 내려둔 일들',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    style: theme.appTextRoles.cardTitle.copyWith(
                       fontWeight: FontWeight.w700,
                     ),
                   ),
-                  const SizedBox(height: 6),
+                  const SizedBox(height: AppSpacingTokens.comfortableTextGap),
                   Text(
                     '급하게 밀어올리지 않고, 준비될 때 다시 꺼낼 수 있게 차분히 보관해둔 목록이에요.',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    style: theme.appTextRoles.body.copyWith(
                       color: colorScheme.onSurfaceVariant,
                       height: 1.5,
                     ),
                   ),
-                  const SizedBox(height: AppSpacingTokens.md),
+                  const SizedBox(height: AppSpacingTokens.cardInset),
                   if (tasks.isEmpty)
                     const TaskEmptyStateCard(
                       title: '아직 내려둔 일이 없어요',
@@ -80,7 +80,9 @@ class ShelvedTasksScreen extends StatelessWidget {
                   else
                     ...tasks.map(
                       (task) => Padding(
-                        padding: const EdgeInsets.only(bottom: 12),
+                        padding: const EdgeInsets.only(
+                          bottom: AppSpacingTokens.listGap,
+                        ),
                         child: TaskListCard(
                           task: task,
                           onTap: () => Navigator.of(
@@ -124,7 +126,7 @@ class _HoldingBoxIntroCard extends StatelessWidget {
         ],
       ),
       child: Padding(
-        padding: const EdgeInsets.all(AppSpacingTokens.lg),
+        padding: const EdgeInsets.all(AppSpacingTokens.heroInset),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -149,14 +151,14 @@ class _HoldingBoxIntroCard extends StatelessWidget {
                     children: [
                       Text(
                         '잠시 쉬어두는 선반',
-                        style: theme.textTheme.titleMedium?.copyWith(
+                        style: theme.appTextRoles.cardTitle.copyWith(
                           fontWeight: FontWeight.w800,
                         ),
                       ),
-                      const SizedBox(height: 2),
+                      const SizedBox(height: AppSpacingTokens.compactTextGap),
                       Text(
                         '급한 목록에서 잠깐 내려둔 일들을 보관해요',
-                        style: theme.textTheme.bodySmall?.copyWith(
+                        style: theme.appTextRoles.supportingBody.copyWith(
                           color: colorScheme.onSurfaceVariant,
                         ),
                       ),
@@ -166,10 +168,10 @@ class _HoldingBoxIntroCard extends StatelessWidget {
                 _CountPill(count: taskCount),
               ],
             ),
-            const SizedBox(height: AppSpacingTokens.md),
+            const SizedBox(height: AppSpacingTokens.cardInset),
             Text(
               '보류함은 포기한 곳이 아니라, 지금 당장 붙잡지 않아도 되는 일을 조용히 두는 자리예요. 다시 꺼낼 준비가 되면 복원부터 하면 돼요.',
-              style: theme.textTheme.bodyMedium?.copyWith(
+              style: theme.appTextRoles.body.copyWith(
                 height: 1.55,
                 color: surfaces.holdingHeroBody,
               ),
@@ -203,7 +205,7 @@ class _CountPill extends StatelessWidget {
         ),
         child: Text(
           '$count개',
-          style: theme.textTheme.labelLarge?.copyWith(
+          style: theme.appTextRoles.emphasisLabel.copyWith(
             fontWeight: FontWeight.w700,
             color: surfaces.holdingHeroBody,
           ),

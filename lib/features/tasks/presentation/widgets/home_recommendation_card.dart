@@ -52,7 +52,7 @@ class HomeRecommendationCard extends StatelessWidget {
         ],
       ),
       child: Padding(
-        padding: const EdgeInsets.all(AppSpacingTokens.sm),
+        padding: const EdgeInsets.all(AppSpacingTokens.cardInset),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -67,10 +67,10 @@ class HomeRecommendationCard extends StatelessWidget {
                         label: isRevisit ? '보류함에서 조심스럽게 다시' : '오늘은 이 일만 다시',
                         highlighted: isRevisit,
                       ),
-                      const SizedBox(height: AppSpacingTokens.xs),
+                      const SizedBox(height: AppSpacingTokens.eyebrowGap),
                       Text(
                         recommendation.task.title,
-                        style: theme.textTheme.titleMedium,
+                        style: theme.appTextRoles.cardTitle,
                       ),
                     ],
                   ),
@@ -86,19 +86,19 @@ class HomeRecommendationCard extends StatelessWidget {
               const SizedBox(height: AppSpacingTokens.xs),
               Text(
                 recommendation.task.note!,
-                style: theme.textTheme.bodyMedium?.copyWith(
+                style: theme.appTextRoles.body.copyWith(
                   color: colorScheme.onSurfaceVariant,
                 ),
               ),
             ],
-            const SizedBox(height: AppSpacingTokens.sm),
+            const SizedBox(height: AppSpacingTokens.listGap),
             _ReasonPanel(
               label: isRevisit ? '왜 다시 보여주냐면' : '지금 꺼내본 이유',
               body: reason,
               highlighted: isRevisit,
             ),
             if (isRevisit || supportsHoldingSuggestion) ...[
-              const SizedBox(height: 10),
+              const SizedBox(height: AppSpacingTokens.actionGap),
               _SecondaryContextPanel(
                 title: isRevisit
                     ? UiCopy.holdingRevisitTitle
@@ -109,7 +109,7 @@ class HomeRecommendationCard extends StatelessWidget {
                 highlighted: isRevisit,
               ),
             ],
-            const SizedBox(height: AppSpacingTokens.sm),
+            const SizedBox(height: AppSpacingTokens.listGap),
             Wrap(
               spacing: AppSpacingTokens.xs,
               runSpacing: AppSpacingTokens.xs,
@@ -182,7 +182,7 @@ class _EyebrowLabel extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
         child: Text(
           label,
-          style: theme.textTheme.labelMedium?.copyWith(
+          style: theme.appTextRoles.eyebrow.copyWith(
             color: highlighted
                 ? colorScheme.onPrimaryContainer
                 : colorScheme.onSurfaceVariant,
@@ -215,7 +215,7 @@ class _CalmScorePill extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         child: Text(
           label,
-          style: theme.textTheme.labelLarge?.copyWith(
+          style: theme.appTextRoles.emphasisLabel.copyWith(
             color: highlighted ? colorScheme.primary : colorScheme.onSurface,
           ),
         ),
@@ -253,12 +253,12 @@ class _ReasonPanel extends StatelessWidget {
           children: [
             Text(
               label,
-              style: theme.textTheme.labelMedium?.copyWith(
+              style: theme.appTextRoles.eyebrow.copyWith(
                 color: colorScheme.onSurfaceVariant,
               ),
             ),
-            const SizedBox(height: 4),
-            Text(body, style: theme.textTheme.bodyMedium),
+            const SizedBox(height: AppSpacingTokens.compactTextGap),
+            Text(body, style: theme.appTextRoles.body),
           ],
         ),
       ),
@@ -307,11 +307,11 @@ class _SecondaryContextPanel extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, style: theme.textTheme.titleSmall),
-                  const SizedBox(height: 3),
+                  Text(title, style: theme.appTextRoles.panelTitle),
+                  const SizedBox(height: AppSpacingTokens.compactTextGap),
                   Text(
                     description,
-                    style: theme.textTheme.bodySmall?.copyWith(
+                    style: theme.appTextRoles.supportingBody.copyWith(
                       color: colorScheme.onSurfaceVariant,
                     ),
                   ),

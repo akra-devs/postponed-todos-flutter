@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'app_color_tokens.dart';
+import 'app_text_role_tokens.dart';
 
 class AppSurfaceTokens extends ThemeExtension<AppSurfaceTokens> {
   const AppSurfaceTokens({
@@ -216,4 +217,8 @@ extension AppThemeX on ThemeData {
 
   AppStatusTokens get appStatus =>
       extension<AppStatusTokens>() ?? AppStatusTokens.fallback(colorScheme);
+
+  AppTextRoleTokens get appTextRoles =>
+      extension<AppTextRoleTokens>() ??
+      AppTextRoleTokens.fromTextTheme(textTheme);
 }

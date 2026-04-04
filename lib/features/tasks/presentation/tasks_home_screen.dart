@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../core/config/ui_copy.dart';
+import '../../../core/theme/app_spacing_tokens.dart';
+import '../../../core/theme/app_theme_ext.dart';
 import '../application/tasks_cubit.dart';
 import '../application/tasks_state.dart';
 import '../domain/task.dart';
@@ -43,20 +45,20 @@ class _TasksHomeScreenState extends State<TasksHomeScreen> {
             );
 
             return ListView(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(AppSpacingTokens.screenInset),
               children: [
                 const _StatusSummary(),
-                const SizedBox(height: 12),
+                const SizedBox(height: AppSpacingTokens.listGap),
                 _QuickEntrySection(
                   onViewPostponing: widget.onViewPostponing,
                   onViewShelved: widget.onViewShelved,
                 ),
-                const SizedBox(height: 20),
-                _SectionHeader(
+                const SizedBox(height: AppSpacingTokens.sectionGap),
+                const _SectionHeader(
                   title: '홈 추천',
                   subtitle: '지금 다시 붙잡기 쉬운 일을 먼저 놓아둘게요',
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: AppSpacingTokens.listGap),
                 if (state.recommendations.isEmpty)
                   const TaskEmptyStateCard(
                     title: '지금은 추천할 일이 없어요',
@@ -65,7 +67,9 @@ class _TasksHomeScreenState extends State<TasksHomeScreen> {
                 else
                   ...state.recommendations.map(
                     (recommendation) => Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
+                      padding: const EdgeInsets.only(
+                        bottom: AppSpacingTokens.listGap,
+                      ),
                       child: HomeRecommendationCard(
                         recommendation: recommendation,
                         onOpen: () =>
@@ -78,12 +82,12 @@ class _TasksHomeScreenState extends State<TasksHomeScreen> {
                       ),
                     ),
                   ),
-                const SizedBox(height: 24),
-                _SectionHeader(
+                const SizedBox(height: AppSpacingTokens.sectionGapLarge),
+                const _SectionHeader(
                   title: '보류함에서 다시 꺼내볼래',
                   subtitle: '한동안 쉬어둔 일 중에서, 다시 붙잡아볼 만한 것만 가볍게 가져왔어요',
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: AppSpacingTokens.listGap),
                 if (state.holdingBoxRevisitSuggestions.isEmpty)
                   const TaskEmptyStateCard(
                     title: '지금은 조용히 두고 있어요',
@@ -92,7 +96,9 @@ class _TasksHomeScreenState extends State<TasksHomeScreen> {
                 else
                   ...state.holdingBoxRevisitSuggestions.map(
                     (recommendation) => Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
+                      padding: const EdgeInsets.only(
+                        bottom: AppSpacingTokens.listGap,
+                      ),
                       child: HomeRecommendationCard(
                         recommendation: recommendation,
                         onOpen: () => context
@@ -205,14 +211,14 @@ class _StatusSummary extends StatelessWidget {
                 value: state.availablePostponingTasks.length,
               ),
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: AppSpacingTokens.listGap),
             Expanded(
               child: _SummaryCard(
                 label: '조금 더 두는 중',
                 value: state.coolingDownTasks.length,
               ),
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: AppSpacingTokens.listGap),
             Expanded(
               child: _SummaryCard(
                 label: '보류함',
@@ -241,8 +247,8 @@ class _QuickEntrySection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('목록 바로가기', style: theme.textTheme.titleMedium),
-        const SizedBox(height: 8),
+        Text('목록 바로가기', style: theme.appTextRoles.cardTitle),
+        const SizedBox(height: AppSpacingTokens.eyebrowGap),
         BlocBuilder<TasksCubit, TasksState>(
           builder: (context, state) {
             return Row(
@@ -256,7 +262,7 @@ class _QuickEntrySection extends StatelessWidget {
                     ),
                   ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: AppSpacingTokens.listGap),
                 Expanded(
                   child: OutlinedButton(
                     onPressed: onViewShelved,
@@ -286,13 +292,13 @@ class _SummaryCard extends StatelessWidget {
     final theme = Theme.of(context);
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(AppSpacingTokens.cardInset),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('$value', style: theme.textTheme.headlineSmall),
-            const SizedBox(height: 6),
-            Text(label, style: theme.textTheme.bodySmall),
+            Text('$value', style: theme.appTextRoles.metricValue),
+            const SizedBox(height: AppSpacingTokens.comfortableTextGap),
+            Text(label, style: theme.appTextRoles.supportingBody),
           ],
         ),
       ),
@@ -312,9 +318,9 @@ class _SectionHeader extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(title, style: theme.textTheme.titleLarge),
-        const SizedBox(height: 4),
-        Text(subtitle, style: theme.textTheme.bodyMedium),
+        Text(title, style: theme.appTextRoles.sectionTitle),
+        const SizedBox(height: AppSpacingTokens.compactTextGap),
+        Text(subtitle, style: theme.appTextRoles.body),
       ],
     );
   }
