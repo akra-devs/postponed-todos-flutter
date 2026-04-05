@@ -491,12 +491,39 @@ class _SectionHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(title, style: theme.appTextRoles.sectionTitle),
+        Row(
+          children: [
+            Container(
+              width: 4,
+              height: 22,
+              decoration: BoxDecoration(
+                color: colorScheme.primary,
+                borderRadius: BorderRadius.circular(999),
+              ),
+            ),
+            const SizedBox(width: AppSpacingTokens.xs),
+            Expanded(
+              child: Text(
+                title,
+                style: theme.appTextRoles.sectionTitle.copyWith(
+                  fontWeight: FontWeight.w700,
+                  height: 1.25,
+                ),
+              ),
+            ),
+          ],
+        ),
         const SizedBox(height: AppSpacingTokens.compactTextGap),
-        Text(subtitle, style: theme.appTextRoles.body),
+        Text(
+          subtitle,
+          style: theme.appTextRoles.supportingBody.copyWith(height: 1.42),
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+        ),
       ],
     );
   }
