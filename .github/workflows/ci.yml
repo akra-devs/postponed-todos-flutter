@@ -33,7 +33,7 @@ jobs:
         run: flutter test -r expanded
 
       - name: Build Flutter web
-        run: flutter build web --release --base-href /postponed-todos-flutter/
+        run: flutter build web --release --base-href /
 
   deploy-to-github-pages:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
@@ -53,10 +53,11 @@ jobs:
         run: flutter pub get
 
       - name: Rebuild Flutter web
-        run: flutter build web --release --base-href /postponed-todos-flutter/
+        run: flutter build web --release --base-href /
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./build/web
+          cname: postponed-todos.akra.kr
