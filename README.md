@@ -1,37 +1,37 @@
 # Postponed Todos
 
-Postponed Todos is a low-pressure todo app for things you are not ready to schedule yet.
+Postponed Todos is a low-pressure todo app for things you still care about, but are not ready to schedule yet.
 
 ## Why it exists
-Some tasks are clear enough to matter, but not clear enough to put on today’s calendar.
+Some tasks matter, but not enough to force onto today’s calendar.
 
-They sit in notes, get rewritten across apps, or quietly become guilt. Postponed Todos gives those tasks a better place to live: captured now, surfaced later, without pretending everything needs an exact due date.
+They end up scattered across notes, rewritten in different apps, or quietly turning into guilt. Postponed Todos gives them a better place to live: captured now, surfaced later, without pretending everything needs an exact due date.
 
-## Core concepts
-- **Postponed tasks**: things you still care about, but do not want to force into an urgent plan yet
-- **Low-pressure resurfacing**: the app brings tasks back gently when they may be easier to re-engage with
-- **Holding box**: a calmer space for tasks you want to set down for longer without deleting them
+## Core ideas
+- **Postponed tasks** — things you want to keep, but not force into urgency yet
+- **Low-pressure resurfacing** — the app brings a few things back gently when they may be easier to re-engage with
+- **Holding box** — a calmer shelf for tasks you want to set down for longer without deleting them
 
-## Current status
-This repo is the Flutter client for an early product prototype.
+## Current prototype
+This repo contains the Flutter client for an early product prototype.
 
-Today’s scope is focused on the core loop:
-- capture a postponed task
-- let it cool down
-- surface it again with gentle recommendations
-- move it into a holding box when it needs a longer pause
-- restore, complete, or drop it later
+Today’s prototype focuses on one loop:
+1. capture a task
+2. let it cool down
+3. revisit it through gentle recommendations
+4. move it into a holding box when it needs a longer pause
+5. restore, complete, or drop it later
 
-## What is in the prototype now
+## What you can try
 - **Home**
-  - summary of active / cooling / shelved tasks
-  - recommendation cards for tasks that are ready to revisit
-  - holding-box revisit suggestions for longer-paused items
+  - gentle recommendation cards
+  - holding-box revisit suggestions
 - **Quick add**
-  - add a task from the shared floating action button
-  - optional note at capture time
-- **Postponing list**
-  - browse tasks that are still in the active postponed state
+  - capture a task from the shared floating action button
+  - optionally leave a note
+- **Postponing hub**
+  - browse active postponed tasks
+  - switch between lightweight filters
 - **Holding box**
   - review tasks intentionally set aside
   - restore them when they feel relevant again
@@ -39,24 +39,44 @@ Today’s scope is focused on the core loop:
   - inspect note and timing metadata
   - snooze, move to holding box, restore, complete, or drop
 
-## Run locally
+## Quick trial
+### Recommended local run
 ```bash
 flutter pub get
-flutter run
+flutter run -d macos
 ```
 
-## Test
+### Acceptable fallback
+If you just want to explore the prototype quickly:
+```bash
+flutter run -d chrome
+```
+
+### Suggested 5-minute walkthrough
+1. Add one task with **Quick add**
+2. Go back to **Home** and look at the recommendation surface
+3. Open **미루는 중** and switch the lightweight filters
+4. Open **보류함** to see the calmer holding-box flow
+5. Open a task detail screen and inspect the available actions
+
+## Local checks
+### Test
 ```bash
 flutter test
 ```
 
-Optional checks:
+### Analyze
 ```bash
 flutter analyze
 ```
 
+## Notes
+- The product is intentionally not a heavy productivity dashboard.
+- Web is good for exploring the story and flows, but native/platform verification is a separate concern.
+- Android identity/platform validation may still depend on the target environment setup.
+
 ## Roadmap
-- tune resurfacing rules so suggestions feel more helpful and less noisy
-- refine copy and interaction details for a calmer emotional tone
-- add richer history / explanation around why a task reappeared
+- keep tuning resurfacing so suggestions feel helpful without becoming noisy
+- refine copy and interaction details for an even calmer tone
+- add richer explanation/history around why a task resurfaced
 - continue validating whether the holding-box flow reduces pressure better than standard snoozing
