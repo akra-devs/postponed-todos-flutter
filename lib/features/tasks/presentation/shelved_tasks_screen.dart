@@ -144,7 +144,7 @@ class _HoldingBoxIntroCardState extends State<_HoldingBoxIntroCard>
       opacity: _fade,
       child: SlideTransition(
         position: Tween<Offset>(
-          begin: const Offset(0, 0.06),
+          begin: Offset(0, AppMotionTokens.homeCardLift),
           end: Offset.zero,
         ).animate(_fade),
         child: DecoratedBox(
@@ -227,7 +227,7 @@ class _BreathingIconBubbleState extends State<_BreathingIconBubble>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller = AnimationController(
     vsync: this,
-    duration: const Duration(milliseconds: 1400),
+    duration: AppMotionTokens.graceful,
   )..repeat(reverse: true);
 
   @override
@@ -241,7 +241,7 @@ class _BreathingIconBubbleState extends State<_BreathingIconBubble>
     return AnimatedBuilder(
       animation: _controller,
       builder: (context, child) {
-        final scale = 0.96 + (_controller.value * 0.06);
+        final scale = 0.985 + (_controller.value * 0.04);
         return Transform.scale(
           scale: scale,
           child: Container(

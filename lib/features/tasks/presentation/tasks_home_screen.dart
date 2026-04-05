@@ -318,8 +318,14 @@ class _RevealingCardState extends State<_RevealingCard>
     return FadeTransition(
       opacity: _animation,
       child: Transform.translate(
-        offset: Offset(0, (1 - _animation.value) * 10),
-        child: widget.child,
+        offset: Offset(
+          0,
+          (1 - _animation.value) * AppMotionTokens.homeCardLift * 100,
+        ),
+        child: Transform.scale(
+          scale: 0.992 + (_animation.value * 0.008),
+          child: widget.child,
+        ),
       ),
     );
   }

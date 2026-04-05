@@ -84,10 +84,13 @@ class _TasksShellScreenState extends State<TasksShellScreen> {
             opacity: curved,
             child: SlideTransition(
               position: Tween<Offset>(
-                begin: const Offset(0.02, 0),
+                begin: Offset(0, AppMotionTokens.shellTabShift),
                 end: Offset.zero,
               ).animate(curved),
-              child: child,
+              child: ScaleTransition(
+                scale: Tween<double>(begin: 0.985, end: 1.0).animate(curved),
+                child: child,
+              ),
             ),
           );
         },
