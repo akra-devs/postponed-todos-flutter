@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../core/config/ui_copy.dart';
 import '../../../core/theme/app_icon_tokens.dart';
+import '../../../core/theme/app_motion_tokens.dart';
 import '../../../core/theme/app_spacing_tokens.dart';
 import '../../../core/theme/app_theme_ext.dart';
 import '../application/tasks_cubit.dart';
@@ -58,59 +59,92 @@ class _TasksHomeScreenState extends State<TasksHomeScreen> {
                   subtitle: '지금 다시 붙잡기 쉬운 일을 먼저 놓아둘게요',
                 ),
                 const SizedBox(height: AppSpacingTokens.listGap),
-                if (state.recommendations.isEmpty)
-                  const TaskEmptyStateCard(
-                    title: '지금은 추천할 일이 없어요',
-                    message: '쿨다운이 끝난 일이 생기면 여기에서 다시 꺼내볼 수 있어요.',
-                  )
-                else
-                  ...state.recommendations.map(
-                    (recommendation) => Padding(
-                      padding: const EdgeInsets.only(
-                        bottom: AppSpacingTokens.listGap,
-                      ),
-                      child: HomeRecommendationCard(
-                        recommendation: recommendation,
-                        onOpen: () =>
-                            _openTaskFromHome(context, recommendation.task),
-                        onSnooze: () => context.read<TasksCubit>().snooze(
-                          recommendation.task,
+                AnimatedSwitcher(
+                  duration: AppMotionTokens.cardReveal,
+                  switchInCurve: AppMotionTokens.enterCurve,
+                  switchOutCurve: AppMotionTokens.exitCurve,
+                  transitionBuilder: (child, animation) {
+                    final curved = CurvedAnimation(
+                      parent: animation,
+                      curve: AppMotionTokens.enterCurve,
+                    );
+                    return FadeTransition(opacity: curved, child: child);
+                  },
+                  child: state.recommendations.isEmpty
+                      ? const _TaskSectionPlaceholder(
+                          key: ValueKey('home-recommend-empty'),
+                          title: '지금은 추천할 일이 없어요',
+                          message: '쿨다운이 끝난 일이 생기면 여기에서 다시 꺼내볼 수 있어요.',
+                        )
+                      : _RevealingRecommendationList(
+                          key: ValueKey(
+                            'home-recommend-${state.recommendations.map((item) => item.task.id).join(',')}',
+                          ),
+                          recommendations: state.recommendations,
+                          buildCard: (context, index, recommendation) =>
+                              HomeRecommendationCard(
+                                recommendation: recommendation,
+                                onOpen: () => _openTaskFromHome(
+                                  context,
+                                  recommendation.task,
+                                ),
+                                onSnooze: () => context
+                                    .read<TasksCubit>()
+                                    .snooze(recommendation.task),
+                                onShelf: () => _confirmShelve(
+                                  context,
+                                  recommendation.task,
+                                ),
+                              ),
                         ),
-                        onShelf: () =>
-                            _confirmShelve(context, recommendation.task),
-                      ),
-                    ),
-                  ),
+                ),
                 const SizedBox(height: AppSpacingTokens.sectionGapLarge),
                 const _SectionHeader(
                   title: '보관함에서 다시 꺼내볼래',
                   subtitle: '한동안 쉬어둔 일 중에서, 다시 붙잡아볼 만한 것만 가볍게 가져왔어요',
                 ),
                 const SizedBox(height: AppSpacingTokens.listGap),
-                if (state.holdingBoxRevisitSuggestions.isEmpty)
-                  const TaskEmptyStateCard(
-                    title: '지금은 조용히 두고 있어요',
-                    message: '보관함에 넣은 지 14일이 지난 일만 낮은 강도로 다시 꺼내볼 수 있게 가져와요.',
-                  )
-                else
-                  ...state.holdingBoxRevisitSuggestions.map(
-                    (recommendation) => Padding(
-                      padding: const EdgeInsets.only(
-                        bottom: AppSpacingTokens.listGap,
-                      ),
-                      child: HomeRecommendationCard(
-                        recommendation: recommendation,
-                        onOpen: () => context
-                            .read<TasksCubit>()
-                            .confirmHoldingBoxRevisit(recommendation.task),
-                        onSnooze: () => context
-                            .read<TasksCubit>()
-                            .dismissHoldingBoxRevisit(recommendation.task),
-                        onShelf: () =>
-                            _openDetail(context, recommendation.task),
-                      ),
-                    ),
-                  ),
+                AnimatedSwitcher(
+                  duration: AppMotionTokens.cardReveal,
+                  switchInCurve: AppMotionTokens.enterCurve,
+                  switchOutCurve: AppMotionTokens.exitCurve,
+                  transitionBuilder: (child, animation) {
+                    final curved = CurvedAnimation(
+                      parent: animation,
+                      curve: AppMotionTokens.enterCurve,
+                    );
+                    return FadeTransition(opacity: curved, child: child);
+                  },
+                  child: state.holdingBoxRevisitSuggestions.isEmpty
+                      ? const _TaskSectionPlaceholder(
+                          key: ValueKey('home-revisit-empty'),
+                          title: '지금은 조용히 두고 있어요',
+                          message:
+                              '보관함에 넣은 지 14일이 지난 일만 낮은 강도로 다시 꺼내볼 수 있게 가져와요.',
+                        )
+                      : _RevealingRecommendationList(
+                          key: ValueKey(
+                            'home-revisit-${state.holdingBoxRevisitSuggestions.map((item) => item.task.id).join(',')}',
+                          ),
+                          recommendations: state.holdingBoxRevisitSuggestions,
+                          buildCard: (context, index, recommendation) =>
+                              HomeRecommendationCard(
+                                recommendation: recommendation,
+                                onOpen: () => context
+                                    .read<TasksCubit>()
+                                    .confirmHoldingBoxRevisit(
+                                      recommendation.task,
+                                    ),
+                                onSnooze: () => context
+                                    .read<TasksCubit>()
+                                    .dismissHoldingBoxRevisit(
+                                      recommendation.task,
+                                    ),
+                                onShelf: () =>
+                                    _openDetail(context, recommendation.task),
+                              ),
+                        ),
+                ),
               ],
             );
           },
@@ -192,6 +226,102 @@ class _TasksHomeScreenState extends State<TasksHomeScreen> {
     }
     if (!context.mounted) return;
     await context.read<TasksCubit>().transition(task, TaskStatus.shelved);
+  }
+}
+
+class _TaskSectionPlaceholder extends StatelessWidget {
+  const _TaskSectionPlaceholder({
+    super.key,
+    required this.title,
+    required this.message,
+  });
+
+  final String title;
+  final String message;
+
+  @override
+  Widget build(BuildContext context) {
+    return TaskEmptyStateCard(title: title, message: message);
+  }
+}
+
+class _RevealingRecommendationList extends StatelessWidget {
+  const _RevealingRecommendationList({
+    super.key,
+    required this.recommendations,
+    required this.buildCard,
+  });
+
+  final List<TaskRecommendation> recommendations;
+  final Widget Function(
+    BuildContext context,
+    int index,
+    TaskRecommendation recommendation,
+  )
+  buildCard;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        for (var index = 0; index < recommendations.length; index++)
+          Padding(
+            padding: const EdgeInsets.only(bottom: AppSpacingTokens.listGap),
+            child: _RevealingCard(
+              index: index,
+              child: buildCard(context, index, recommendations[index]),
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+class _RevealingCard extends StatefulWidget {
+  const _RevealingCard({required this.index, required this.child});
+
+  final int index;
+  final Widget child;
+
+  @override
+  State<_RevealingCard> createState() => _RevealingCardState();
+}
+
+class _RevealingCardState extends State<_RevealingCard>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller = AnimationController(
+    vsync: this,
+    duration: AppMotionTokens.cardReveal,
+  )..forward();
+
+  late final Animation<double> _animation;
+
+  @override
+  void initState() {
+    super.initState();
+    final start = (widget.index * 0.08).clamp(0.0, 0.5);
+    final end = (start + 0.45).clamp(start + 0.01, 1.0);
+    _animation = CurvedAnimation(
+      parent: _controller,
+      curve: Interval(start, end, curve: AppMotionTokens.microSpring),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FadeTransition(
+      opacity: _animation,
+      child: Transform.translate(
+        offset: Offset(0, (1 - _animation.value) * 10),
+        child: widget.child,
+      ),
+    );
   }
 }
 

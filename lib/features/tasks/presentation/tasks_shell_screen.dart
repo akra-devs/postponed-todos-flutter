@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../core/theme/app_icon_tokens.dart';
+import '../../../core/theme/app_motion_tokens.dart';
 import '../../../core/theme/app_spacing_tokens.dart';
 import '../application/tasks_cubit.dart';
 import 'postponing_tasks_screen.dart';
@@ -59,17 +61,40 @@ class _TasksShellScreenState extends State<TasksShellScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final currentScreen = switch (_currentIndex) {
+      0 => TasksHomeScreen(
+        onViewPostponing: () => _handleTabSelected(1),
+        onViewShelved: () => _handleTabSelected(2),
+      ),
+      1 => const PostponingTasksScreen(),
+      _ => const ShelvedTasksScreen(),
+    };
+
     return Scaffold(
-      body: IndexedStack(
-        index: _currentIndex,
-        children: [
-          TasksHomeScreen(
-            onViewPostponing: () => _handleTabSelected(1),
-            onViewShelved: () => _handleTabSelected(2),
-          ),
-          const PostponingTasksScreen(),
-          const ShelvedTasksScreen(),
-        ],
+      body: AnimatedSwitcher(
+        duration: AppMotionTokens.pageTransition,
+        switchInCurve: AppMotionTokens.enterCurve,
+        switchOutCurve: AppMotionTokens.exitCurve,
+        transitionBuilder: (child, animation) {
+          final curved = CurvedAnimation(
+            parent: animation,
+            curve: AppMotionTokens.enterCurve,
+          );
+          return FadeTransition(
+            opacity: curved,
+            child: SlideTransition(
+              position: Tween<Offset>(
+                begin: const Offset(0.02, 0),
+                end: Offset.zero,
+              ).animate(curved),
+              child: child,
+            ),
+          );
+        },
+        child: KeyedSubtree(
+          key: ValueKey<int>(_currentIndex),
+          child: currentScreen,
+        ),
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
@@ -81,11 +106,11 @@ class _TasksShellScreenState extends State<TasksShellScreen> {
             label: 'Home',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.access_time_rounded),
+            icon: Icon(AppIconTokens.quickEntryPostponing),
             label: '미루는 중',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.inbox_rounded),
+            icon: Icon(AppIconTokens.quickEntryShelved),
             label: '보관함',
           ),
         ],

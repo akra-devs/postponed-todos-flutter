@@ -14,7 +14,7 @@ const EdgeInsets _ctaButtonPadding = EdgeInsets.symmetric(
 );
 const EdgeInsets _eyebrowChipPadding = EdgeInsets.symmetric(
   horizontal: 10,
-  vertical: 5,
+  vertical: 4,
 );
 const EdgeInsets _scorePillPadding = EdgeInsets.symmetric(
   horizontal: 12,
@@ -217,8 +217,16 @@ class _EyebrowLabel extends StatelessWidget {
     final colorScheme = theme.colorScheme;
     return DecoratedBox(
       decoration: BoxDecoration(
+        gradient: highlighted
+            ? LinearGradient(
+                colors: [
+                  colorScheme.primary.withValues(alpha: 0.18),
+                  colorScheme.primary.withValues(alpha: 0.05),
+                ],
+              )
+            : null,
         color: highlighted
-            ? colorScheme.primaryContainer.withValues(alpha: 0.75)
+            ? null
             : colorScheme.surfaceContainerHighest.withValues(alpha: 0.9),
         borderRadius: BorderRadius.circular(AppRadiusTokens.pill),
       ),
@@ -227,7 +235,23 @@ class _EyebrowLabel extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 12),
+            Container(
+              width: 14,
+              height: 14,
+              decoration: BoxDecoration(
+                color: highlighted
+                    ? colorScheme.onPrimaryContainer.withValues(alpha: 0.16)
+                    : colorScheme.onSurfaceVariant.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(6),
+              ),
+              child: Icon(
+                icon,
+                size: 10,
+                color: highlighted
+                    ? colorScheme.onPrimaryContainer
+                    : colorScheme.onSurfaceVariant,
+              ),
+            ),
             const SizedBox(width: 6),
             Text(
               label,
