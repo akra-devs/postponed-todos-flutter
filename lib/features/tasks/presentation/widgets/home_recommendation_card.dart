@@ -7,14 +7,11 @@ import '../../../../core/theme/app_radius_tokens.dart';
 import '../../../../core/theme/app_spacing_tokens.dart';
 import '../../../../core/theme/app_theme_ext.dart';
 import '../../domain/task_recommendation_service.dart';
+import 'banner_style_components.dart';
 
 const EdgeInsets _ctaButtonPadding = EdgeInsets.symmetric(
   horizontal: 14,
   vertical: 12,
-);
-const EdgeInsets _eyebrowChipPadding = EdgeInsets.symmetric(
-  horizontal: 10,
-  vertical: 4,
 );
 const EdgeInsets _scorePillPadding = EdgeInsets.symmetric(
   horizontal: 12,
@@ -80,7 +77,7 @@ class HomeRecommendationCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _EyebrowLabel(
+                      BannerTagChip(
                         label: isRevisit ? '보관함에서 조심스럽게 다시' : '오늘은 이 일만 다시',
                         icon: isRevisit
                             ? AppIconTokens.statusRevisit
@@ -192,74 +189,6 @@ class HomeRecommendationCard extends StatelessWidget {
                   ),
                 ),
               ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _EyebrowLabel extends StatelessWidget {
-  const _EyebrowLabel({
-    required this.label,
-    required this.icon,
-    required this.highlighted,
-  });
-
-  final String label;
-  final IconData icon;
-  final bool highlighted;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        gradient: highlighted
-            ? LinearGradient(
-                colors: [
-                  colorScheme.primary.withValues(alpha: 0.18),
-                  colorScheme.primary.withValues(alpha: 0.05),
-                ],
-              )
-            : null,
-        color: highlighted
-            ? null
-            : colorScheme.surfaceContainerHighest.withValues(alpha: 0.9),
-        borderRadius: BorderRadius.circular(AppRadiusTokens.pill),
-      ),
-      child: Padding(
-        padding: _eyebrowChipPadding,
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 14,
-              height: 14,
-              decoration: BoxDecoration(
-                color: highlighted
-                    ? colorScheme.onPrimaryContainer.withValues(alpha: 0.16)
-                    : colorScheme.onSurfaceVariant.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(6),
-              ),
-              child: Icon(
-                icon,
-                size: 10,
-                color: highlighted
-                    ? colorScheme.onPrimaryContainer
-                    : colorScheme.onSurfaceVariant,
-              ),
-            ),
-            const SizedBox(width: 6),
-            Text(
-              label,
-              style: theme.appTextRoles.eyebrow.copyWith(
-                color: highlighted
-                    ? colorScheme.onPrimaryContainer
-                    : colorScheme.onSurfaceVariant,
-              ),
             ),
           ],
         ),

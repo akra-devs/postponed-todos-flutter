@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../core/config/ui_copy.dart';
 import '../../../core/theme/app_icon_tokens.dart';
-import '../../../core/theme/app_motion_tokens.dart';
 import '../../../core/theme/app_spacing_tokens.dart';
 import '../../../core/theme/app_theme_ext.dart';
 import '../application/tasks_cubit.dart';
@@ -12,6 +11,7 @@ import '../domain/task.dart';
 import '../domain/task_recommendation_service.dart';
 import '../domain/task_status.dart';
 import 'widgets/home_recommendation_card.dart';
+import 'widgets/banner_style_components.dart';
 import 'widgets/task_empty_state_card.dart';
 import 'task_detail_screen.dart';
 
@@ -59,17 +59,7 @@ class _TasksHomeScreenState extends State<TasksHomeScreen> {
                   subtitle: '지금 다시 붙잡기 쉬운 일을 먼저 놓아둘게요',
                 ),
                 const SizedBox(height: AppSpacingTokens.listGap),
-                AnimatedSwitcher(
-                  duration: AppMotionTokens.cardReveal,
-                  switchInCurve: AppMotionTokens.enterCurve,
-                  switchOutCurve: AppMotionTokens.exitCurve,
-                  transitionBuilder: (child, animation) {
-                    final curved = CurvedAnimation(
-                      parent: animation,
-                      curve: AppMotionTokens.enterCurve,
-                    );
-                    return FadeTransition(opacity: curved, child: child);
-                  },
+                BannerMotionSwitcher(
                   child: state.recommendations.isEmpty
                       ? const _TaskSectionPlaceholder(
                           key: ValueKey('home-recommend-empty'),
@@ -104,17 +94,7 @@ class _TasksHomeScreenState extends State<TasksHomeScreen> {
                   subtitle: '한동안 쉬어둔 일 중에서, 다시 붙잡아볼 만한 것만 가볍게 가져왔어요',
                 ),
                 const SizedBox(height: AppSpacingTokens.listGap),
-                AnimatedSwitcher(
-                  duration: AppMotionTokens.cardReveal,
-                  switchInCurve: AppMotionTokens.enterCurve,
-                  switchOutCurve: AppMotionTokens.exitCurve,
-                  transitionBuilder: (child, animation) {
-                    final curved = CurvedAnimation(
-                      parent: animation,
-                      curve: AppMotionTokens.enterCurve,
-                    );
-                    return FadeTransition(opacity: curved, child: child);
-                  },
+                BannerMotionSwitcher(
                   child: state.holdingBoxRevisitSuggestions.isEmpty
                       ? const _TaskSectionPlaceholder(
                           key: ValueKey('home-revisit-empty'),
@@ -267,66 +247,12 @@ class _RevealingRecommendationList extends StatelessWidget {
         for (var index = 0; index < recommendations.length; index++)
           Padding(
             padding: const EdgeInsets.only(bottom: AppSpacingTokens.listGap),
-            child: _RevealingCard(
+            child: StaggeredRevealCard(
               index: index,
               child: buildCard(context, index, recommendations[index]),
             ),
           ),
       ],
-    );
-  }
-}
-
-class _RevealingCard extends StatefulWidget {
-  const _RevealingCard({required this.index, required this.child});
-
-  final int index;
-  final Widget child;
-
-  @override
-  State<_RevealingCard> createState() => _RevealingCardState();
-}
-
-class _RevealingCardState extends State<_RevealingCard>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _controller = AnimationController(
-    vsync: this,
-    duration: AppMotionTokens.cardReveal,
-  )..forward();
-
-  late final Animation<double> _animation;
-
-  @override
-  void initState() {
-    super.initState();
-    final start = (widget.index * 0.08).clamp(0.0, 0.5);
-    final end = (start + 0.45).clamp(start + 0.01, 1.0);
-    _animation = CurvedAnimation(
-      parent: _controller,
-      curve: Interval(start, end, curve: AppMotionTokens.microSpring),
-    );
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return FadeTransition(
-      opacity: _animation,
-      child: Transform.translate(
-        offset: Offset(
-          0,
-          (1 - _animation.value) * AppMotionTokens.homeCardLift * 100,
-        ),
-        child: Transform.scale(
-          scale: 0.992 + (_animation.value * 0.008),
-          child: widget.child,
-        ),
-      ),
     );
   }
 }

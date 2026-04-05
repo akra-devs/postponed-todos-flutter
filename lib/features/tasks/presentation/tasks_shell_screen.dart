@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../core/theme/app_icon_tokens.dart';
 import '../../../core/theme/app_motion_tokens.dart';
+import 'widgets/banner_style_components.dart';
 import '../../../core/theme/app_spacing_tokens.dart';
 import '../application/tasks_cubit.dart';
 import 'postponing_tasks_screen.dart';
@@ -71,29 +72,13 @@ class _TasksShellScreenState extends State<TasksShellScreen> {
     };
 
     return Scaffold(
-      body: AnimatedSwitcher(
+      body: BannerMotionSwitcher(
         duration: AppMotionTokens.pageTransition,
-        switchInCurve: AppMotionTokens.enterCurve,
-        switchOutCurve: AppMotionTokens.exitCurve,
-        transitionBuilder: (child, animation) {
-          final curved = CurvedAnimation(
-            parent: animation,
-            curve: AppMotionTokens.enterCurve,
-          );
-          return FadeTransition(
-            opacity: curved,
-            child: SlideTransition(
-              position: Tween<Offset>(
-                begin: Offset(0, AppMotionTokens.shellTabShift),
-                end: Offset.zero,
-              ).animate(curved),
-              child: ScaleTransition(
-                scale: Tween<double>(begin: 0.985, end: 1.0).animate(curved),
-                child: child,
-              ),
-            ),
-          );
-        },
+        enterCurve: AppMotionTokens.enterCurve,
+        exitCurve: AppMotionTokens.exitCurve,
+        beginOffset: Offset(0, AppMotionTokens.shellTabShift),
+        scaleFrom: 0.985,
+        scaleTo: 1.0,
         child: KeyedSubtree(
           key: ValueKey<int>(_currentIndex),
           child: currentScreen,

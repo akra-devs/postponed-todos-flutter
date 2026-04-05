@@ -3,8 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../core/theme/app_elevation_tokens.dart';
 import '../../../core/theme/app_icon_tokens.dart';
-import '../../../core/theme/app_motion_tokens.dart';
 import '../../../core/theme/app_radius_tokens.dart';
+import 'widgets/banner_style_components.dart';
 import '../../../core/theme/app_spacing_tokens.dart';
 import '../../../core/theme/app_theme_ext.dart';
 import '../application/tasks_cubit.dart';
@@ -103,36 +103,8 @@ class ShelvedTasksScreen extends StatelessWidget {
   }
 }
 
-class _HoldingBoxIntroCard extends StatefulWidget {
+class _HoldingBoxIntroCard extends StatelessWidget {
   const _HoldingBoxIntroCard();
-
-  @override
-  State<_HoldingBoxIntroCard> createState() => _HoldingBoxIntroCardState();
-}
-
-class _HoldingBoxIntroCardState extends State<_HoldingBoxIntroCard>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _controller = AnimationController(
-    vsync: this,
-    duration: AppMotionTokens.cardReveal,
-  );
-
-  late final Animation<double> _fade = CurvedAnimation(
-    parent: _controller,
-    curve: AppMotionTokens.enterCurve,
-  );
-
-  @override
-  void initState() {
-    super.initState();
-    _controller.forward();
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -140,130 +112,67 @@ class _HoldingBoxIntroCardState extends State<_HoldingBoxIntroCard>
     final colorScheme = theme.colorScheme;
     final surfaces = theme.appSurfaces;
 
-    return FadeTransition(
-      opacity: _fade,
-      child: SlideTransition(
-        position: Tween<Offset>(
-          begin: Offset(0, AppMotionTokens.homeCardLift),
-          end: Offset.zero,
-        ).animate(_fade),
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            color: surfaces.holdingHeroSurface,
-            borderRadius: BorderRadius.circular(AppRadiusTokens.xl + 4),
-            border: Border.all(color: surfaces.holdingBorder),
-            boxShadow: [
-              BoxShadow(
-                color: colorScheme.shadow.withValues(alpha: 0.04),
-                blurRadius: AppElevationTokens.heroBlur,
-                offset: const Offset(0, AppElevationTokens.heroOffsetY),
+    return StaggeredRevealCard(
+      index: 0,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: surfaces.holdingHeroSurface,
+          borderRadius: BorderRadius.circular(AppRadiusTokens.xl + 4),
+          border: Border.all(color: surfaces.holdingBorder),
+          boxShadow: [
+            BoxShadow(
+              color: colorScheme.shadow.withValues(alpha: 0.04),
+              blurRadius: AppElevationTokens.heroBlur,
+              offset: const Offset(0, AppElevationTokens.heroOffsetY),
+            ),
+          ],
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(AppSpacingTokens.heroInset),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  BreathingIconBadge(
+                    icon: AppIconTokens.quickEntryShelved,
+                    color: theme.appStatus.shelvedFg,
+                  ),
+                  const SizedBox(width: AppSpacingTokens.sm),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '잠시 쉬어두는 선반',
+                          style: theme.appTextRoles.cardTitle.copyWith(
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                        const SizedBox(height: AppSpacingTokens.compactTextGap),
+                        Text(
+                          '급한 목록에서 잠깐 내려둔 일들을 보관해요',
+                          style: theme.appTextRoles.supportingBody.copyWith(
+                            color: colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: AppSpacingTokens.cardInset),
+              Text(
+                '보관함은 포기한 곳이 아니라, 지금 당장 붙잡지 않아도 되는 일을 조용히 두는 자리예요. 다시 꺼낼 준비가 되면 복원부터 하면 돼요.',
+                style: theme.appTextRoles.body.copyWith(
+                  height: 1.55,
+                  color: surfaces.holdingHeroBody,
+                ),
               ),
             ],
           ),
-          child: Padding(
-            padding: const EdgeInsets.all(AppSpacingTokens.heroInset),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    _BreathingIconBubble(
-                      icon: AppIconTokens.quickEntryShelved,
-                      color: theme.appStatus.shelvedFg,
-                    ),
-                    const SizedBox(width: AppSpacingTokens.sm),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            '잠시 쉬어두는 선반',
-                            style: theme.appTextRoles.cardTitle.copyWith(
-                              fontWeight: FontWeight.w800,
-                            ),
-                          ),
-                          const SizedBox(
-                            height: AppSpacingTokens.compactTextGap,
-                          ),
-                          Text(
-                            '급한 목록에서 잠깐 내려둔 일들을 보관해요',
-                            style: theme.appTextRoles.supportingBody.copyWith(
-                              color: colorScheme.onSurfaceVariant,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: AppSpacingTokens.cardInset),
-                Text(
-                  '보관함은 포기한 곳이 아니라, 지금 당장 붙잡지 않아도 되는 일을 조용히 두는 자리예요. 다시 꺼낼 준비가 되면 복원부터 하면 돼요.',
-                  style: theme.appTextRoles.body.copyWith(
-                    height: 1.55,
-                    color: surfaces.holdingHeroBody,
-                  ),
-                ),
-              ],
-            ),
-          ),
         ),
       ),
-    );
-  }
-}
-
-class _BreathingIconBubble extends StatefulWidget {
-  const _BreathingIconBubble({required this.icon, required this.color});
-
-  final IconData icon;
-  final Color color;
-
-  @override
-  State<_BreathingIconBubble> createState() => _BreathingIconBubbleState();
-}
-
-class _BreathingIconBubbleState extends State<_BreathingIconBubble>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _controller = AnimationController(
-    vsync: this,
-    duration: AppMotionTokens.graceful,
-  )..repeat(reverse: true);
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _controller,
-      builder: (context, child) {
-        final scale = 0.985 + (_controller.value * 0.04);
-        return Transform.scale(
-          scale: scale,
-          child: Container(
-            width: 42,
-            height: 42,
-            decoration: BoxDecoration(
-              color: Theme.of(context).appSurfaces.holdingHeroIconSurface,
-              borderRadius: BorderRadius.circular(AppRadiusTokens.sm),
-              boxShadow: [
-                BoxShadow(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.shadow.withValues(alpha: 0.08),
-                  blurRadius: 10,
-                  offset: const Offset(0, 3),
-                ),
-              ],
-            ),
-            child: Icon(widget.icon, color: widget.color, size: 20),
-          ),
-        );
-      },
     );
   }
 }
