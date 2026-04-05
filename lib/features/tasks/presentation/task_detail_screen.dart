@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../core/config/ui_copy.dart';
 import '../../../core/theme/app_elevation_tokens.dart';
+import '../../../core/theme/app_icon_tokens.dart';
 import '../../../core/theme/app_radius_tokens.dart';
 import '../../../core/theme/app_spacing_tokens.dart';
 import '../../../core/theme/app_theme_ext.dart';
@@ -105,6 +106,7 @@ class TaskDetailScreen extends StatelessWidget {
               label: UiCopy.homeSnooze,
               onPressed: () => cubit.snooze(task),
               emphasis: _ActionEmphasis.primary,
+              icon: AppIconTokens.actionSnooze,
               expand: true,
             ),
             const SizedBox(height: AppSpacingTokens.actionGap),
@@ -112,6 +114,7 @@ class TaskDetailScreen extends StatelessWidget {
               label: UiCopy.homeHolding,
               onPressed: () => _confirmShelve(context, task, cubit),
               emphasis: _ActionEmphasis.secondary,
+              icon: AppIconTokens.actionHold,
               expand: true,
             ),
           ],
@@ -135,6 +138,7 @@ class TaskDetailScreen extends StatelessWidget {
                   ? cubit.confirmHoldingBoxRevisit(task)
                   : cubit.reopenFromShelved(task),
               emphasis: _ActionEmphasis.primary,
+              icon: AppIconTokens.actionRestore,
               expand: true,
             ),
             if (task.isEligibleForHoldingBoxRevisitSuggestion) ...[
@@ -143,6 +147,7 @@ class TaskDetailScreen extends StatelessWidget {
                 label: UiCopy.restoreDefer,
                 onPressed: () => cubit.dismissHoldingBoxRevisit(task),
                 emphasis: _ActionEmphasis.secondary,
+                icon: AppIconTokens.actionDefer,
                 expand: true,
               ),
             ],
@@ -166,11 +171,13 @@ class TaskDetailScreen extends StatelessWidget {
                   label: UiCopy.detailComplete,
                   onPressed: () => cubit.transition(task, TaskStatus.done),
                   emphasis: _ActionEmphasis.secondary,
+                  icon: AppIconTokens.actionDone,
                 ),
                 _ActionButton(
                   label: UiCopy.detailDrop,
                   onPressed: () => cubit.transition(task, TaskStatus.dropped),
                   emphasis: _ActionEmphasis.secondary,
+                  icon: AppIconTokens.actionDrop,
                 ),
               ],
             ),
@@ -497,16 +504,28 @@ class _ActionButton extends StatelessWidget {
     required this.label,
     required this.onPressed,
     this.emphasis = _ActionEmphasis.defaultTone,
+    this.icon,
     this.expand = false,
   });
 
   final String label;
   final VoidCallback onPressed;
   final _ActionEmphasis emphasis;
+  final IconData? icon;
   final bool expand;
 
   @override
   Widget build(BuildContext context) {
+    Widget buildLabel(String text) {
+      return Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (icon != null) ...[Icon(icon, size: 16), const SizedBox(width: 7)],
+          Text(text),
+        ],
+      );
+    }
+
     final child = switch (emphasis) {
       _ActionEmphasis.primary => FilledButton(
         onPressed: onPressed,
@@ -514,21 +533,21 @@ class _ActionButton extends StatelessWidget {
           minimumSize: Size(expand ? double.infinity : 0, 52),
           textStyle: const TextStyle(fontWeight: FontWeight.w700),
         ),
-        child: Text(label),
+        child: buildLabel(label),
       ),
       _ActionEmphasis.secondary => OutlinedButton(
         onPressed: onPressed,
         style: OutlinedButton.styleFrom(
           minimumSize: Size(expand ? double.infinity : 0, 48),
         ),
-        child: Text(label),
+        child: buildLabel(label),
       ),
       _ActionEmphasis.defaultTone => FilledButton.tonal(
         onPressed: onPressed,
         style: FilledButton.styleFrom(
           minimumSize: Size(expand ? double.infinity : 0, 48),
         ),
-        child: Text(label),
+        child: buildLabel(label),
       ),
     };
 

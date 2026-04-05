@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/config/ui_copy.dart';
 import '../../../../core/theme/app_elevation_tokens.dart';
+import '../../../../core/theme/app_icon_tokens.dart';
 import '../../../../core/theme/app_radius_tokens.dart';
 import '../../../../core/theme/app_spacing_tokens.dart';
 import '../../../../core/theme/app_theme_ext.dart';
@@ -81,6 +82,9 @@ class HomeRecommendationCard extends StatelessWidget {
                     children: [
                       _EyebrowLabel(
                         label: isRevisit ? '보류함에서 조심스럽게 다시' : '오늘은 이 일만 다시',
+                        icon: isRevisit
+                            ? AppIconTokens.statusRevisit
+                            : AppIconTokens.statusPostponing,
                         highlighted: isRevisit,
                       ),
                       const SizedBox(height: AppSpacingTokens.eyebrowGap),
@@ -94,6 +98,9 @@ class HomeRecommendationCard extends StatelessWidget {
                 const SizedBox(width: AppSpacingTokens.sm),
                 _CalmScorePill(
                   label: isRevisit ? '가볍게' : '추천',
+                  icon: isRevisit
+                      ? AppIconTokens.statusRevisit
+                      : AppIconTokens.actionPrimary,
                   highlighted: isRevisit,
                 ),
               ],
@@ -133,24 +140,55 @@ class HomeRecommendationCard extends StatelessWidget {
                 FilledButton(
                   onPressed: onOpen,
                   style: FilledButton.styleFrom(padding: _ctaButtonPadding),
-                  child: Text(
-                    isRevisit ? UiCopy.holdingRestore : UiCopy.homePrimary,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        isRevisit
+                            ? AppIconTokens.actionOpen
+                            : AppIconTokens.actionPrimary,
+                        size: 18,
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        isRevisit ? UiCopy.holdingRestore : UiCopy.homePrimary,
+                      ),
+                    ],
                   ),
                 ),
                 FilledButton.tonal(
                   onPressed: onSnooze,
                   style: FilledButton.styleFrom(padding: _ctaButtonPadding),
-                  child: Text(
-                    isRevisit ? UiCopy.restoreDefer : UiCopy.homeSnooze,
-                    textAlign: TextAlign.center,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        isRevisit
+                            ? AppIconTokens.actionDefer
+                            : AppIconTokens.actionSnooze,
+                        size: 18,
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        isRevisit ? UiCopy.restoreDefer : UiCopy.homeSnooze,
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
                   ),
                 ),
                 OutlinedButton(
                   onPressed: onShelf,
                   style: OutlinedButton.styleFrom(padding: _ctaButtonPadding),
-                  child: Text(
-                    isRevisit ? '상세 보기' : UiCopy.homeHolding,
-                    textAlign: TextAlign.center,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(AppIconTokens.actionHold, size: 18),
+                      const SizedBox(width: 6),
+                      Text(
+                        isRevisit ? '상세 보기' : UiCopy.homeHolding,
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
                   ),
                 ),
               ],
@@ -163,9 +201,14 @@ class HomeRecommendationCard extends StatelessWidget {
 }
 
 class _EyebrowLabel extends StatelessWidget {
-  const _EyebrowLabel({required this.label, required this.highlighted});
+  const _EyebrowLabel({
+    required this.label,
+    required this.icon,
+    required this.highlighted,
+  });
 
   final String label;
+  final IconData icon;
   final bool highlighted;
 
   @override
@@ -181,13 +224,20 @@ class _EyebrowLabel extends StatelessWidget {
       ),
       child: Padding(
         padding: _eyebrowChipPadding,
-        child: Text(
-          label,
-          style: theme.appTextRoles.eyebrow.copyWith(
-            color: highlighted
-                ? colorScheme.onPrimaryContainer
-                : colorScheme.onSurfaceVariant,
-          ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 12),
+            const SizedBox(width: 6),
+            Text(
+              label,
+              style: theme.appTextRoles.eyebrow.copyWith(
+                color: highlighted
+                    ? colorScheme.onPrimaryContainer
+                    : colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -195,9 +245,14 @@ class _EyebrowLabel extends StatelessWidget {
 }
 
 class _CalmScorePill extends StatelessWidget {
-  const _CalmScorePill({required this.label, required this.highlighted});
+  const _CalmScorePill({
+    required this.label,
+    required this.icon,
+    required this.highlighted,
+  });
 
   final String label;
+  final IconData icon;
   final bool highlighted;
 
   @override
@@ -214,11 +269,24 @@ class _CalmScorePill extends StatelessWidget {
       ),
       child: Padding(
         padding: _scorePillPadding,
-        child: Text(
-          label,
-          style: theme.appTextRoles.emphasisLabel.copyWith(
-            color: highlighted ? colorScheme.primary : colorScheme.onSurface,
-          ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              icon,
+              size: 15,
+              color: highlighted ? colorScheme.primary : colorScheme.onSurface,
+            ),
+            const SizedBox(width: 6),
+            Text(
+              label,
+              style: theme.appTextRoles.emphasisLabel.copyWith(
+                color: highlighted
+                    ? colorScheme.primary
+                    : colorScheme.onSurface,
+              ),
+            ),
+          ],
         ),
       ),
     );
