@@ -103,7 +103,7 @@ class TaskListCard extends StatelessWidget {
                             _StatusChip(label: '보관 중', tone: _ChipTone.muted),
                           if (isCoolingDown)
                             const _StatusChip(
-                              label: '조금 더 둘래 · 다시 보기 대기 중',
+                              label: '조금 더 쉬고 다시 보기 대기 중',
                               tone: _ChipTone.muted,
                             ),
                           if (task.status == TaskStatus.shelved &&

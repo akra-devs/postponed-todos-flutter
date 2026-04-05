@@ -56,7 +56,7 @@ class DefaultTaskRecommendationService implements TaskRecommendationService {
     final snoozePenalty = _snoozePenalty(policy);
     if (snoozePenalty > 0) {
       score -= snoozePenalty;
-      reasons.add('조금 더 둘래를 여러 번 눌러서 한걸음 뒤로 뒀어요');
+      reasons.add('여러 번 쉬었다 다시 볼 수 있게 잠시 내려뒀어요');
     }
 
     final noActionPenalty = _noActionPenalty(policy);
