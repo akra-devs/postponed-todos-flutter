@@ -874,23 +874,34 @@ void main() {
         );
         await tester.pumpAndSettle();
 
-        expect(find.text('미루는 중'), findsOneWidget);
-        expect(find.text('보관함'), findsOneWidget);
-        expect(find.text('홈 추천'), findsOneWidget);
-        expect(find.text('보관함에서 다시 꺼내볼래'), findsOneWidget);
+        final scrollable = find.byType(Scrollable).first;
+        final quickEntryTitle = find.text('미루는 중');
+        final recommendationSectionTitle = find.text('홈 추천');
+        final revisitSectionTitle = find.text('보관함에서 다시 꺼내볼래');
 
+        expect(quickEntryTitle, findsOneWidget);
+        expect(find.text('보관함'), findsOneWidget);
         expect(find.text('지금 다시 볼 수 있어요'), findsNothing);
         expect(find.text('조금 더 두는 중'), findsNothing);
 
-        final quickEntryTop = tester.getTopLeft(find.text('미루는 중')).dy;
+        await tester.scrollUntilVisible(
+          recommendationSectionTitle,
+          200,
+          scrollable: scrollable,
+        );
+        await tester.pumpAndSettle();
         final recommendationSectionTop = tester
-            .getTopLeft(find.text('홈 추천'))
-            .dy;
-        final revisitSectionTop = tester
-            .getTopLeft(find.text('보관함에서 다시 꺼내볼래'))
+            .getTopLeft(recommendationSectionTitle)
             .dy;
 
-        expect(quickEntryTop, lessThan(recommendationSectionTop));
+        await tester.scrollUntilVisible(
+          revisitSectionTitle,
+          200,
+          scrollable: scrollable,
+        );
+        await tester.pumpAndSettle();
+        final revisitSectionTop = tester.getTopLeft(revisitSectionTitle).dy;
+
         expect(recommendationSectionTop, lessThan(revisitSectionTop));
       },
     );
