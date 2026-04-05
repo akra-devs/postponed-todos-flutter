@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_color_tokens.dart';
+import '../../../../core/theme/app_icon_tokens.dart';
 import '../../../../core/theme/app_elevation_tokens.dart';
 import '../../../../core/theme/app_radius_tokens.dart';
 import '../../../../core/theme/app_spacing_tokens.dart';
@@ -71,7 +72,7 @@ class TaskListCard extends StatelessWidget {
                           ),
                           const SizedBox(width: AppSpacingTokens.xs),
                           Icon(
-                            Icons.chevron_right_rounded,
+                            AppIconTokens.listChevron,
                             color: colorScheme.outline,
                           ),
                         ],
@@ -98,11 +99,8 @@ class TaskListCard extends StatelessWidget {
                                 ? _ChipTone.shelf
                                 : _ChipTone.neutral,
                           ),
-                          if (isShelved && task.shelvedAt != null)
-                            _StatusChip(
-                              label: '보관 ${_daysSince(task.shelvedAt!)}일째',
-                              tone: _ChipTone.muted,
-                            ),
+                          if (isShelved)
+                            _StatusChip(label: '보관 중', tone: _ChipTone.muted),
                           if (isCoolingDown)
                             const _StatusChip(
                               label: '조금 더 둘래 · 다시 보기 대기 중',
@@ -138,11 +136,6 @@ class TaskListCard extends StatelessWidget {
       ),
     );
   }
-
-  static int _daysSince(DateTime from) {
-    final difference = DateTime.now().difference(from).inDays;
-    return difference < 1 ? 1 : difference;
-  }
 }
 
 class _LeadingIntentMarker extends StatelessWidget {
@@ -167,7 +160,9 @@ class _LeadingIntentMarker extends StatelessWidget {
         borderRadius: BorderRadius.circular(AppRadiusTokens.sm),
       ),
       child: Icon(
-        isShelved ? Icons.inventory_2_outlined : Icons.access_time_rounded,
+        isShelved
+            ? AppIconTokens.quickEntryShelved
+            : AppIconTokens.quickEntryPostponing,
         size: 20,
         color: isShelved
             ? AppColorTokens.warmAccentForeground

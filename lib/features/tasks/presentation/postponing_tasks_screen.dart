@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../core/theme/app_icon_tokens.dart';
 import '../../../core/theme/app_radius_tokens.dart';
 import '../../../core/theme/app_spacing_tokens.dart';
 import '../application/tasks_cubit.dart';
@@ -39,12 +40,7 @@ class _PostponingTasksScreenState extends State<PostponingTasksScreen> {
             return ListView(
               padding: const EdgeInsets.all(AppSpacingTokens.screenInset),
               children: [
-                _PostponingHubIntro(
-                  selectedFilter: _selectedFilter,
-                  totalCount: state.postponingTasks.length,
-                  availableCount: state.availablePostponingTasks.length,
-                  coolingDownCount: state.coolingDownTasks.length,
-                ),
+                _PostponingIntro(selectedFilter: _selectedFilter),
                 const SizedBox(height: AppSpacingTokens.cardInset),
                 _PostponingFilterSection(
                   selectedFilter: _selectedFilter,
@@ -127,32 +123,24 @@ enum _PostponingFilter {
     return switch (this) {
       _PostponingFilter.all =>
         totalCount == 0
-            ? '지금 당장 하진 않지만 아직 놓지 않은 일들을 한곳에서 차분히 살펴볼 수 있어요.'
-            : '$totalCount개의 일을 한 자리에서 천천히 훑어볼 수 있어요.',
+            ? '지금 당장 하진 않지만, 아직 붙잡고 있는 일들을 한 곳에 담아두고 있어요.'
+            : '한 곳에서 천천히 훑고, 지금 다룰 순서를 정할 수 있어요.',
       _PostponingFilter.available =>
         visibleCount == 0
-            ? '지금은 바로 다시 볼 만한 일이 없어도 괜찮아요.'
-            : '$visibleCount개의 일이 지금 다시 보기 쉬운 상태예요.',
+            ? '지금은 바로 다시 볼 일들이 없어도 괜찮아요. 조금 기다려도 돼요.'
+            : '지금 다시 보기 쉬운 항목만 골라서 보여주는 흐름이에요.',
       _PostponingFilter.coolingDown =>
         visibleCount == 0
-            ? '잠시 쉬게 두고 있는 일 없이 가볍게 비워져 있어요.'
-            : '$visibleCount개의 일이 아직은 조금 더 쉬는 쪽에 가까워요.',
+            ? '지금은 잠깐 쉬어가는 항목이 비어 있어요. 화면이 가볍네요.'
+            : '잠시 쉬어가는 항목은 천천히 다시 올릴 준비를 기다리는 흐름이에요.',
     };
   }
 }
 
-class _PostponingHubIntro extends StatelessWidget {
-  const _PostponingHubIntro({
-    required this.selectedFilter,
-    required this.totalCount,
-    required this.availableCount,
-    required this.coolingDownCount,
-  });
+class _PostponingIntro extends StatelessWidget {
+  const _PostponingIntro({required this.selectedFilter});
 
   final _PostponingFilter selectedFilter;
-  final int totalCount;
-  final int availableCount;
-  final int coolingDownCount;
 
   @override
   Widget build(BuildContext context) {
@@ -169,13 +157,10 @@ class _PostponingHubIntro extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            '지금 당장 하진 않지만, 아직 붙잡고 있는 일들',
-            style: theme.textTheme.titleMedium,
-          ),
+          Text('당장 처리하진 않더라도 놓치지 않는 보관 목록', style: theme.textTheme.titleMedium),
           const SizedBox(height: AppSpacingTokens.eyebrowGap),
           Text(
-            '필요할 때 다시 보기 쉬운 일과 조금 더 두는 중인 일을 가볍게 나눠서 볼 수 있어요.',
+            '지금은 필요한 때에만 다시 들여다보는 방식으로, 가볍고 안정적으로 정리해요.',
             style: theme.textTheme.bodyMedium?.copyWith(
               color: colorScheme.onSurfaceVariant,
             ),
@@ -185,16 +170,28 @@ class _PostponingHubIntro extends StatelessWidget {
             spacing: AppSpacingTokens.xs,
             runSpacing: AppSpacingTokens.xs,
             children: [
-              _SummaryPill(label: '전체 $totalCount'),
-              _SummaryPill(label: '지금 다시 보기 쉬운 $availableCount'),
-              _SummaryPill(label: '조금 더 두는 중 $coolingDownCount'),
+              _SummaryPill(
+                label: '전체',
+                selected: selectedFilter == _PostponingFilter.all,
+                icon: Icons.all_inbox_outlined,
+              ),
+              _SummaryPill(
+                label: '지금 다시 보기 쉬운',
+                selected: selectedFilter == _PostponingFilter.available,
+                icon: AppIconTokens.quickEntryPostponing,
+              ),
+              _SummaryPill(
+                label: '조금 더 두는 중',
+                selected: selectedFilter == _PostponingFilter.coolingDown,
+                icon: AppIconTokens.quickEntryShelved,
+              ),
             ],
           ),
           const SizedBox(height: AppSpacingTokens.eyebrowGap),
           Text(
             selectedFilter == _PostponingFilter.all
-                ? '원하는 결로만 가볍게 좁혀보세요.'
-                : '지금은 ${selectedFilter.label} 흐름으로 보고 있어요.',
+                ? '원하는 흐름만 가볍게 골라보세요.'
+                : '현재는 ${selectedFilter.label} 기준으로 깔끔히 보고 있어요.',
             style: theme.textTheme.bodySmall?.copyWith(
               color: colorScheme.onSurfaceVariant,
             ),
@@ -260,28 +257,49 @@ class _VisibleListContext extends StatelessWidget {
 }
 
 class _SummaryPill extends StatelessWidget {
-  const _SummaryPill({required this.label});
+  const _SummaryPill({
+    required this.label,
+    required this.selected,
+    required this.icon,
+  });
 
   final String label;
+  final bool selected;
+  final IconData icon;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
+    final backgroundColor = selected
+        ? colorScheme.primary.withValues(alpha: 0.1)
+        : colorScheme.surface;
+    final borderColor = selected
+        ? colorScheme.primary.withValues(alpha: 0.35)
+        : colorScheme.outlineVariant;
+    final textColor = selected
+        ? colorScheme.primary
+        : colorScheme.onSurfaceVariant;
+
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: colorScheme.surface,
+        color: backgroundColor,
         borderRadius: BorderRadius.circular(AppRadiusTokens.pill),
-        border: Border.all(color: colorScheme.outlineVariant),
+        border: Border.all(color: borderColor),
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        child: Text(
-          label,
-          style: theme.textTheme.labelMedium?.copyWith(
-            color: colorScheme.onSurfaceVariant,
-          ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 16, color: textColor),
+            const SizedBox(width: 6),
+            Text(
+              label,
+              style: theme.textTheme.labelMedium?.copyWith(color: textColor),
+            ),
+          ],
         ),
       ),
     );

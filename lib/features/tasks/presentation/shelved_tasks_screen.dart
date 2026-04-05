@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../core/theme/app_elevation_tokens.dart';
+import '../../../core/theme/app_icon_tokens.dart';
 import '../../../core/theme/app_radius_tokens.dart';
 import '../../../core/theme/app_spacing_tokens.dart';
 import '../../../core/theme/app_theme_ext.dart';
@@ -54,7 +55,7 @@ class ShelvedTasksScreen extends StatelessWidget {
                   AppSpacingTokens.sectionGap,
                 ),
                 children: [
-                  _HoldingBoxIntroCard(taskCount: tasks.length),
+                  const _HoldingBoxIntroCard(),
                   const SizedBox(height: 18),
                   Text(
                     tasks.isEmpty ? '지금은 조용히 쉬는 칸' : '안전하게 내려둔 일들',
@@ -102,9 +103,7 @@ class ShelvedTasksScreen extends StatelessWidget {
 }
 
 class _HoldingBoxIntroCard extends StatelessWidget {
-  const _HoldingBoxIntroCard({required this.taskCount});
-
-  final int taskCount;
+  const _HoldingBoxIntroCard();
 
   @override
   Widget build(BuildContext context) {
@@ -140,7 +139,7 @@ class _HoldingBoxIntroCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(AppRadiusTokens.sm),
                   ),
                   child: Icon(
-                    Icons.inventory_2_outlined,
+                    AppIconTokens.quickEntryShelved,
                     color: theme.appStatus.shelvedFg,
                   ),
                 ),
@@ -165,7 +164,6 @@ class _HoldingBoxIntroCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                _CountPill(count: taskCount),
               ],
             ),
             const SizedBox(height: AppSpacingTokens.cardInset),
@@ -177,38 +175,6 @@ class _HoldingBoxIntroCard extends StatelessWidget {
               ),
             ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-class _CountPill extends StatelessWidget {
-  const _CountPill({required this.count});
-
-  final int count;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final surfaces = theme.appSurfaces;
-
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: surfaces.holdingHeroIconSurface,
-        borderRadius: BorderRadius.circular(AppRadiusTokens.pill),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacingTokens.sm,
-          vertical: AppSpacingTokens.xs,
-        ),
-        child: Text(
-          '$count개',
-          style: theme.appTextRoles.emphasisLabel.copyWith(
-            fontWeight: FontWeight.w700,
-            color: surfaces.holdingHeroBody,
-          ),
         ),
       ),
     );

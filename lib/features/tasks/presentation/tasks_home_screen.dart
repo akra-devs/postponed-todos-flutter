@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../core/config/ui_copy.dart';
+import '../../../core/theme/app_icon_tokens.dart';
 import '../../../core/theme/app_spacing_tokens.dart';
 import '../../../core/theme/app_theme_ext.dart';
 import '../application/tasks_cubit.dart';
@@ -211,10 +212,13 @@ class _QuickEntrySection extends StatelessWidget {
       children: [
         Text('목록 바로가기', style: theme.appTextRoles.cardTitle),
         const SizedBox(height: AppSpacingTokens.eyebrowGap),
-        Text('필요할 때만 조용히 열어볼 수 있어요', style: theme.appTextRoles.supportingBody),
+        Text(
+          '필요한 순간에만 가볍게 다시 여는 공간이에요',
+          style: theme.appTextRoles.supportingBody,
+        ),
         const SizedBox(height: AppSpacingTokens.listGap),
         BlocBuilder<TasksCubit, TasksState>(
-          builder: (context, state) {
+          builder: (context, _) {
             return Row(
               children: [
                 Expanded(
@@ -222,7 +226,8 @@ class _QuickEntrySection extends StatelessWidget {
                     onPressed: onViewPostponing,
                     child: _QuickEntryButtonContent(
                       label: '미루는 중',
-                      detail: '${state.postponingTasks.length}개가 있어요',
+                      detail: '가볍게 훑어보기 좋을 때로 남겨둔 목록',
+                      icon: AppIconTokens.quickEntryPostponing,
                     ),
                   ),
                 ),
@@ -232,7 +237,8 @@ class _QuickEntrySection extends StatelessWidget {
                     onPressed: onViewShelved,
                     child: _QuickEntryButtonContent(
                       label: '보류함',
-                      detail: '${state.shelvedTasks.length}개가 쉬고 있어요',
+                      detail: '급하게 밀어올리지 않고 안전하게 쉬어두는 자리',
+                      icon: AppIconTokens.quickEntryShelved,
                     ),
                   ),
                 ),
@@ -246,19 +252,34 @@ class _QuickEntrySection extends StatelessWidget {
 }
 
 class _QuickEntryButtonContent extends StatelessWidget {
-  const _QuickEntryButtonContent({required this.label, required this.detail});
+  const _QuickEntryButtonContent({
+    required this.label,
+    required this.detail,
+    required this.icon,
+  });
 
   final String label;
   final String detail;
+  final IconData icon;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text(label, textAlign: TextAlign.center),
+        Icon(icon, size: 18, color: colorScheme.primary),
         const SizedBox(height: AppSpacingTokens.compactTextGap),
+        Text(
+          label,
+          style: theme.appTextRoles.cardTitle.copyWith(
+            fontWeight: FontWeight.w600,
+          ),
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: 4),
         Text(
           detail,
           textAlign: TextAlign.center,
