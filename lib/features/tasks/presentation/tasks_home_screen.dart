@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../core/config/ui_copy.dart';
 import '../../../core/theme/app_icon_tokens.dart';
+import '../../../core/theme/app_elevation_tokens.dart';
+import '../../../core/theme/app_radius_tokens.dart';
 import '../../../core/theme/app_spacing_tokens.dart';
 import '../../../core/theme/app_theme_ext.dart';
 import '../application/tasks_cubit.dart';
@@ -269,10 +271,60 @@ class _QuickEntrySection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final surfaces = theme.appSurfaces;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('목록 바로가기', style: theme.appTextRoles.cardTitle),
+        DecoratedBox(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                colorScheme.primary.withValues(alpha: 0.1),
+                colorScheme.surfaceContainerLowest,
+              ],
+            ),
+            borderRadius: BorderRadius.circular(AppRadiusTokens.md),
+            border: Border.all(color: colorScheme.outlineVariant),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(AppSpacingTokens.md),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    '목록 바로가기',
+                    style: theme.appTextRoles.cardTitle.copyWith(
+                      color:
+                          theme.appTextRoles.cardTitle.color ??
+                          colorScheme.onSurface,
+                    ),
+                  ),
+                ),
+                DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: surfaces.revisitPanel,
+                    borderRadius: BorderRadius.circular(AppRadiusTokens.pill),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacingTokens.xs,
+                      vertical: AppSpacingTokens.xxs,
+                    ),
+                    child: Text(
+                      '지금 바로',
+                      style: theme.textTheme.labelSmall?.copyWith(
+                        color: colorScheme.onSurfaceVariant,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
         const SizedBox(height: AppSpacingTokens.eyebrowGap),
         Text(
           '필요한 순간에만 가볍게 다시 여는 공간이에요',
@@ -284,24 +336,26 @@ class _QuickEntrySection extends StatelessWidget {
             return Row(
               children: [
                 Expanded(
-                  child: OutlinedButton(
+                  child: _QuickEntryCommandCard(
                     onPressed: onViewPostponing,
-                    child: _QuickEntryButtonContent(
-                      label: '미루는 중',
-                      detail: '가볍게 훑어보기 좋을 때로 남겨둔 목록',
-                      icon: AppIconTokens.quickEntryPostponing,
-                    ),
+                    icon: AppIconTokens.quickEntryPostponing,
+                    label: '미루는 중',
+                    detail: '가볍게 훑어보기 좋을 때로 남겨둔 목록',
+                    accentSurface: surfaces.revisitPanel,
+                    accent: colorScheme.onSurfaceVariant,
+                    highlight: theme.appStatus.postponingFg,
                   ),
                 ),
                 const SizedBox(width: AppSpacingTokens.listGap),
                 Expanded(
-                  child: OutlinedButton(
+                  child: _QuickEntryCommandCard(
                     onPressed: onViewShelved,
-                    child: _QuickEntryButtonContent(
-                      label: '보관함',
-                      detail: '급하게 밀어올리지 않고 안전하게 쉬어두는 자리',
-                      icon: AppIconTokens.quickEntryShelved,
-                    ),
+                    icon: AppIconTokens.quickEntryShelved,
+                    label: '보관함',
+                    detail: '급하게 밀어올리지 않고 안전하게 쉬어두는 자리',
+                    accentSurface: surfaces.holdingHeroSurface,
+                    accent: theme.appStatus.shelvedFg,
+                    highlight: theme.appStatus.shelvedFg,
                   ),
                 ),
               ],
@@ -313,31 +367,105 @@ class _QuickEntrySection extends StatelessWidget {
   }
 }
 
-class _QuickEntryButtonContent extends StatelessWidget {
-  const _QuickEntryButtonContent({
+class _QuickEntryCommandCard extends StatelessWidget {
+  const _QuickEntryCommandCard({
+    required this.onPressed,
     required this.label,
     required this.detail,
     required this.icon,
+    required this.accentSurface,
+    required this.accent,
+    required this.highlight,
   });
 
+  final VoidCallback? onPressed;
   final String label;
   final String detail;
   final IconData icon;
+  final Color accentSurface;
+  final Color accent;
+  final Color highlight;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
+    return Material(
+      color: colorScheme.surface,
+      borderRadius: BorderRadius.circular(AppRadiusTokens.md),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(AppRadiusTokens.md),
+        onTap: onPressed,
+        child: Ink(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(AppRadiusTokens.md),
+            border: Border.all(color: colorScheme.outlineVariant),
+            boxShadow: [
+              BoxShadow(
+                color: colorScheme.shadow.withValues(alpha: 0.05),
+                blurRadius: AppElevationTokens.cardBlur,
+                offset: const Offset(0, AppElevationTokens.cardOffsetY),
+              ),
+            ],
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(AppSpacingTokens.cardInset),
+            child: _QuickEntryButtonContent(
+              label: label,
+              detail: detail,
+              icon: icon,
+              accent: accent,
+              background: accentSurface,
+              highlight: highlight,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _QuickEntryButtonContent extends StatelessWidget {
+  const _QuickEntryButtonContent({
+    required this.label,
+    required this.detail,
+    required this.icon,
+    required this.accent,
+    required this.background,
+    required this.highlight,
+  });
+
+  final String label;
+  final String detail;
+  final IconData icon;
+  final Color accent;
+  final Color background;
+  final Color highlight;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, size: 18, color: colorScheme.primary),
+        DecoratedBox(
+          decoration: BoxDecoration(
+            color: background.withValues(alpha: 0.85),
+            borderRadius: BorderRadius.circular(AppRadiusTokens.pill),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(AppSpacingTokens.xxs),
+            child: Icon(icon, size: 18, color: accent),
+          ),
+        ),
         const SizedBox(height: AppSpacingTokens.compactTextGap),
         Text(
           label,
           style: theme.appTextRoles.cardTitle.copyWith(
-            fontWeight: FontWeight.w600,
+            fontWeight: FontWeight.w700,
+            color: highlight,
           ),
           textAlign: TextAlign.center,
         ),
@@ -345,7 +473,9 @@ class _QuickEntryButtonContent extends StatelessWidget {
         Text(
           detail,
           textAlign: TextAlign.center,
-          style: theme.appTextRoles.supportingBody,
+          style: theme.appTextRoles.supportingBody.copyWith(height: 1.28),
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
         ),
       ],
     );
