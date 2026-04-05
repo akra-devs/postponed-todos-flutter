@@ -179,6 +179,10 @@ class TaskDetailScreen extends StatelessWidget {
       );
     }
 
+    if (sections.isEmpty) {
+      return const [];
+    }
+
     return sections
         .expand(
           (section) => [

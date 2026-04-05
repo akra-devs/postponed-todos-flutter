@@ -90,6 +90,39 @@ void main() {
         await cubit.close();
       },
     );
+
+    testWidgets('does not throw when a closed task has no action sections', (
+      tester,
+    ) async {
+      final repository = InMemoryTaskRepository();
+      final now = DateTime(2026, 4, 5, 21, 46);
+      final task = Task(
+        id: 'task-3',
+        title: '이미 완료한 일',
+        status: TaskStatus.done,
+        createdAt: now,
+        updatedAt: now,
+      );
+      await repository.save(task);
+
+      final cubit = TasksCubit(repository, DefaultTaskRecommendationService());
+
+      await tester.pumpWidget(
+        _TestApp(
+          cubit: cubit,
+          child: const TaskDetailScreen(taskId: 'task-3'),
+        ),
+      );
+      await tester.pump();
+
+      expect(find.text('이미 완료한 일'), findsOneWidget);
+      expect(find.text('다음 행동'), findsNothing);
+      expect(find.text('정리하기'), findsNothing);
+      expect(tester.takeException(), isNull);
+
+      await repository.dispose();
+      await cubit.close();
+    });
   });
 }
 
