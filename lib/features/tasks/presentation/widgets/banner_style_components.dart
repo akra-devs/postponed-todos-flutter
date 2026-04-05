@@ -228,7 +228,18 @@ class _BreathingIconBadgeState extends State<BreathingIconBadge>
   late final AnimationController _controller = AnimationController(
     vsync: this,
     duration: widget.duration,
-  )..repeat(reverse: true);
+  );
+
+  @override
+  void initState() {
+    super.initState();
+    _controller.addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        _controller.reverse();
+      }
+    });
+    _controller.forward();
+  }
 
   @override
   void dispose() {
