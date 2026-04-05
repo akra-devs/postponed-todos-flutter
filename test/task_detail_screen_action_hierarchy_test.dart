@@ -41,10 +41,10 @@ void main() {
         expect(find.text('다음 행동'), findsOneWidget);
         expect(find.text('정리하기'), findsOneWidget);
         expect(find.text('조금 쉬어 두기'), findsOneWidget);
-        expect(find.text('보류함에 잠깐 내려두기'), findsOneWidget);
+        expect(find.text('보관함에 잠깐 내려두기'), findsOneWidget);
         expect(find.text('완료했어'), findsOneWidget);
         expect(find.text('안 하기로 할래'), findsOneWidget);
-        expect(find.text('보류함에서 관리'), findsNothing);
+        expect(find.text('보관함에서 관리'), findsNothing);
 
         await repository.dispose();
         await cubit.close();
@@ -58,7 +58,7 @@ void main() {
         final now = DateTime.now();
         final task = Task(
           id: 'task-2',
-          title: '보류함에 둔 일',
+          title: '보관함에 둔 일',
           status: TaskStatus.shelved,
           createdAt: now,
           updatedAt: now,
@@ -84,7 +84,7 @@ void main() {
         expect(find.text('잠시 미루기'), findsOneWidget);
         expect(find.text('정리하기'), findsOneWidget);
         expect(find.text('조금 쉬어 두기'), findsNothing);
-        expect(find.text('보류함에 잠깐 내려두기'), findsNothing);
+        expect(find.text('보관함에 잠깐 내려두기'), findsNothing);
 
         await repository.dispose();
         await cubit.close();

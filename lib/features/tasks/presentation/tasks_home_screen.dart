@@ -83,14 +83,14 @@ class _TasksHomeScreenState extends State<TasksHomeScreen> {
                   ),
                 const SizedBox(height: AppSpacingTokens.sectionGapLarge),
                 const _SectionHeader(
-                  title: '보류함에서 다시 꺼내볼래',
+                  title: '보관함에서 다시 꺼내볼래',
                   subtitle: '한동안 쉬어둔 일 중에서, 다시 붙잡아볼 만한 것만 가볍게 가져왔어요',
                 ),
                 const SizedBox(height: AppSpacingTokens.listGap),
                 if (state.holdingBoxRevisitSuggestions.isEmpty)
                   const TaskEmptyStateCard(
                     title: '지금은 조용히 두고 있어요',
-                    message: '보류함에 넣은 지 14일이 지난 일만 낮은 강도로 다시 꺼내볼 수 있게 가져와요.',
+                    message: '보관함에 넣은 지 14일이 지난 일만 낮은 강도로 다시 꺼내볼 수 있게 가져와요.',
                   )
                 else
                   ...state.holdingBoxRevisitSuggestions.map(
@@ -236,7 +236,7 @@ class _QuickEntrySection extends StatelessWidget {
                   child: OutlinedButton(
                     onPressed: onViewShelved,
                     child: _QuickEntryButtonContent(
-                      label: '보류함',
+                      label: '보관함',
                       detail: '급하게 밀어올리지 않고 안전하게 쉬어두는 자리',
                       icon: AppIconTokens.quickEntryShelved,
                     ),

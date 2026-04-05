@@ -875,9 +875,9 @@ void main() {
         await tester.pumpAndSettle();
 
         expect(find.text('미루는 중'), findsOneWidget);
-        expect(find.text('보류함'), findsOneWidget);
+        expect(find.text('보관함'), findsOneWidget);
         expect(find.text('홈 추천'), findsOneWidget);
-        expect(find.text('보류함에서 다시 꺼내볼래'), findsOneWidget);
+        expect(find.text('보관함에서 다시 꺼내볼래'), findsOneWidget);
 
         expect(find.text('지금 다시 볼 수 있어요'), findsNothing);
         expect(find.text('조금 더 두는 중'), findsNothing);
@@ -887,7 +887,7 @@ void main() {
             .getTopLeft(find.text('홈 추천'))
             .dy;
         final revisitSectionTop = tester
-            .getTopLeft(find.text('보류함에서 다시 꺼내볼래'))
+            .getTopLeft(find.text('보관함에서 다시 꺼내볼래'))
             .dy;
 
         expect(quickEntryTop, lessThan(recommendationSectionTop));
@@ -950,9 +950,9 @@ void main() {
 
         expect(find.text('오늘은 이 일만 다시'), findsOneWidget);
         expect(find.text('천천히 다시 시작하기'), findsOneWidget);
-        expect(find.text('보류함에 잠깐 내려두기'), findsOneWidget);
+        expect(find.text('보관함에 잠깐 내려두기'), findsOneWidget);
 
-        expect(find.text('보류함에서 조심스럽게 다시'), findsOneWidget);
+        expect(find.text('보관함에서 조심스럽게 다시'), findsOneWidget);
         expect(find.text('다시 꺼내보기'), findsOneWidget);
         expect(find.text('잠시 미루기'), findsOneWidget);
         expect(find.text('상세 보기'), findsOneWidget);

@@ -3,7 +3,7 @@ enum TaskStatus { postponing, shelved, done, dropped }
 extension TaskStatusX on TaskStatus {
   String get label => switch (this) {
     TaskStatus.postponing => '미루는 중',
-    TaskStatus.shelved => '보류함',
+    TaskStatus.shelved => '보관함',
     TaskStatus.done => '완료',
     TaskStatus.dropped => '안 하기로 정리',
   };

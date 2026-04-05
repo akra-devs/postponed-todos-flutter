@@ -86,7 +86,7 @@ class _TasksShellScreenState extends State<TasksShellScreen> {
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.inbox_rounded),
-            label: '보류함',
+            label: '보관함',
           ),
         ],
       ),

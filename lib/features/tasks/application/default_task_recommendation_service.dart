@@ -78,7 +78,7 @@ class DefaultTaskRecommendationService implements TaskRecommendationService {
     }
 
     if (policy.isHoldingBoxSuggestionCandidate) {
-      reasons.add('반복해서 뒤로 둔 일이어서 잠시 보류함에 두는 선택도 괜찮아요');
+      reasons.add('반복해서 뒤로 둔 일이어서 잠시 보관함에 두는 선택도 괜찮아요');
     }
 
     return TaskRecommendation(

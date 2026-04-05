@@ -81,7 +81,7 @@ class HomeRecommendationCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       _EyebrowLabel(
-                        label: isRevisit ? '보류함에서 조심스럽게 다시' : '오늘은 이 일만 다시',
+                        label: isRevisit ? '보관함에서 조심스럽게 다시' : '오늘은 이 일만 다시',
                         icon: isRevisit
                             ? AppIconTokens.statusRevisit
                             : AppIconTokens.statusPostponing,

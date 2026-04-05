@@ -24,7 +24,7 @@ class ShelvedTasksScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: surfaces.holdingSurface,
       appBar: AppBar(
-        title: const Text('보류함'),
+        title: const Text('보관함'),
         backgroundColor: surfaces.holdingSurface,
       ),
       body: DecoratedBox(
@@ -168,7 +168,7 @@ class _HoldingBoxIntroCard extends StatelessWidget {
             ),
             const SizedBox(height: AppSpacingTokens.cardInset),
             Text(
-              '보류함은 포기한 곳이 아니라, 지금 당장 붙잡지 않아도 되는 일을 조용히 두는 자리예요. 다시 꺼낼 준비가 되면 복원부터 하면 돼요.',
+              '보관함은 포기한 곳이 아니라, 지금 당장 붙잡지 않아도 되는 일을 조용히 두는 자리예요. 다시 꺼낼 준비가 되면 복원부터 하면 돼요.',
               style: theme.appTextRoles.body.copyWith(
                 height: 1.55,
                 color: surfaces.holdingHeroBody,
