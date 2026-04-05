@@ -47,8 +47,6 @@ class _TasksHomeScreenState extends State<TasksHomeScreen> {
             return ListView(
               padding: const EdgeInsets.all(AppSpacingTokens.screenInset),
               children: [
-                const _StatusSummary(),
-                const SizedBox(height: AppSpacingTokens.listGap),
                 _QuickEntrySection(
                   onViewPostponing: widget.onViewPostponing,
                   onViewShelved: widget.onViewShelved,
@@ -196,42 +194,6 @@ class _TasksHomeScreenState extends State<TasksHomeScreen> {
   }
 }
 
-class _StatusSummary extends StatelessWidget {
-  const _StatusSummary();
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<TasksCubit, TasksState>(
-      builder: (context, state) {
-        return Row(
-          children: [
-            Expanded(
-              child: _SummaryCard(
-                label: '지금 다시 볼 수 있어요',
-                value: state.availablePostponingTasks.length,
-              ),
-            ),
-            const SizedBox(width: AppSpacingTokens.listGap),
-            Expanded(
-              child: _SummaryCard(
-                label: '조금 더 두는 중',
-                value: state.coolingDownTasks.length,
-              ),
-            ),
-            const SizedBox(width: AppSpacingTokens.listGap),
-            Expanded(
-              child: _SummaryCard(
-                label: '보류함',
-                value: state.shelvedTasks.length,
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
-}
-
 class _QuickEntrySection extends StatelessWidget {
   const _QuickEntrySection({
     required this.onViewPostponing,
@@ -249,6 +211,8 @@ class _QuickEntrySection extends StatelessWidget {
       children: [
         Text('목록 바로가기', style: theme.appTextRoles.cardTitle),
         const SizedBox(height: AppSpacingTokens.eyebrowGap),
+        Text('필요할 때만 조용히 열어볼 수 있어요', style: theme.appTextRoles.supportingBody),
+        const SizedBox(height: AppSpacingTokens.listGap),
         BlocBuilder<TasksCubit, TasksState>(
           builder: (context, state) {
             return Row(
@@ -256,9 +220,9 @@ class _QuickEntrySection extends StatelessWidget {
                 Expanded(
                   child: OutlinedButton(
                     onPressed: onViewPostponing,
-                    child: Text(
-                      '미루는 중 (${state.postponingTasks.length})',
-                      textAlign: TextAlign.center,
+                    child: _QuickEntryButtonContent(
+                      label: '미루는 중',
+                      detail: '${state.postponingTasks.length}개가 있어요',
                     ),
                   ),
                 ),
@@ -266,9 +230,9 @@ class _QuickEntrySection extends StatelessWidget {
                 Expanded(
                   child: OutlinedButton(
                     onPressed: onViewShelved,
-                    child: Text(
-                      '보류함 (${state.shelvedTasks.length})',
-                      textAlign: TextAlign.center,
+                    child: _QuickEntryButtonContent(
+                      label: '보류함',
+                      detail: '${state.shelvedTasks.length}개가 쉬고 있어요',
                     ),
                   ),
                 ),
@@ -281,27 +245,26 @@ class _QuickEntrySection extends StatelessWidget {
   }
 }
 
-class _SummaryCard extends StatelessWidget {
-  const _SummaryCard({required this.label, required this.value});
+class _QuickEntryButtonContent extends StatelessWidget {
+  const _QuickEntryButtonContent({required this.label, required this.detail});
 
   final String label;
-  final int value;
+  final String detail;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacingTokens.cardInset),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('$value', style: theme.appTextRoles.metricValue),
-            const SizedBox(height: AppSpacingTokens.comfortableTextGap),
-            Text(label, style: theme.appTextRoles.supportingBody),
-          ],
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(label, textAlign: TextAlign.center),
+        const SizedBox(height: AppSpacingTokens.compactTextGap),
+        Text(
+          detail,
+          textAlign: TextAlign.center,
+          style: theme.appTextRoles.supportingBody,
         ),
-      ),
+      ],
     );
   }
 }
