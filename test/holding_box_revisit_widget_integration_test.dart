@@ -831,6 +831,135 @@ void main() {
     );
 
     testWidgets(
+      'home shows quick-entry plus recommendation and revisit sections without reviving the old metric-first summary copy',
+      (tester) async {
+        final recommendationTask = Task(
+          id: 'home-hierarchy-recommendation-task',
+          title: '다시 붙잡을 메일',
+          status: TaskStatus.postponing,
+          createdAt: now.subtract(const Duration(days: 2)),
+          updatedAt: now.subtract(const Duration(days: 2)),
+        );
+        final revisitTask = Task(
+          id: 'home-hierarchy-revisit-task',
+          title: '잠깐 쉬어둔 아이디어',
+          status: TaskStatus.shelved,
+          createdAt: now.subtract(const Duration(days: 30)),
+          updatedAt: now.subtract(const Duration(days: 18)),
+          shelvedAt: now.subtract(const Duration(days: 20)),
+        );
+
+        await repository.save(recommendationTask);
+        await repository.save(revisitTask);
+        await tester.runAsync(() async {
+          await Future<void>.delayed(const Duration(milliseconds: 1));
+        });
+        await tester.pump();
+
+        expect(cubit.state.recommendations.map((item) => item.task.id), [
+          'home-hierarchy-recommendation-task',
+        ]);
+        expect(
+          cubit.state.holdingBoxRevisitSuggestions.map((item) => item.task.id),
+          ['home-hierarchy-revisit-task'],
+        );
+
+        await tester.pumpWidget(
+          MaterialApp(
+            home: BlocProvider.value(
+              value: cubit,
+              child: const TasksHomeScreen(),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        expect(find.text('미루는 중'), findsOneWidget);
+        expect(find.text('보류함'), findsOneWidget);
+        expect(find.text('홈 추천'), findsOneWidget);
+        expect(find.text('보류함에서 다시 꺼내볼래'), findsOneWidget);
+
+        expect(find.text('지금 다시 볼 수 있어요'), findsNothing);
+        expect(find.text('조금 더 두는 중'), findsNothing);
+
+        final quickEntryTop = tester.getTopLeft(find.text('미루는 중')).dy;
+        final recommendationSectionTop = tester
+            .getTopLeft(find.text('홈 추천'))
+            .dy;
+        final revisitSectionTop = tester
+            .getTopLeft(find.text('보류함에서 다시 꺼내볼래'))
+            .dy;
+
+        expect(quickEntryTop, lessThan(recommendationSectionTop));
+        expect(recommendationSectionTop, lessThan(revisitSectionTop));
+      },
+    );
+
+    testWidgets(
+      'home recommendation and revisit cards keep distinct action semantics',
+      (tester) async {
+        final recommendationTask = Task(
+          id: 'direct-recommendation-task',
+          title: '오늘 다시 시작할 일',
+          status: TaskStatus.postponing,
+          createdAt: now.subtract(const Duration(days: 1)),
+          updatedAt: now.subtract(const Duration(days: 1)),
+        );
+        final revisitTask = Task(
+          id: 'revisit-recommendation-task',
+          title: '부담 없이 다시 볼 일',
+          status: TaskStatus.shelved,
+          createdAt: now.subtract(const Duration(days: 40)),
+          updatedAt: now.subtract(const Duration(days: 18)),
+          shelvedAt: now.subtract(const Duration(days: 20)),
+        );
+        final directRecommendation = TaskRecommendation(
+          task: recommendationTask,
+          score: 88,
+          reasons: const ['지금 붙잡으면 짧게 끝내기 좋아요'],
+        );
+        final revisitRecommendation = TaskRecommendation(
+          task: revisitTask,
+          score: 72,
+          reasons: const ['한동안 쉬어둔 일이라 천천히 다시 꺼내볼 수 있어요'],
+          suggestHoldingRevisit: true,
+        );
+
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: Column(
+                children: [
+                  HomeRecommendationCard(
+                    recommendation: directRecommendation,
+                    onOpen: () {},
+                    onSnooze: () {},
+                    onShelf: () {},
+                  ),
+                  HomeRecommendationCard(
+                    recommendation: revisitRecommendation,
+                    onOpen: () {},
+                    onSnooze: () {},
+                    onShelf: () {},
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+
+        expect(find.text('오늘은 이 일만 다시'), findsOneWidget);
+        expect(find.text('다시 시작할래'), findsOneWidget);
+        expect(find.text('보류함에 둘래'), findsOneWidget);
+
+        expect(find.text('보류함에서 조심스럽게 다시'), findsOneWidget);
+        expect(find.text('다시 꺼낼래'), findsOneWidget);
+        expect(find.text('더 둘래'), findsOneWidget);
+        expect(find.text('상세 보기'), findsOneWidget);
+      },
+    );
+
+    testWidgets(
       'revisit card exposure, confirm, and dismiss reach persistence through cubit wiring',
       (tester) async {
         final reopenTask = Task(

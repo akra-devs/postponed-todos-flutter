@@ -1,7 +1,7 @@
 class UiCopy {
   const UiCopy._();
 
-  static const homePrimary = '지금 해볼래';
+  static const homePrimary = '다시 시작할래';
   static const homeSnooze = '조금 더 둘래';
   static const homeHolding = '보류함에 둘래';
   static const detailComplete = '완료했어';
