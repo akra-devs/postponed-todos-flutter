@@ -214,11 +214,6 @@ class TaskDetailScreen extends StatelessWidget {
       return;
     }
 
-    final shouldShowReward = cubit.shouldShowCompletionReward();
-    if (!shouldShowReward) {
-      return;
-    }
-
     final completedTasks =
         cubit.state.tasks
             .where((item) => item.status == TaskStatus.done)
@@ -243,11 +238,50 @@ class TaskDetailScreen extends StatelessWidget {
     final rewards = uniqueCompleted.values.toList()
       ..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
 
+    final shouldShowReward = cubit.shouldShowCompletionReward();
+
+    if (!shouldShowReward) {
+      _showCompletionRewardListToast(context, rewards);
+      return;
+    }
+
     await showDialog<void>(
       context: context,
       barrierDismissible: true,
       builder: (dialogContext) =>
           _CompletionRewardDialog(completedTasks: rewards.take(2).toList()),
+    );
+  }
+
+  void _showCompletionRewardListToast(
+    BuildContext context,
+    List<Task> rewards,
+  ) {
+    final rewardItems = rewards.take(2).toList();
+    if (rewardItems.isEmpty || !context.mounted) {
+      return;
+    }
+
+    ScaffoldMessenger.of(context).removeCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        duration: const Duration(milliseconds: 1400),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              UiCopy.completionRewardTitle,
+              style: const TextStyle(fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 8),
+            for (var index = 0; index < rewardItems.length; index++) ...[
+              Text('• ${rewardItems[index].title}'),
+              if (index != rewardItems.length - 1) const SizedBox(height: 4),
+            ],
+          ],
+        ),
+      ),
     );
   }
 

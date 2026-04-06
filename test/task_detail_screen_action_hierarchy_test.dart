@@ -52,7 +52,7 @@ void main() {
     );
 
     testWidgets(
-      'throttles completion celebration feedback to low-frequency cadence',
+      'throttles completion celebration feedback while still surfacing recent completions',
       (tester) async {
         final repository = InMemoryTaskRepository();
         final now = DateTime(2026, 4, 5, 7, 30);
@@ -137,6 +137,9 @@ void main() {
         await tester.pump();
 
         expect(find.text('마무리했어요'), findsNothing);
+        expect(find.byType(SnackBar), findsOneWidget);
+        expect(find.text('최근 마무리한 일'), findsOneWidget);
+        expect(find.textContaining('•'), findsAtLeast(1));
 
         await tester.pumpWidget(
           _TestApp(
