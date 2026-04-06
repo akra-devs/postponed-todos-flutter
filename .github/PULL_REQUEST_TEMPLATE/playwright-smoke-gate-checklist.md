@@ -1,18 +1,9 @@
-# Playwright CI Gate Review Checklist
+# Playwright CI Gate Checklist (Reference)
 
-> 이 템플릿은 참고용 보조 템플릿입니다. 
-> 최신 단일 원천은 `../PULL_REQUEST_TEMPLATE.md`에서 관리합니다.
+이 템플릿은 기본 템플릿의 보조 참고 문서입니다.
+기본 PR 체크리스트는 `../PULL_REQUEST_TEMPLATE.md`에서 통합 관리됩니다.
 
-## 체크리스트
+## 참고 체크포인트
 
-- [ ] 실패 샘플 변경이 있는 경우 `e2e/playwright-smoke-gate-failure-samples.json`에 항목을 추가/수정했는가?
-- [ ] 새 항목의 `expectedSignature`와 `classifyFailure`/`getRecommendations` 결과가 일치하는가?
-- [ ] `npm run playwright-smoke-gate-ci`를 실행해 모든 테스트를 통과시켰는가?
-  - `playwright-smoke-gate-rules-test`: PASS/FAIL
-  - `playwright-smoke-gate`: PASS/FAIL
-- [ ] `playwright-smoke-gate` 실행 결과를 PR 본문에 요약했는가? (`runs / pass / fail / passRate / threshold`)
-- [ ] 변경으로 인한 CI 파이프라인 동작에 영향이 있는지 검토했는가?
-
-## 실행 로그(요약)
-
-- `npm run playwright-smoke-gate-ci` 결과:
+- 실패 샘플 변경/추가가 있었다면, 기본 템플릿의 `Playwright CI Gate` 항목을 우선 확인하세요.
+- `npm run playwright-smoke-gate-ci` 실행 여부와 결과를 PR 본문에 반영하세요.
