@@ -323,4 +323,20 @@ withTempFixture(
   'Canonical template missing required item: Playwright failure sample path',
 );
 
+withTempFixture(
+  'fail:canonical duplicate ci gate section',
+  (tmpRoot) => {
+    createTemplateFiles({
+      cwd: tmpRoot,
+      canonical: `${BASE_CANONICAL}
+
+### Playwright CI Gate (해당 시)
+- [ ] duplicate section`,
+      auxiliary: BASE_AUX,
+    });
+  },
+  1,
+  'Canonical template has 2 Playwright CI Gate sections',
+);
+
 console.log('All Playwright PR template checker regression tests passed');

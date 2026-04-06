@@ -34,6 +34,7 @@ if (!fs.existsSync(canonicalPath)) {
 const canonical = fs.readFileSync(canonicalPath, 'utf8');
 
 const headingPattern = /^###\s*Playwright CI Gate \(해당 시\)/m;
+const headingPatternAll = /^###\s*Playwright CI Gate \(해당 시\)/mg;
 
 const canonicalPatterns = [
   { label: 'Playwright CI Gate section', pattern: headingPattern },
@@ -41,6 +42,12 @@ const canonicalPatterns = [
 
 if (checkPatterns(canonicalPatterns, canonical, 'Canonical template missing required item: ')) {
   failed = true;
+}
+
+const headingMatches = canonical.match(headingPatternAll);
+if (!headingMatches || headingMatches.length !== 1) {
+  fail(`Canonical template has ${headingMatches ? headingMatches.length : 0} Playwright CI Gate sections`);
+  process.exit(1);
 }
 
 const headingMatch = canonical.match(headingPattern);
