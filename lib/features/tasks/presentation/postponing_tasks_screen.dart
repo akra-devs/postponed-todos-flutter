@@ -41,7 +41,7 @@ class _PostponingTasksScreenState extends State<PostponingTasksScreen> {
               padding: const EdgeInsets.all(AppSpacingTokens.screenInset),
               children: [
                 _PostponingIntro(selectedFilter: _selectedFilter),
-                const SizedBox(height: AppSpacingTokens.cardInset),
+                const SizedBox(height: AppSpacingTokens.sectionGap),
                 _PostponingFilterSection(
                   selectedFilter: _selectedFilter,
                   onSelected: (filter) {
@@ -50,7 +50,7 @@ class _PostponingTasksScreenState extends State<PostponingTasksScreen> {
                     });
                   },
                 ),
-                const SizedBox(height: AppSpacingTokens.cardInset),
+                const SizedBox(height: AppSpacingTokens.listGap),
                 _VisibleListContext(
                   title: _selectedFilter.listTitle,
                   description: _selectedFilter.listDescription(
@@ -157,10 +157,10 @@ class _PostponingIntro extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('당장 처리하진 않더라도 놓치지 않는 보관 목록', style: theme.textTheme.titleMedium),
-          const SizedBox(height: AppSpacingTokens.eyebrowGap),
+          Text('당장은 아니어도 잊지 않는 보관 목록', style: theme.textTheme.titleMedium),
+          const SizedBox(height: AppSpacingTokens.listGap),
           Text(
-            '지금은 필요한 때에만 다시 들여다보는 방식으로, 가볍고 안정적으로 정리해요.',
+            '부담 없이, 원할 때만 살짝 열어보는 운영 목록이에요.',
             style: theme.textTheme.bodyMedium?.copyWith(
               color: colorScheme.onSurfaceVariant,
             ),
@@ -191,7 +191,7 @@ class _PostponingIntro extends StatelessWidget {
           Text(
             selectedFilter == _PostponingFilter.all
                 ? '원하는 흐름만 가볍게 골라보세요.'
-                : '현재는 ${selectedFilter.label} 기준으로 깔끔히 보고 있어요.',
+                : '현재는 ${selectedFilter.label} 기준으로 조용히 정리하고 있어요.',
             style: theme.textTheme.bodySmall?.copyWith(
               color: colorScheme.onSurfaceVariant,
             ),
@@ -222,6 +222,20 @@ class _PostponingFilterSection extends StatelessWidget {
               label: Text(filter.label),
               selected: selectedFilter == filter,
               onSelected: (_) => onSelected(filter),
+              showCheckmark: false,
+              shape: const StadiumBorder(),
+              labelStyle: Theme.of(context).textTheme.labelMedium,
+              selectedColor: Theme.of(
+                context,
+              ).colorScheme.primary.withValues(alpha: 0.12),
+              backgroundColor: Theme.of(context).colorScheme.surface,
+              side: BorderSide(
+                color: selectedFilter == filter
+                    ? Theme.of(
+                        context,
+                      ).colorScheme.primary.withValues(alpha: 0.4)
+                    : Theme.of(context).colorScheme.outlineVariant,
+              ),
             ),
           )
           .toList(growable: false),
