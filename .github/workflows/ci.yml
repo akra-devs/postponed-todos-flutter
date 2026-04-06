@@ -49,7 +49,16 @@ jobs:
         env:
           PLAYWRIGHT_SMOKE_RUNS: 3
           PLAYWRIGHT_SMOKE_PASS_PERCENT: 95
+          PLAYWRIGHT_SMOKE_GATE_SUMMARY_PATH: ${{ github.workspace }}/test-results/playwright-smoke-gate-summary.json
         run: npm run playwright-smoke-gate
+
+      - name: Upload Playwright smoke gate summary
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-smoke-gate-summary
+          path: test-results/playwright-smoke-gate-summary.json
+          if-no-files-found: warn
 
       - name: Build Flutter web
         run: flutter build web --release --base-href / --no-tree-shake-icons
