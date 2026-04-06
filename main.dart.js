@@ -84124,7 +84124,7 @@ if(r==null){r=h.p
 if(r==null)r=h.k3}r=r.cL(0.55)}r=A.jL(r)
 q=h.x1
 q=A.c([new A.cJ(0,B.bF,(q==null?B.l:q).cL(0.04),B.kS,24)],t.sq)
-p=e?"\ubcf4\uad00\ud568\uc5d0\uc11c \uc870\uc2ec\uc2a4\ub7fd\uac8c \ub2e4\uc2dc":"\uc624\ub298\uc740 \uc774 \uc77c\ub9cc \ub2e4\uc2dc"
+p=e?"\ubcf4\uad00\ud568\uc5d0\uc11c \ucc9c\ucc9c\ud788 \ub2e4\uc2dc \ubcf4\uae30":"\uc624\ub298\uc740 \uac00\ubccd\uac8c \ub2e4\uc2dc \ubcf4\uae30"
 o=e?B.oh:B.F9
 f=f.a
 n=t.p
@@ -84137,7 +84137,7 @@ o=A.bY(i)
 m=h.rx
 if(m==null)m=h.k3
 B.b.O(p,A.c([B.bS,A.aX(f,j,j,j,o.e.bb(m),j,j)],n))}p.push(B.bR)
-p.push(new A.SA(e?"\uc65c \ub2e4\uc2dc \ubcf4\uc5ec\uc8fc\ub0d0\uba74":"\uc9c0\uae08 \uaebc\ub0b4\ubcf8 \uc774\uc720",s,e,j))
+p.push(new A.SA(e?"\ub2e4\uc2dc \ubcf4\uc5ec\uc8fc\ub294 \uc774\uc720":"\uc9c0\uae08 \uaebc\ub0b4\ubcf8 \uc774\uc720",s,e,j))
 if(e||d){f=e?"\uc774 \uc77c, \ucc9c\ucc9c\ud788 \ub2e4\uc2dc \uaebc\ub0bc\ub798\uc694?":"\ucc9c\ucc9c\ud788 \ub0b4\ub824\ub450\ub294 \ucabd\uc774 \ub9de\uc744 \ub54c\uac00 \uc788\uc5b4\uc694"
 B.b.O(p,A.c([B.ia,new A.TA(f,e?u.G:u.w,e,j)],n))}p.push(B.bR)
 f=A.IB(j,j,j,B.jJ,j,j,j)
@@ -84148,7 +84148,7 @@ m=A.hd(e?B.oe:B.og,j,j,18)
 o=A.auZ(A.eu(A.c([m,B.dU,A.aX(e?"\uc870\uae08 \ub4a4\ub85c \ubbf8\ub8e8\uae30":"\uc870\uae08 \ucc9c\ucc9c\ud788 \ubbf8\ub904\ub458\uac8c\uc694",j,j,j,j,B.c9,j)],n),B.ad,B.z,B.b_,0),k.e,o)
 m=A.ari(j,j,j,j,j,j,j,j,j,j,j,j,B.jJ,j,j,j,j,j,j,j)
 l=A.hd(B.od,j,j,18)
-p.push(A.Nt(A.c([f,o,A.aw9(A.eu(A.c([l,B.dU,A.aX(e?"\uc0c1\uc138 \ubcf4\uae30":"\ubcf4\uad00\ud568\uc5d0 \uc870\uc6a9\ud788 \ub0b4\ub824\ub458\ub798\uc694",j,j,j,j,B.c9,j)],n),B.ad,B.z,B.b_,0),k.f,m)],n),8,8))
+p.push(A.Nt(A.c([f,o,A.aw9(A.eu(A.c([l,B.dU,A.aX(e?"\uc790\uc138\ud788 \ubcf4\uae30":"\ubcf4\uad00\ud568\uc5d0 \uc870\uc6a9\ud788 \ub0b4\ub824\ub458\ub798\uc694",j,j,j,j,B.c9,j)],n),B.ad,B.z,B.b_,0),k.f,m)],n),8,8))
 return A.dd(new A.bb(B.cO,A.cS(p,B.S,B.z,B.W),j),new A.bE(g.a,j,r,c,q,j,B.N),B.a8)}}
 A.Om.prototype={
 H(a){var s,r=null,q=A.J(a),p=q.ax,o=A.eh(q),n=this.e,m=n?p.b.cL(0.08):o.b,l=A.bK(16),k=n?p.b:p.k3
