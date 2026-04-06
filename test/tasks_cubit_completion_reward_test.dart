@@ -141,5 +141,27 @@ void main() {
         equals(2),
       );
     });
+
+    test(
+      'detects 60-minute cooldown rollback trigger by suppression ratio',
+      () {
+        const offsets = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110];
+        final rewardRate45m = simulateRewardShows(
+          cooldown: const Duration(minutes: 45),
+          attemptOffsetsMinutes: offsets,
+        );
+        final rewardRate60m = simulateRewardShows(
+          cooldown: const Duration(minutes: 60),
+          attemptOffsetsMinutes: offsets,
+        );
+
+        expect(rewardRate60m, equals(2));
+        expect(rewardRate45m, equals(3));
+        expect(rewardRate45m, greaterThan(rewardRate60m));
+        // If 60-minute suppression drops below 70% of 45-minute baseline,
+        // treat this as rollback-trigger candidate in operations.
+        expect(rewardRate60m * 100 <= rewardRate45m * 70, isTrue);
+      },
+    );
   });
 }
