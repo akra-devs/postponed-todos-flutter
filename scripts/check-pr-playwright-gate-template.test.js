@@ -15,7 +15,7 @@ const BASE_CANONICAL = `# Pull Request
 ### Playwright CI Gate (해당 시)
 - [ ] Playwright 실패 샘플을 변경/추가했는지 확인 (e2e/playwright-smoke-gate-failure-samples.json)
 - [ ] npm run playwright-smoke-gate-ci
-- [ ] PR 본문에 runs/pass/fail/passRate/threshold/ok 반영
+- [ ] PR 본문에 \`playwright-smoke-gate\` 요약 반영\n  - \`runs\`, \`pass\`, \`fail\`, \`passRate\`, \`threshold\`, \`ok\`
 `;
 
 const BASE_AUX = `# Playwright CI Gate Checklist (Reference)
@@ -124,12 +124,12 @@ withTempFixture(
   (tmpRoot) => {
     createTemplateFiles({
       cwd: tmpRoot,
-      canonical: BASE_CANONICAL.replace('runs/pass/fail/passRate/threshold/ok', 'runs/fail/passRate/threshold/ok'),
+      canonical: BASE_CANONICAL.replace('\`runs\`, \`pass\`, \`fail\`, \`passRate\`, \`threshold\`, \`ok\`', '\`runs\`, \`fail\`, \`passRate\`, \`threshold\`, \`ok\`'),
       auxiliary: BASE_AUX,
     });
   },
   1,
-  'Canonical template missing required item: pass summary field',
+  'Canonical template missing required item: pass summary token',
 );
 
 withTempFixture(
@@ -137,12 +137,12 @@ withTempFixture(
   (tmpRoot) => {
     createTemplateFiles({
       cwd: tmpRoot,
-      canonical: BASE_CANONICAL.replace('runs/pass/fail/passRate/threshold/ok', 'runs/pass/passRate/threshold/ok'),
+      canonical: BASE_CANONICAL.replace('\`runs\`, \`pass\`, \`fail\`, \`passRate\`, \`threshold\`, \`ok\`', '\`runs\`, \`pass\`, \`passRate\`, \`threshold\`, \`ok\`'),
       auxiliary: BASE_AUX,
     });
   },
   1,
-  'Canonical template missing required item: fail summary field',
+  'Canonical template missing required item: fail summary token',
 );
 
 withTempFixture(
@@ -150,12 +150,12 @@ withTempFixture(
   (tmpRoot) => {
     createTemplateFiles({
       cwd: tmpRoot,
-      canonical: BASE_CANONICAL.replace('runs/pass/fail/passRate/threshold/ok', 'runs/pass/fail/passRate/ok'),
+      canonical: BASE_CANONICAL.replace('\`runs\`, \`pass\`, \`fail\`, \`passRate\`, \`threshold\`, \`ok\`', '\`runs\`, \`pass\`, \`fail\`, \`passRate\`, \`ok\`'),
       auxiliary: BASE_AUX,
     });
   },
   1,
-  'Canonical template missing required item: threshold summary field',
+  'Canonical template missing required item: threshold summary token',
 );
 
 withTempFixture(
@@ -163,12 +163,38 @@ withTempFixture(
   (tmpRoot) => {
     createTemplateFiles({
       cwd: tmpRoot,
-      canonical: BASE_CANONICAL.replace('runs/pass/fail/passRate/threshold/ok', 'runs/pass/fail/passRate/threshold'),
+      canonical: BASE_CANONICAL.replace('\`runs\`, \`pass\`, \`fail\`, \`passRate\`, \`threshold\`, \`ok\`', '\`runs\`, \`pass\`, \`fail\`, \`passRate\`, \`threshold\`'),
       auxiliary: BASE_AUX,
     });
   },
   1,
-  'Canonical template missing required item: ok summary field',
+  'Canonical template missing required item: ok summary token',
+);
+
+withTempFixture(
+  'fail:canonical missing passRate field',
+  (tmpRoot) => {
+    createTemplateFiles({
+      cwd: tmpRoot,
+      canonical: BASE_CANONICAL.replace('\`runs\`, \`pass\`, \`fail\`, \`passRate\`, \`threshold\`, \`ok\`', '\`runs\`, \`pass\`, \`fail\`, \`threshold\`, \`ok\`'),
+      auxiliary: BASE_AUX,
+    });
+  },
+  1,
+  'Canonical template missing required item: passRate summary field',
+);
+
+withTempFixture(
+  'fail:canonical summary fields not formatted with backticks',
+  (tmpRoot) => {
+    createTemplateFiles({
+      cwd: tmpRoot,
+      canonical: BASE_CANONICAL.replace('\`runs\`, \`pass\`, \`fail\`, \`passRate\`, \`threshold\`, \`ok\`', 'runs, pass, fail, passRate, threshold, ok'),
+      auxiliary: BASE_AUX,
+    });
+  },
+  1,
+  'Canonical template missing required item: Playwright summary fields format',
 );
 
 withTempFixture(
