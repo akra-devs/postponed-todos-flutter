@@ -242,7 +242,7 @@ class TaskDetailScreen extends StatelessWidget {
       context: context,
       barrierDismissible: true,
       builder: (dialogContext) =>
-          _CompletionRewardDialog(completedTasks: rewards.take(4).toList()),
+          _CompletionRewardDialog(completedTasks: rewards.take(2).toList()),
     );
   }
 
@@ -616,7 +616,7 @@ class _CompletionRewardDialog extends StatefulWidget {
 
 class _CompletionRewardDialogState extends State<_CompletionRewardDialog>
     with SingleTickerProviderStateMixin {
-  static const int _particleCount = 24;
+  static const int _particleCount = 8;
 
   late final AnimationController _controller;
   late final List<_ConfettiParticle> _confettiParticles;
@@ -626,7 +626,7 @@ class _CompletionRewardDialogState extends State<_CompletionRewardDialog>
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1400),
+      duration: const Duration(milliseconds: 800),
     )..forward();
 
     _confettiParticles = List.generate(_particleCount, (index) {
@@ -635,10 +635,10 @@ class _CompletionRewardDialogState extends State<_CompletionRewardDialog>
         xRatio: random.nextDouble(),
         size: 12 + random.nextDouble() * 12,
         startDelay: random.nextDouble() * 0.5,
-        travelDistance: 90 + random.nextDouble() * 110,
-        drift: random.nextDouble() * 28 - 14,
-        spin: random.nextDouble() * 1.8 - 0.9,
-        icon: random.nextBool() ? Icons.star : Icons.celebration,
+        travelDistance: 48 + random.nextDouble() * 72,
+        drift: random.nextDouble() * 12 - 6,
+        spin: random.nextDouble() * 1.2 - 0.6,
+        icon: Icons.auto_awesome,
         color: _rewardConfettiPalette[index % _rewardConfettiPalette.length],
       );
     });
@@ -653,7 +653,7 @@ class _CompletionRewardDialogState extends State<_CompletionRewardDialog>
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final rewardsToShow = widget.completedTasks.take(3).toList();
+    final rewardsToShow = widget.completedTasks.take(2).toList();
 
     return Dialog(
       child: SizedBox(
@@ -686,7 +686,7 @@ class _CompletionRewardDialogState extends State<_CompletionRewardDialog>
                     UiCopy.completionBurstTitle,
                     style: theme.appTextRoles.cardTitle.copyWith(
                       color: theme.colorScheme.primary,
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
                   const SizedBox(height: AppSpacingTokens.xs),
@@ -703,7 +703,7 @@ class _CompletionRewardDialogState extends State<_CompletionRewardDialog>
                   ),
                   const SizedBox(height: AppSpacingTokens.xs),
                   Text(
-                    '${UiCopy.completionRewardHint} ${widget.completedTasks.length}개',
+                    UiCopy.completionRewardHint,
                     style: theme.appTextRoles.supportingBody,
                   ),
                   const SizedBox(height: AppSpacingTokens.actionGap),
@@ -860,10 +860,10 @@ class _ConfettiParticle {
 }
 
 const _rewardConfettiPalette = [
-  Color(0xFFF9A825),
-  Color(0xFFEF6C00),
-  Color(0xFF29B6F6),
-  Color(0xFFAB47BC),
-  Color(0xFF66BB6A),
-  Color(0xFFFF8A65),
+  Color(0xFFFFF59D),
+  Color(0xFF80CBC4),
+  Color(0xFFA5D6A7),
+  Color(0xFF90CAF9),
+  Color(0xFFE1BEE7),
+  Color(0xFFFFCC80),
 ];

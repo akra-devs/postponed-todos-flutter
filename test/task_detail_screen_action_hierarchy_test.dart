@@ -101,11 +101,10 @@ void main() {
         await tester.tap(find.text('완료했어'));
         await tester.pumpAndSettle();
 
-        expect(find.text('🎉 완료!'), findsOneWidget);
-        expect(find.text('완료 보상'), findsOneWidget);
-        expect(find.textContaining('지금까지 완료한 일'), findsOneWidget);
+        expect(find.text('마무리했어요'), findsOneWidget);
+        expect(find.text('최근 마무리한 일'), findsOneWidget);
+        expect(find.textContaining('다음 항목들이 최근에 마무리됐어요'), findsOneWidget);
         expect(find.text('완료한 작업 A'), findsAtLeast(1));
-        expect(find.text('완료한 작업 B'), findsAtLeast(1));
         expect(find.text('방금 마칠 작업'), findsAtLeast(1));
 
         await tester.tap(find.text('확인'));

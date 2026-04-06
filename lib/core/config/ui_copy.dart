@@ -10,10 +10,10 @@ class UiCopy {
   static const holdingCancel = '그냥 둘게요';
   static const dropCancel = '다음에 볼게요';
   static const restoreDefer = '조금 뒤로 미루기';
-  static const completionBurstTitle = '🎉 완료!';
-  static const completionBurstMessage = '한 건을 마쳤어요. 오늘은 성취가 하나 더 쌓였네요!';
-  static const completionRewardTitle = '완료 보상';
-  static const completionRewardHint = '지금까지 완료한 일:';
+  static const completionBurstTitle = '마무리했어요';
+  static const completionBurstMessage = '천천히 정리한 한 걸음이 쌓였어요.';
+  static const completionRewardTitle = '최근 마무리한 일';
+  static const completionRewardHint = '다음 항목들이 최근에 마무리됐어요';
   static const completionRewardClose = '확인';
 
   static const holdingSuggestionTitle = '천천히 내려두는 쪽이 맞을 때가 있어요';
