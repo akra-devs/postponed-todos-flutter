@@ -185,6 +185,19 @@ withTempFixture(
 );
 
 withTempFixture(
+  'fail:canonical summary fields order mismatch',
+  (tmpRoot) => {
+    createTemplateFiles({
+      cwd: tmpRoot,
+      canonical: BASE_CANONICAL.replace('`runs`, `pass`, `fail`, `passRate`, `threshold`, `ok`', '`pass`, `runs`, `fail`, `passRate`, `threshold`, `ok`'),
+      auxiliary: BASE_AUX,
+    });
+  },
+  1,
+  'Canonical template missing required item: Playwright summary fields format',
+);
+
+withTempFixture(
   'fail:canonical summary fields not formatted with backticks',
   (tmpRoot) => {
     createTemplateFiles({
