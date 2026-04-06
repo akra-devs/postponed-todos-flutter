@@ -8,7 +8,8 @@
     "playwright-smoke-gate": "node e2e/playwright-smoke-gate.js",
     "playwright-smoke-gate-rules-test": "node --test e2e/playwright-smoke-gate-rules.test.js",
     "playwright-smoke-gate-ci": "npm run playwright-smoke-gate-rules-test && npm run playwright-smoke-gate",
-    "check-pr-playwright-template": "node scripts/check-pr-playwright-gate-template.js"
+    "check-pr-playwright-template": "node scripts/check-pr-playwright-gate-template.js",
+    "check-pr-playwright-template-test": "node scripts/check-pr-playwright-gate-template.test.js"
   },
   "devDependencies": {
     "@playwright/test": "^1.54.0"

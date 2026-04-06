@@ -39,6 +39,9 @@ jobs:
       - name: Validate Playwright PR template
         run: npm run check-pr-playwright-template
 
+      - name: Validate Playwright PR template regressions
+        run: npm run check-pr-playwright-template-test
+
       - name: Install Playwright browser
         run: npx playwright install chromium
 
