@@ -100,7 +100,7 @@ class TaskDetailScreen extends StatelessWidget {
       sections.add(
         _ActionSection(
           title: '다음 행동',
-          description: '지금은 유지할지, 잠시 보관함으로 옮길지 정할 수 있어요.',
+          description: '지금은 편하게 정지할지, 잠시 보관함으로 옮길지 차분하게 고를 수 있어요.',
           children: [
             _ActionButton(
               label: UiCopy.homeSnooze,
@@ -482,12 +482,12 @@ class _ShelvedTaskNotice extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('보관함에 잠시 내려둔 일이에요', style: theme.appTextRoles.panelTitle),
+            Text('보관함에 편하게 내려둔 일이에요', style: theme.appTextRoles.panelTitle),
             const SizedBox(height: AppSpacingTokens.comfortableTextGap),
             Text(
               task.isEligibleForHoldingBoxRevisitSuggestion
-                  ? '지금은 다시 꺼내보기 괜찮은 시점이라, 복원 버튼을 먼저 두었어요.'
-                  : '천천히 두는 게 맞는 시기라면, 지금은 이대로 두어도 좋아요. 필요해질 때 복원하면 다시 미루는 중으로 돌아가요.',
+                  ? '지금은 다시 꺼내볼 준비가 되어 있는 시점이에요. 원하면 복원해둘 수 있어요.'
+                  : '천천히 두는 게 맞는 시기라면 이 상태 그대로 두어도 괜찮아요. 필요해질 때만 복원해보세요.',
               style: theme.appTextRoles.body,
             ),
           ],
