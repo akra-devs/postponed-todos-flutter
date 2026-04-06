@@ -40,10 +40,10 @@ void main() {
 
         expect(find.text('다음 행동'), findsOneWidget);
         expect(find.text('정리하기'), findsOneWidget);
-        expect(find.text('조금 쉬어 두기'), findsOneWidget);
-        expect(find.text('보관함에 잠깐 내려두기'), findsOneWidget);
+        expect(find.text('조금 천천히 미뤄둘게요'), findsOneWidget);
+        expect(find.text('보관함에 조용히 내려둘래요'), findsOneWidget);
         expect(find.text('완료했어'), findsOneWidget);
-        expect(find.text('안 하기로 할래'), findsOneWidget);
+        expect(find.text('오늘은 여기서 멈출래요'), findsOneWidget);
         expect(find.text('보관함에서 관리'), findsNothing);
 
         await repository.dispose();
@@ -80,11 +80,11 @@ void main() {
         await tester.pump();
 
         expect(find.text('다시 꺼내볼 타이밍'), findsOneWidget);
-        expect(find.text('다시 꺼내보기'), findsOneWidget);
-        expect(find.text('잠시 미루기'), findsOneWidget);
+        expect(find.text('다시 꺼내볼래요'), findsOneWidget);
+        expect(find.text('조금 뒤로 미루기'), findsOneWidget);
         expect(find.text('정리하기'), findsOneWidget);
-        expect(find.text('조금 쉬어 두기'), findsNothing);
-        expect(find.text('보관함에 잠깐 내려두기'), findsNothing);
+        expect(find.text('조금 천천히 미뤄둘게요'), findsNothing);
+        expect(find.text('보관함에 조용히 내려둘래요'), findsNothing);
 
         await repository.dispose();
         await cubit.close();

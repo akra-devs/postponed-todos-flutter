@@ -960,12 +960,12 @@ void main() {
         );
 
         expect(find.text('오늘은 이 일만 다시'), findsOneWidget);
-        expect(find.text('천천히 다시 시작하기'), findsOneWidget);
-        expect(find.text('보관함에 잠깐 내려두기'), findsOneWidget);
+        expect(find.text('천천히 다시 이어갈래요'), findsOneWidget);
+        expect(find.text('보관함에 조용히 내려둘래요'), findsOneWidget);
 
         expect(find.text('보관함에서 조심스럽게 다시'), findsOneWidget);
-        expect(find.text('다시 꺼내보기'), findsOneWidget);
-        expect(find.text('잠시 미루기'), findsOneWidget);
+        expect(find.text('다시 꺼내볼래요'), findsOneWidget);
+        expect(find.text('조금 뒤로 미루기'), findsOneWidget);
         expect(find.text('상세 보기'), findsOneWidget);
       },
     );
@@ -1057,13 +1057,13 @@ void main() {
 
         tester
             .widget<FilledButton>(
-              find.widgetWithText(FilledButton, '다시 꺼내보기').first,
+              find.widgetWithText(FilledButton, '다시 꺼내볼래요').first,
             )
             .onPressed!
             .call();
         tester
             .widget<FilledButton>(
-              find.widgetWithText(FilledButton, '잠시 미루기').last,
+              find.widgetWithText(FilledButton, '조금 뒤로 미루기').last,
             )
             .onPressed!
             .call();
