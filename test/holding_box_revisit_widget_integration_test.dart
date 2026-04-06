@@ -908,7 +908,7 @@ void main() {
     );
 
     testWidgets(
-      'quick-entry shows count badges only when state count is greater than zero',
+      'quick-entry count badges show 2+ correctly and disappear at zero',
       (tester) async {
         await tester.pumpWidget(
           MaterialApp(
@@ -924,28 +924,74 @@ void main() {
         expect(find.text('보관함'), findsOneWidget);
         expect(find.text('0개'), findsNothing);
         expect(find.text('1개'), findsNothing);
+        expect(find.text('2개'), findsNothing);
 
-        final emptyPostponing = Task(
-          id: 'quick-entry-empty-postponing-task',
-          title: '샘플 미루기 작업',
+        final postponingTaskOne = Task(
+          id: 'quick-entry-count-postponing-1',
+          title: '샘플 미루기 작업 1',
           status: TaskStatus.postponing,
           createdAt: now,
           updatedAt: now,
         );
-        await repository.save(emptyPostponing);
+        final postponingTaskTwo = Task(
+          id: 'quick-entry-count-postponing-2',
+          title: '샘플 미루기 작업 2',
+          status: TaskStatus.postponing,
+          createdAt: now,
+          updatedAt: now,
+        );
+        final shelvedTask = Task(
+          id: 'quick-entry-count-shelved-1',
+          title: '샘플 보관함 작업',
+          status: TaskStatus.shelved,
+          createdAt: now,
+          updatedAt: now,
+          shelvedAt: now,
+        );
+
+        await repository.save(postponingTaskOne);
         await tester.runAsync(() async {
           await Future<void>.delayed(const Duration(milliseconds: 1));
         });
         await tester.pumpAndSettle();
+        expect(find.text('미루는 중'), findsOneWidget);
+        expect(find.text('보관함'), findsOneWidget);
+        expect(find.text('1개'), findsOneWidget);
 
+        await repository.save(postponingTaskTwo);
+        await tester.runAsync(() async {
+          await Future<void>.delayed(const Duration(milliseconds: 1));
+        });
+        await tester.pumpAndSettle();
+        expect(find.text('2개'), findsOneWidget);
+
+        await repository.save(shelvedTask);
+        await tester.runAsync(() async {
+          await Future<void>.delayed(const Duration(milliseconds: 1));
+        });
+        await tester.pumpAndSettle();
+        expect(find.text('2개'), findsOneWidget);
         expect(find.text('1개'), findsOneWidget);
 
         await repository.update(
-          emptyPostponing.copyWith(
+          postponingTaskOne.copyWith(
             status: TaskStatus.done,
             updatedAt: now.add(const Duration(minutes: 1)),
           ),
         );
+        await repository.update(
+          postponingTaskTwo.copyWith(
+            status: TaskStatus.done,
+            updatedAt: now.add(const Duration(minutes: 2)),
+          ),
+        );
+        await repository.update(
+          shelvedTask.copyWith(
+            status: TaskStatus.done,
+            updatedAt: now.add(const Duration(minutes: 3)),
+          ),
+        );
+
         await tester.runAsync(() async {
           await Future<void>.delayed(const Duration(milliseconds: 1));
         });
@@ -953,6 +999,7 @@ void main() {
 
         expect(find.text('0개'), findsNothing);
         expect(find.text('1개'), findsNothing);
+        expect(find.text('2개'), findsNothing);
       },
     );
 
