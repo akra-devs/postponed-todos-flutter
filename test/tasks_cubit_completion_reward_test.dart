@@ -90,5 +90,56 @@ void main() {
       await secondCubit.close();
       await repository.dispose();
     });
+
+    int simulateRewardShows({
+      required Duration cooldown,
+      List<int> attemptOffsetsMinutes = const [
+        0,
+        10,
+        20,
+        30,
+        40,
+        50,
+        60,
+        70,
+        80,
+        90,
+        100,
+        110,
+      ],
+    }) {
+      var attempt = 0;
+      DateTime? lastShownAt;
+      var showCount = 0;
+      final base = DateTime(2026, 4, 6, 12, 0);
+
+      for (final offset in attemptOffsetsMinutes) {
+        attempt += 1;
+        final now = base.add(Duration(minutes: offset));
+        if (attempt == 1 || attempt % 3 == 0) {
+          if (lastShownAt == null || now.difference(lastShownAt) >= cooldown) {
+            showCount += 1;
+            lastShownAt = now;
+          }
+        }
+      }
+
+      return showCount;
+    }
+
+    test('compares cooldown thresholds with rapid completion bursts', () {
+      expect(
+        simulateRewardShows(cooldown: const Duration(minutes: 30)),
+        equals(4),
+      );
+      expect(
+        simulateRewardShows(cooldown: const Duration(minutes: 45)),
+        equals(3),
+      );
+      expect(
+        simulateRewardShows(cooldown: const Duration(minutes: 60)),
+        equals(2),
+      );
+    });
   });
 }
