@@ -7,6 +7,7 @@ import '../domain/task.dart';
 import '../domain/task_recommendation_service.dart';
 import '../domain/task_status.dart';
 import '../domain/task_suggestion_event.dart';
+import '../../../core/config/product_policy_defaults.dart';
 import '../domain/task_suggestion_history.dart';
 import 'task_suggestion_action_service.dart';
 import 'tasks_state.dart';
@@ -114,12 +115,19 @@ class TasksCubit extends Cubit<TasksState> {
     await _recordCompletionRewardAttempt(timestamp);
 
     final attempts = await _loadCompletionRewardAttempts();
-    if (attempts == 1 || attempts % 3 == 0) {
-      await _repository.markCompletionRewardShown(timestamp);
-      return true;
+    if (attempts != 1 && attempts % 3 != 0) {
+      return false;
     }
 
-    return false;
+    final lastShown = await _repository.getLastCompletionRewardShownAt();
+    if (lastShown != null &&
+        timestamp.difference(lastShown) <
+            ProductPolicyDefaults.completionRewardThrottleCooldown) {
+      return false;
+    }
+
+    await _repository.markCompletionRewardShown(timestamp);
+    return true;
   }
 
   Future<void> _recordCompletionRewardAttempt(DateTime timestamp) {

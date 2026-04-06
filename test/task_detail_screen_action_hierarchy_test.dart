@@ -151,11 +151,9 @@ void main() {
         await tester.tap(find.text('완료했어'));
         await tester.pumpAndSettle();
 
-        expect(find.text('마무리했어요'), findsOneWidget);
+        expect(find.byType(SnackBar), findsOneWidget);
+        expect(find.text('최근 마무리한 일'), findsOneWidget);
         expect(find.text('세 번째 완료 전환 일'), findsAtLeast(1));
-
-        await tester.tap(find.text('확인'));
-        await tester.pumpAndSettle();
 
         await repository.dispose();
         await cubit.close();

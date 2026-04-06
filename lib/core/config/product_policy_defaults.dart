@@ -11,6 +11,10 @@ class ProductPolicyDefaults {
   static const Duration holdingBoxRevisitSuggestion = Duration(days: 14);
   static const int homeDefaultCards = 4;
 
+  static const Duration completionRewardThrottleCooldown = Duration(
+    minutes: 30,
+  );
+
   static Duration cooldownForSnoozeCount(int consecutiveSnoozeCount) {
     if (consecutiveSnoozeCount <= 1) return firstSnoozeCooldown;
     if (consecutiveSnoozeCount == 2) return secondConsecutiveSnoozeCooldown;
