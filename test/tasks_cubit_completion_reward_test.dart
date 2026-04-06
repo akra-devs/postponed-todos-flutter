@@ -26,7 +26,7 @@ void main() {
           ),
           isFalse,
         );
-        // 3번째 시도인데, 30분 쿨다운으로 인해 모달이 뜨면 안 됨
+        // 3번째 시도인데, 쿨다운 동안에는 모달이 뜨면 안 됨
         expect(
           await cubit.shouldShowCompletionReward(
             now: now.add(const Duration(minutes: 10)),
@@ -79,7 +79,7 @@ void main() {
         ),
         isFalse,
       );
-      // 재시작 후에도 마지막 표시 시각이 남아 있어 3회차도 즉시 노출되지 않음
+      // 재시작 후에도 마지막 표시 시각이 남아 있어 즉시 노출되지 않음
       expect(
         await secondCubit.shouldShowCompletionReward(
           now: now.add(const Duration(minutes: 2)),
