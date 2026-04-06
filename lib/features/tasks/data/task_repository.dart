@@ -9,6 +9,9 @@ abstract class TaskRepository {
   Future<void> save(Task task);
   Future<void> update(Task task);
   Future<T> transaction<T>(Future<T> Function() action);
+
+  Future<void> markCompletionRewardShown(DateTime at);
+  Future<DateTime?> getLastCompletionRewardShownAt();
   Future<void> addSuggestionEvent(TaskSuggestionEvent event);
   Future<List<TaskSuggestionEvent>> getSuggestionEventsForTask(String taskId);
   Future<Map<String, TaskSuggestionHistory>> getSuggestionHistories(

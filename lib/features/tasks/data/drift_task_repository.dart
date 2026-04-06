@@ -11,6 +11,7 @@ class DriftTaskRepository implements TaskRepository {
   DriftTaskRepository(this._database);
 
   final AppDatabase _database;
+  static const String _completionRewardMetaKey = "completionRewardShownAt";
 
   @override
   Stream<List<Task>> watchAll() {
@@ -106,6 +107,33 @@ class DriftTaskRepository implements TaskRepository {
       for (final entry in eventsByTask.entries)
         entry.key: TaskSuggestionHistory.fromEvents(entry.key, entry.value),
     };
+  }
+
+  @override
+  Future<void> markCompletionRewardShown(DateTime at) async {
+    // Persisted in key-value table via sqlite preference table if available.
+    // Reuse taskSuggestionEvents table as a timestamp marker to keep schema stable.
+    await _database
+        .into(_database.taskSuggestionEventsTable)
+        .insertOnConflictUpdate(
+          TaskSuggestionEventsTableCompanion(
+            id: Value(_completionRewardMetaKey),
+            taskId: Value('__meta__'),
+            type: Value(TaskSuggestionEventType.completionRewardShown.name),
+            createdAt: Value(at),
+          ),
+        );
+  }
+
+  @override
+  Future<DateTime?> getLastCompletionRewardShownAt() async {
+    final row =
+        await (_database.select(_database.taskSuggestionEventsTable)
+              ..where((tbl) => tbl.id.equals(_completionRewardMetaKey))
+              ..limit(1))
+            .getSingleOrNull();
+    if (row == null) return null;
+    return row.createdAt;
   }
 
   Task _mapRow(TasksTableData row) {

@@ -6,6 +6,7 @@ import '../data/task_repository.dart';
 import '../domain/task.dart';
 import '../domain/task_recommendation_service.dart';
 import '../domain/task_status.dart';
+import '../domain/task_suggestion_event.dart';
 import '../domain/task_suggestion_history.dart';
 import 'task_suggestion_action_service.dart';
 import 'tasks_state.dart';
@@ -34,11 +35,12 @@ class TasksCubit extends Cubit<TasksState> {
     });
   }
 
+  static const String _completionRewardMetaTaskId = '__completion_reward__';
+
   final TaskRepository _repository;
   final TaskRecommendationService _recommendationService;
   final TaskSuggestionActionService _actionService;
   StreamSubscription<List<Task>>? _subscription;
-  int _completionRewardDisplayCount = 0;
 
   Future<Map<String, TaskSuggestionHistory>> _loadSuggestionHistories(
     List<Task> tasks,
@@ -106,15 +108,41 @@ class TasksCubit extends Cubit<TasksState> {
     return _actionService.recordHoldingSuggestionDismissed(task);
   }
 
-  bool shouldShowCompletionReward() {
-    _completionRewardDisplayCount++;
+  Future<bool> shouldShowCompletionReward({DateTime? now}) async {
+    final timestamp = now ?? DateTime.now();
 
-    if (_completionRewardDisplayCount == 1) {
+    await _recordCompletionRewardAttempt(timestamp);
+
+    final attempts = await _loadCompletionRewardAttempts();
+    if (attempts == 1 || attempts % 3 == 0) {
+      await _repository.markCompletionRewardShown(timestamp);
       return true;
     }
 
-    // 첫 노출 1회 후 3회마다 1회 노출
-    return _completionRewardDisplayCount % 3 == 0;
+    return false;
+  }
+
+  Future<void> _recordCompletionRewardAttempt(DateTime timestamp) {
+    return _repository.addSuggestionEvent(
+      TaskSuggestionEvent(
+        id: '$_completionRewardMetaTaskId-attempt-${timestamp.microsecondsSinceEpoch}',
+        taskId: _completionRewardMetaTaskId,
+        type: TaskSuggestionEventType.completionRewardAttempted,
+        createdAt: timestamp,
+      ),
+    );
+  }
+
+  Future<int> _loadCompletionRewardAttempts() async {
+    final events = await _repository.getSuggestionEventsForTask(
+      _completionRewardMetaTaskId,
+    );
+    return events
+        .where(
+          (event) =>
+              event.type == TaskSuggestionEventType.completionRewardAttempted,
+        )
+        .length;
   }
 
   @override

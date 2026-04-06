@@ -238,7 +238,11 @@ class TaskDetailScreen extends StatelessWidget {
     final rewards = uniqueCompleted.values.toList()
       ..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
 
-    final shouldShowReward = cubit.shouldShowCompletionReward();
+    final shouldShowReward = await cubit.shouldShowCompletionReward();
+
+    if (!context.mounted) {
+      return;
+    }
 
     if (!shouldShowReward) {
       _showCompletionRewardListToast(context, rewards);

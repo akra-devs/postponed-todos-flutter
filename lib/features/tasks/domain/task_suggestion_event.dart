@@ -8,6 +8,8 @@ enum TaskSuggestionEventType {
   holdingRevisitSuggested,
   holdingRevisitConfirmed,
   holdingRevisitDismissed,
+  completionRewardAttempted,
+  completionRewardShown,
 }
 
 class TaskSuggestionEvent {

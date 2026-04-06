@@ -12,6 +12,7 @@ class InMemoryTaskRepository implements TaskRepository {
 
   final Map<String, Task> _tasks = <String, Task>{};
   final List<TaskSuggestionEvent> _events = <TaskSuggestionEvent>[];
+  DateTime? _lastCompletionRewardShownAt;
   final StreamController<List<Task>> _tasksController =
       StreamController<List<Task>>.broadcast();
 
@@ -45,6 +46,7 @@ class InMemoryTaskRepository implements TaskRepository {
   Future<T> transaction<T>(Future<T> Function() action) async {
     final tasksSnapshot = Map<String, Task>.from(_tasks);
     final eventsSnapshot = List<TaskSuggestionEvent>.from(_events);
+    final lastCompletionRewardShownAtSnapshot = _lastCompletionRewardShownAt;
 
     try {
       final result = await action();
@@ -57,6 +59,7 @@ class InMemoryTaskRepository implements TaskRepository {
       _events
         ..clear()
         ..addAll(eventsSnapshot);
+      _lastCompletionRewardShownAt = lastCompletionRewardShownAtSnapshot;
       _emit();
       rethrow;
     }
@@ -89,6 +92,16 @@ class InMemoryTaskRepository implements TaskRepository {
           _events.where((event) => event.taskId == taskId).toList(),
         ),
     };
+  }
+
+  @override
+  Future<void> markCompletionRewardShown(DateTime at) async {
+    _lastCompletionRewardShownAt = at;
+  }
+
+  @override
+  Future<DateTime?> getLastCompletionRewardShownAt() async {
+    return _lastCompletionRewardShownAt;
   }
 
   Future<void> dispose() => _tasksController.close();

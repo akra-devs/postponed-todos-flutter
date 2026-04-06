@@ -1255,6 +1255,12 @@ class InMemoryTaskRepository implements TaskRepository {
   }
 
   @override
+  Future<void> markCompletionRewardShown(DateTime at) async {}
+
+  @override
+  Future<DateTime?> getLastCompletionRewardShownAt() async => null;
+
+  @override
   Future<Map<String, TaskSuggestionHistory>> getSuggestionHistories(
     Iterable<String> taskIds,
   ) async {

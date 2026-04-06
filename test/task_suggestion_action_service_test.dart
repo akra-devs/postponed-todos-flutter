@@ -349,5 +349,11 @@ class InMemoryTaskRepository implements TaskRepository {
   }
 
   @override
+  Future<void> markCompletionRewardShown(DateTime at) async {}
+
+  @override
+  Future<DateTime?> getLastCompletionRewardShownAt() async => null;
+
+  @override
   Stream<List<Task>> watchAll() => const Stream.empty();
 }
