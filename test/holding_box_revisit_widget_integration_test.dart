@@ -908,6 +908,55 @@ void main() {
     );
 
     testWidgets(
+      'quick-entry shows count badges only when state count is greater than zero',
+      (tester) async {
+        await tester.pumpWidget(
+          MaterialApp(
+            home: BlocProvider.value(
+              value: cubit,
+              child: const TasksHomeScreen(),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        expect(find.text('미루는 중'), findsOneWidget);
+        expect(find.text('보관함'), findsOneWidget);
+        expect(find.text('0개'), findsNothing);
+        expect(find.text('1개'), findsNothing);
+
+        final emptyPostponing = Task(
+          id: 'quick-entry-empty-postponing-task',
+          title: '샘플 미루기 작업',
+          status: TaskStatus.postponing,
+          createdAt: now,
+          updatedAt: now,
+        );
+        await repository.save(emptyPostponing);
+        await tester.runAsync(() async {
+          await Future<void>.delayed(const Duration(milliseconds: 1));
+        });
+        await tester.pumpAndSettle();
+
+        expect(find.text('1개'), findsOneWidget);
+
+        await repository.update(
+          emptyPostponing.copyWith(
+            status: TaskStatus.done,
+            updatedAt: now.add(const Duration(minutes: 1)),
+          ),
+        );
+        await tester.runAsync(() async {
+          await Future<void>.delayed(const Duration(milliseconds: 1));
+        });
+        await tester.pumpAndSettle();
+
+        expect(find.text('0개'), findsNothing);
+        expect(find.text('1개'), findsNothing);
+      },
+    );
+
+    testWidgets(
       'home recommendation and revisit cards keep distinct action semantics',
       (tester) async {
         final recommendationTask = Task(
