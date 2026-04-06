@@ -23,14 +23,33 @@ jobs:
         with:
           channel: stable
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: package-lock.json
+
       - name: Install dependencies
         run: flutter pub get
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Install Playwright browser
+        run: npx playwright install chromium
 
       - name: Analyze
         run: flutter analyze
 
       - name: Run tests
         run: flutter test -r expanded
+
+      - name: Run Playwright smoke gate
+        env:
+          PLAYWRIGHT_SMOKE_RUNS: 3
+          PLAYWRIGHT_SMOKE_PASS_PERCENT: 95
+        run: npm run playwright-smoke-gate
 
       - name: Build Flutter web
         run: flutter build web --release --base-href / --no-tree-shake-icons
