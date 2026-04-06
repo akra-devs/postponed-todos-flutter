@@ -131,6 +131,23 @@ withTempFixture(
 );
 
 withTempFixture(
+  'fail:ci gate checklist order mismatch',
+  (tmpRoot) => {
+    createTemplateFiles({
+      cwd: tmpRoot,
+      canonical: BASE_CANONICAL
+        .replace(
+          '- [ ] Playwright 실패 샘플을 변경/추가했는지 확인 (e2e/playwright-smoke-gate-failure-samples.json)\n- [ ] npm run playwright-smoke-gate-ci',
+          '- [ ] npm run playwright-smoke-gate-ci\n- [ ] Playwright 실패 샘플을 변경/추가했는지 확인 (e2e/playwright-smoke-gate-failure-samples.json)'
+        ),
+      auxiliary: BASE_AUX,
+    });
+  },
+  1,
+  'Canonical template missing required item: Playwright CI Gate checklist order',
+);
+
+withTempFixture(
   'fail:aux missing reference',
   (tmpRoot) => {
     createTemplateFiles({
