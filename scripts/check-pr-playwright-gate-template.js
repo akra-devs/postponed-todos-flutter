@@ -11,6 +11,19 @@ function fail(message) {
   process.exitCode = 1;
 }
 
+function checkPatterns(patterns, target, failurePrefix) {
+  let failed = false;
+
+  for (const { label, pattern } of patterns) {
+    if (!pattern.test(target)) {
+      fail(`${failurePrefix}${label}`);
+      failed = true;
+    }
+  }
+
+  return failed;
+}
+
 let failed = false;
 
 if (!fs.existsSync(canonicalPath)) {
@@ -20,26 +33,44 @@ if (!fs.existsSync(canonicalPath)) {
 
 const canonical = fs.readFileSync(canonicalPath, 'utf8');
 
-const requiredPatterns = [
-  { label: 'Playwright CI Gate section', pattern: /^###\s*Playwright CI Gate \(해당 시\)/m },
+const headingPattern = /^###\s*Playwright CI Gate \(해당 시\)/m;
+
+const canonicalPatterns = [
+  { label: 'Playwright CI Gate section', pattern: headingPattern },
+];
+
+if (checkPatterns(canonicalPatterns, canonical, 'Canonical template missing required item: ')) {
+  failed = true;
+}
+
+const headingMatch = canonical.match(headingPattern);
+if (!headingMatch) {
+  fail('Canonical template missing required item: Playwright CI Gate section');
+  process.exit(1);
+}
+
+const sectionStartIndex = headingMatch.index;
+const afterSectionStart = canonical.slice(sectionStartIndex);
+const nextSectionIndex = afterSectionStart.search(/\n###\s+/m);
+const ciGateSection = nextSectionIndex === -1 ? afterSectionStart : afterSectionStart.slice(0, nextSectionIndex);
+
+const sectionPatterns = [
   { label: 'Playwright CI command marker', pattern: /npm run playwright-smoke-gate-ci/i },
   { label: 'Playwright CI command checklist item', pattern: /-\s*\[\s*\]\s*`?npm run playwright-smoke-gate-ci`?/i },
   { label: 'Playwright failure sample checklist item', pattern: /-\s*\[\s*\]\s*Playwright 실패 샘플을 변경\/추가했는지 확인/ },
-  { label: 'Playwright CI Gate checklist order', pattern: /^###\s*Playwright CI Gate \(해당 시\)[\s\S]*?^\s*-\s*\[\s*\]\s*Playwright 실패 샘플을 변경\/추가했는지 확인[\s\S]*?^\s*-\s*\[\s*\]\s*`?npm run playwright-smoke-gate-ci`?[\s\S]*?^\s*-\s*\[\s*\]\s*PR\s+본문에\s*`playwright-smoke-gate`\s*요약\s*반영\s*-\s*`runs`\s*,\s*`pass`\s*,\s*`fail`\s*,\s*`passRate`\s*,\s*`threshold`\s*,\s*`ok`/m },
-  { label: 'Playwright summary fields format', pattern: /-\s*\[\s*\]\s*PR\s+본문에\s*`playwright-smoke-gate`\s*요약\s*반영\s*-\s*`runs`\s*,\s*`pass`\s*,\s*`fail`\s*,\s*`passRate`\s*,\s*`threshold`\s*,\s*`ok`/i },
-  { label: 'passRate summary field', pattern: /passRate/i },
+  { label: 'Playwright CI Gate checklist order', pattern: /^\s*-\s*\[\s*\]\s*Playwright 실패 샘플을 변경\/추가했는지 확인[\s\S]*?^\s*-\s*\[\s*\]\s*`?npm run playwright-smoke-gate-ci`?[\s\S]*?^\s*-\s*\[\s*\]\s*PR\s+본문에\s*`playwright-smoke-gate`\s*요약\s*반영\s*-[\s\S]*?`runs`\s*,\s*`pass`\s*,\s*`fail`\s*,\s*`passRate`\s*,\s*`threshold`\s*,\s*`ok`/m },
+  { label: 'Playwright summary fields format', pattern: /-\s*\[\s*\]\s*PR\s+본문에\s*`playwright-smoke-gate`\s*요약\s*반영\s*-[\s\S]*?`runs`\s*,\s*`pass`\s*,\s*`fail`\s*,\s*`passRate`\s*,\s*`threshold`\s*,\s*`ok`/i },
+  { label: 'passRate summary field', pattern: /`passRate`/i },
   { label: 'runs summary token', pattern: /`runs`/i },
   { label: 'pass summary token', pattern: /`pass`/i },
   { label: 'fail summary token', pattern: /`fail`/i },
   { label: 'threshold summary token', pattern: /`threshold`/i },
   { label: 'ok summary token', pattern: /`ok`/i },
-  { label: 'Playwright failure sample path', pattern: /e2e\/playwright-smoke-gate-failure-samples\.json/ },
+  { label: 'Playwright failure sample path', pattern: /`?e2e\/playwright-smoke-gate-failure-samples\.json`?/ },
 ];
-for (const { label, pattern } of requiredPatterns) {
-  if (!pattern.test(canonical)) {
-    fail(`Canonical template missing required item: ${label}`);
-    failed = true;
-  }
+
+if (checkPatterns(sectionPatterns, ciGateSection, 'Canonical template missing required item: ')) {
+  failed = true;
 }
 
 if (!fs.existsSync(auxiliaryPath)) {
@@ -54,13 +85,9 @@ const auxiliaryChecks = [
   { label: 'Auxiliary template has at least one Playwright marker', pattern: /playwright-smoke-gate/i },
 ];
 
-for (const { label, pattern } of auxiliaryChecks) {
-  if (!pattern.test(auxiliary)) {
-    fail(`Auxiliary template missing required item: ${label}`);
-    failed = true;
-  }
+if (checkPatterns(auxiliaryChecks, auxiliary, 'Auxiliary template missing required item: ')) {
+  failed = true;
 }
-
 
 const auxiliaryChecklistPattern = /^\s*[-*]\s*\[[ xX]\]/m;
 if (auxiliaryChecklistPattern.test(auxiliary)) {

@@ -305,4 +305,22 @@ withTempFixture(
   'Canonical template missing required item: Playwright failure sample path',
 );
 
+withTempFixture(
+  'fail:canonical sample path exists only outside ci gate',
+  (tmpRoot) => {
+    createTemplateFiles({
+      cwd: tmpRoot,
+      canonical: BASE_CANONICAL
+        .replace('e2e/playwright-smoke-gate-failure-samples.json', 'e2e/other-samples.json')
+        .replace(
+          '- [ ] `IMPLEMENTATION_CHECKLIST.md`의 핵심 항목 확인',
+          '- [ ] `IMPLEMENTATION_CHECKLIST.md`의 핵심 항목 확인\n- [ ] `e2e/playwright-smoke-gate-failure-samples.json` 경로는 CI Gate 섹션 외부 예시',
+        ),
+      auxiliary: BASE_AUX,
+    });
+  },
+  1,
+  'Canonical template missing required item: Playwright failure sample path',
+);
+
 console.log('All Playwright PR template checker regression tests passed');
