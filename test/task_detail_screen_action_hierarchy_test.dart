@@ -52,6 +52,71 @@ void main() {
     );
 
     testWidgets(
+      'shows completion celebration reward modal after finishing a task',
+      (tester) async {
+        final repository = InMemoryTaskRepository();
+        final now = DateTime(2026, 4, 5, 7, 30);
+        await repository.save(
+          Task(
+            id: 'done-old-1',
+            title: '완료한 작업 A',
+            status: TaskStatus.done,
+            createdAt: now,
+            updatedAt: now,
+          ),
+        );
+        await repository.save(
+          Task(
+            id: 'done-old-2',
+            title: '완료한 작업 B',
+            status: TaskStatus.done,
+            createdAt: now,
+            updatedAt: now,
+          ),
+        );
+
+        await repository.save(
+          Task(
+            id: 'task-4',
+            title: '방금 마칠 작업',
+            status: TaskStatus.postponing,
+            createdAt: now,
+            updatedAt: now,
+          ),
+        );
+
+        final cubit = TasksCubit(
+          repository,
+          DefaultTaskRecommendationService(),
+        );
+
+        await tester.pumpWidget(
+          _TestApp(
+            cubit: cubit,
+            child: const TaskDetailScreen(taskId: 'task-4'),
+          ),
+        );
+        await tester.pump();
+
+        await tester.tap(find.text('완료했어'));
+        await tester.pumpAndSettle();
+
+        expect(find.text('🎉 완료!'), findsOneWidget);
+        expect(find.text('완료 보상'), findsOneWidget);
+        expect(find.textContaining('지금까지 완료한 일'), findsOneWidget);
+        expect(find.text('완료한 작업 A'), findsAtLeast(1));
+        expect(find.text('완료한 작업 B'), findsAtLeast(1));
+        expect(find.text('방금 마칠 작업'), findsAtLeast(1));
+
+        await tester.tap(find.text('확인'));
+        await tester.pumpAndSettle();
+
+        await repository.dispose();
+        await cubit.close();
+      },
+    );
+
+    testWidgets(
       'keeps restore/defer semantics grouped for revisitable shelved tasks',
       (tester) async {
         final repository = InMemoryTaskRepository();

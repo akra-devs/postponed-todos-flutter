@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -169,7 +171,7 @@ class TaskDetailScreen extends StatelessWidget {
               children: [
                 _ActionButton(
                   label: UiCopy.detailComplete,
-                  onPressed: () => cubit.transition(task, TaskStatus.done),
+                  onPressed: () => _completeTask(context, task, cubit),
                   emphasis: _ActionEmphasis.secondary,
                   icon: AppIconTokens.actionDone,
                 ),
@@ -199,6 +201,49 @@ class TaskDetailScreen extends StatelessWidget {
         )
         .toList()
       ..removeLast();
+  }
+
+  Future<void> _completeTask(
+    BuildContext context,
+    Task task,
+    TasksCubit cubit,
+  ) async {
+    await cubit.transition(task, TaskStatus.done);
+
+    if (!context.mounted) {
+      return;
+    }
+
+    final completedTasks =
+        cubit.state.tasks
+            .where((item) => item.status == TaskStatus.done)
+            .toList()
+          ..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
+
+    final fallbackCompleted = task.copyWith(
+      status: TaskStatus.done,
+      updatedAt: DateTime.now(),
+    );
+
+    final hasCurrent = completedTasks.any((item) => item.id == task.id);
+
+    final uniqueCompleted = <String, Task>{
+      for (final item in completedTasks) item.id: item,
+    };
+
+    if (!hasCurrent) {
+      uniqueCompleted[fallbackCompleted.id] = fallbackCompleted;
+    }
+
+    final rewards = uniqueCompleted.values.toList()
+      ..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
+
+    await showDialog<void>(
+      context: context,
+      barrierDismissible: true,
+      builder: (dialogContext) =>
+          _CompletionRewardDialog(completedTasks: rewards.take(4).toList()),
+    );
   }
 
   Future<void> _confirmShelve(
@@ -558,3 +603,267 @@ class _ActionButton extends StatelessWidget {
     return SizedBox(width: double.infinity, child: child);
   }
 }
+
+class _CompletionRewardDialog extends StatefulWidget {
+  const _CompletionRewardDialog({required this.completedTasks});
+
+  final List<Task> completedTasks;
+
+  @override
+  State<_CompletionRewardDialog> createState() =>
+      _CompletionRewardDialogState();
+}
+
+class _CompletionRewardDialogState extends State<_CompletionRewardDialog>
+    with SingleTickerProviderStateMixin {
+  static const int _particleCount = 24;
+
+  late final AnimationController _controller;
+  late final List<_ConfettiParticle> _confettiParticles;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1400),
+    )..forward();
+
+    _confettiParticles = List.generate(_particleCount, (index) {
+      final random = math.Random(index * 17 + 11);
+      return _ConfettiParticle(
+        xRatio: random.nextDouble(),
+        size: 12 + random.nextDouble() * 12,
+        startDelay: random.nextDouble() * 0.5,
+        travelDistance: 90 + random.nextDouble() * 110,
+        drift: random.nextDouble() * 28 - 14,
+        spin: random.nextDouble() * 1.8 - 0.9,
+        icon: random.nextBool() ? Icons.star : Icons.celebration,
+        color: _rewardConfettiPalette[index % _rewardConfettiPalette.length],
+      );
+    });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final rewardsToShow = widget.completedTasks.take(3).toList();
+
+    return Dialog(
+      child: SizedBox(
+        width: 420,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(18, 22, 18, 18),
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              Positioned.fill(
+                child: IgnorePointer(
+                  child: _ConfettiBurstLayer(
+                    particles: _confettiParticles,
+                    controller: _controller,
+                  ),
+                ),
+              ),
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: IconButton(
+                      icon: const Icon(Icons.close),
+                      onPressed: () => Navigator.of(context).pop(),
+                    ),
+                  ),
+                  Text(
+                    UiCopy.completionBurstTitle,
+                    style: theme.appTextRoles.cardTitle.copyWith(
+                      color: theme.colorScheme.primary,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacingTokens.xs),
+                  Text(
+                    UiCopy.completionBurstMessage,
+                    style: theme.appTextRoles.body,
+                  ),
+                  const SizedBox(height: AppSpacingTokens.listGap),
+                  Text(
+                    UiCopy.completionRewardTitle,
+                    style: theme.appTextRoles.cardTitle.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacingTokens.xs),
+                  Text(
+                    '${UiCopy.completionRewardHint} ${widget.completedTasks.length}개',
+                    style: theme.appTextRoles.supportingBody,
+                  ),
+                  const SizedBox(height: AppSpacingTokens.actionGap),
+                  for (final task in rewardsToShow) ...[
+                    DecoratedBox(
+                      decoration: BoxDecoration(
+                        color: theme.appSurfaces.cardMuted,
+                        borderRadius: BorderRadius.circular(
+                          AppRadiusTokens.pill,
+                        ),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: AppSpacingTokens.xs,
+                          vertical: 8,
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.check_circle_outline,
+                              size: 16,
+                              color: theme.appStatus.doneFg,
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                task.title,
+                                style: theme.appTextRoles.supportingBody,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                  ],
+                  const SizedBox(height: AppSpacingTokens.cardInset),
+                  SizedBox(
+                    width: double.infinity,
+                    child: FilledButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: const Text(UiCopy.completionRewardClose),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ConfettiBurstLayer extends StatelessWidget {
+  const _ConfettiBurstLayer({
+    required this.particles,
+    required this.controller,
+  });
+
+  final List<_ConfettiParticle> particles;
+  final AnimationController controller;
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: controller,
+      builder: (context, child) {
+        return LayoutBuilder(
+          builder: (context, constraints) {
+            final progress = Curves.easeOut.transform(controller.value);
+
+            return Stack(
+              clipBehavior: Clip.none,
+              children: [
+                for (final particle in particles)
+                  _ConfettiParticleWidget(
+                    particle: particle,
+                    containerWidth: constraints.maxWidth,
+                    timeline: progress,
+                  ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+}
+
+class _ConfettiParticleWidget extends StatelessWidget {
+  const _ConfettiParticleWidget({
+    required this.particle,
+    required this.containerWidth,
+    required this.timeline,
+  });
+
+  final _ConfettiParticle particle;
+  final double containerWidth;
+  final double timeline;
+
+  @override
+  Widget build(BuildContext context) {
+    final life = ((timeline - particle.startDelay) / (1 - particle.startDelay))
+        .clamp(0.0, 1.0);
+
+    if (life <= 0.0) {
+      return const SizedBox.shrink();
+    }
+
+    final offsetY = life * particle.travelDistance;
+    final driftX =
+        math.sin((life * math.pi * 2) + particle.spin) * particle.drift;
+    final opacity = (1.0 - life).clamp(0.0, 1.0);
+
+    return Positioned(
+      top: -8 + offsetY,
+      left: particle.xRatio * containerWidth + driftX,
+      child: Opacity(
+        opacity: opacity,
+        child: Transform.rotate(
+          angle: particle.spin * life * 2,
+          child: Icon(
+            particle.icon,
+            size: particle.size * (1 + (1 - life) * 0.2),
+            color: particle.color.withValues(alpha: 0.9),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ConfettiParticle {
+  const _ConfettiParticle({
+    required this.xRatio,
+    required this.size,
+    required this.startDelay,
+    required this.travelDistance,
+    required this.drift,
+    required this.spin,
+    required this.icon,
+    required this.color,
+  });
+
+  final double xRatio;
+  final double size;
+  final double startDelay;
+  final double travelDistance;
+  final double drift;
+  final double spin;
+  final IconData icon;
+  final Color color;
+}
+
+const _rewardConfettiPalette = [
+  Color(0xFFF9A825),
+  Color(0xFFEF6C00),
+  Color(0xFF29B6F6),
+  Color(0xFFAB47BC),
+  Color(0xFF66BB6A),
+  Color(0xFFFF8A65),
+];
