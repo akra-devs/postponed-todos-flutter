@@ -4,7 +4,8 @@
   "version": "1.0.0",
   "description": "Playwright smoke setup for postponed todos flutter web",
   "scripts": {
-    "playwright-smoke": "playwright test --config=playwright.config.js e2e/playwright-web-smoke.spec.js"
+    "playwright-smoke": "playwright test --config=playwright.config.js e2e/playwright-web-smoke.spec.js",
+    "playwright-smoke-gate": "node e2e/playwright-smoke-gate.js"
   },
   "devDependencies": {
     "@playwright/test": "^1.54.0"
