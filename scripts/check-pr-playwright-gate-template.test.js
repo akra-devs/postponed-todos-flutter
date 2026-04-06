@@ -118,6 +118,19 @@ withTempFixture(
 );
 
 withTempFixture(
+  'fail:missing command checklist item in ci gate section',
+  (tmpRoot) => {
+    createTemplateFiles({
+      cwd: tmpRoot,
+      canonical: BASE_CANONICAL.replace('- [ ] npm run playwright-smoke-gate-ci', '- [x] npm run playwright-smoke-gate-ci'),
+      auxiliary: BASE_AUX,
+    });
+  },
+  1,
+  'Canonical template missing required item: Playwright CI command checklist item',
+);
+
+withTempFixture(
   'fail:aux missing reference',
   (tmpRoot) => {
     createTemplateFiles({
