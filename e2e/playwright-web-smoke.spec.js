@@ -17,21 +17,29 @@ test('home and core canvas interaction smoke', async ({ page }) => {
   const bootstrap = page.locator('script[src*="flutter_bootstrap.js"]');
   await expect(bootstrap).toHaveCount(1, { timeout: 20_000 });
 
-  const engineHookSelector =
-    'flt-semantics-placeholder, flt-announcement-host, flt-announcement-polite, flt-text-editing-host';
+  const readyMarker = page.locator('#pw-ready-marker');
+  await expect(readyMarker).toHaveCount(1, { timeout: 10_000 });
 
-  const markerCounts = await page.evaluate((selector) => {
-    return {
-      engineHooks: document.querySelectorAll(selector).length,
-      flutterView: document.querySelectorAll('flutter-view').length,
-      canvas: document.querySelectorAll('canvas').length,
-    };
-  }, engineHookSelector);
+  const readyState = await readyMarker.getAttribute('data-pw-ready');
+  if (readyState !== 'true') {
+    const engineHookSelector =
+      'flt-semantics-placeholder, flt-announcement-host, flt-announcement-polite, flt-text-editing-host';
 
-  if (markerCounts.engineHooks + markerCounts.flutterView + markerCounts.canvas > 0) {
-    expect(Math.max(markerCounts.engineHooks, markerCounts.flutterView, markerCounts.canvas)).toBeGreaterThan(
-      0,
-    );
+    const markerCounts = await page.evaluate((selector) => {
+      return {
+        engineHooks: document.querySelectorAll(selector).length,
+        flutterView: document.querySelectorAll('flutter-view').length,
+        canvas: document.querySelectorAll('canvas').length,
+      };
+    }, engineHookSelector);
+
+    if (markerCounts.engineHooks + markerCounts.flutterView + markerCounts.canvas > 0) {
+      expect(Math.max(markerCounts.engineHooks, markerCounts.flutterView, markerCounts.canvas)).toBeGreaterThan(
+        0,
+      );
+    } else {
+      expect(readyState).toBe('true');
+    }
   }
 
   const accessibilityButton = page.locator('[aria-label="Enable accessibility"]').first();

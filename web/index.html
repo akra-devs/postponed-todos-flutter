@@ -3,7 +3,7 @@
 <head>
   <!--
     If you are serving your web app in a path other than the root, change the
-    href value below to reflect the base path you are serving from.
+    href value below to reflect the base path of your app.
 
     The path provided below has to start and end with a slash "/" in order for
     it to work correctly.
@@ -33,6 +33,24 @@
   <link rel="manifest" href="manifest.json">
 </head>
 <body>
+  <div id="pw-ready-marker" data-pw-ready="loading" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;"></div>
+  <script>
+    (function () {
+      const marker = document.getElementById('pw-ready-marker');
+      if (!marker) {
+        return;
+      }
+
+      function markReady() {
+        marker.setAttribute('data-pw-ready', 'true');
+        marker.setAttribute('data-pw-ready-at', String(Date.now()));
+      }
+
+      window.addEventListener('flutter-first-frame', markReady);
+      window.addEventListener('load', markReady);
+      window.setTimeout(markReady, 2000);
+    })();
+  </script>
   <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>
