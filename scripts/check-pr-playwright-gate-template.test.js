@@ -92,6 +92,19 @@ withTempFixture(
 );
 
 withTempFixture(
+  'fail:missing playwright ci gate section',
+  (tmpRoot) => {
+    createTemplateFiles({
+      cwd: tmpRoot,
+      canonical: BASE_CANONICAL.replace('### Playwright CI Gate (해당 시)', '### Playwright CI Gate'),
+      auxiliary: BASE_AUX,
+    });
+  },
+  1,
+  'Canonical template missing required item: Playwright CI Gate section',
+);
+
+withTempFixture(
   'fail:aux missing reference',
   (tmpRoot) => {
     createTemplateFiles({

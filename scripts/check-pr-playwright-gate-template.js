@@ -21,6 +21,7 @@ if (!fs.existsSync(canonicalPath)) {
 const canonical = fs.readFileSync(canonicalPath, 'utf8');
 
 const requiredPatterns = [
+  { label: 'Playwright CI Gate section', pattern: /^###\s*Playwright CI Gate \(해당 시\)/m },
   { label: 'Playwright CI command marker', pattern: /npm run playwright-smoke-gate-ci/i },
   { label: 'Playwright summary fields format', pattern: /-\s*\[\s*\]\s*PR\s+본문에\s*`playwright-smoke-gate`\s*요약\s*반영\s*-\s*`runs`\s*,\s*`pass`\s*,\s*`fail`\s*,\s*`passRate`\s*,\s*`threshold`\s*,\s*`ok`/i },
   { label: 'passRate summary field', pattern: /passRate/i },
