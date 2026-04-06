@@ -105,6 +105,19 @@ withTempFixture(
 );
 
 withTempFixture(
+  'fail:aux has checklist item',
+  (tmpRoot) => {
+    createTemplateFiles({
+      cwd: tmpRoot,
+      canonical: BASE_CANONICAL,
+      auxiliary: BASE_AUX + '\n- [ ] 이 항목은 참고 템플릿이 아니라 체크리스트여서 안 됩니다.',
+    });
+  },
+  1,
+  'Auxiliary template contains checklist item; keep reference-only format',
+);
+
+withTempFixture(
   'fail:aux missing template',
   (tmpRoot) => {
     createTemplateFiles({

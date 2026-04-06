@@ -57,6 +57,13 @@ for (const { label, pattern } of auxiliaryChecks) {
   }
 }
 
+
+const auxiliaryChecklistPattern = /^\s*[-*]\s*\[[ xX]\]/m;
+if (auxiliaryChecklistPattern.test(auxiliary)) {
+  fail('Auxiliary template contains checklist item; keep reference-only format');
+  failed = true;
+}
+
 if (failed) {
   console.error('Playwright PR template check FAILED');
   process.exit(1);
