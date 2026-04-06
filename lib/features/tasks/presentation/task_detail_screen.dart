@@ -487,7 +487,7 @@ class _ShelvedTaskNotice extends StatelessWidget {
             Text(
               task.isEligibleForHoldingBoxRevisitSuggestion
                   ? '지금은 다시 꺼내보기 괜찮은 시점이라, 복원 버튼을 먼저 두었어요.'
-                  : '급하지 않다면 이대로 둬도 괜찮아요. 필요해질 때 복원하면 다시 미루는 중으로 돌아가요.',
+                  : '천천히 두는 게 맞는 시기라면, 지금은 이대로 두어도 좋아요. 필요해질 때 복원하면 다시 미루는 중으로 돌아가요.',
               style: theme.appTextRoles.body,
             ),
           ],

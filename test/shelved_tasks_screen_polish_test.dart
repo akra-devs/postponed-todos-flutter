@@ -41,7 +41,7 @@ void main() {
 
       expect(find.text('잠시 쉬어두는 선반'), findsOneWidget);
       expect(find.text('지금은 조용히 쉬는 칸'), findsOneWidget);
-      expect(find.text('아직 내려둔 일이 없어요'), findsOneWidget);
+      expect(find.text('아직 보관할 일이 없어요'), findsOneWidget);
       expect(find.textContaining('필요해질 때 다시 꺼내면 돼요'), findsOneWidget);
     });
   });

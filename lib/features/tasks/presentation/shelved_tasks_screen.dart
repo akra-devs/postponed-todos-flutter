@@ -75,9 +75,9 @@ class ShelvedTasksScreen extends StatelessWidget {
                   const SizedBox(height: AppSpacingTokens.cardInset),
                   if (tasks.isEmpty)
                     const TaskEmptyStateCard(
-                      title: '아직 내려둔 일이 없어요',
+                      title: '아직 보관할 일이 없어요',
                       message:
-                          '반복해서 마음이 멀어지는 일은 여기로 잠시 옮겨둘 수 있어요. 필요해질 때 다시 꺼내면 돼요.',
+                          '마음이 아직 정리되지 않은 일은 여기로 잠시 옮겨둘 수 있어요. 필요해질 때 다시 꺼내면 돼요.',
                     )
                   else
                     ...tasks.map(
@@ -151,7 +151,7 @@ class _HoldingBoxIntroCard extends StatelessWidget {
                         ),
                         const SizedBox(height: AppSpacingTokens.compactTextGap),
                         Text(
-                          '급한 목록에서 잠깐 내려둔 일들을 보관해요',
+                          '지금 잠깐 쉬어둘 항목들을 조용히 담아두는 자리예요',
                           style: theme.appTextRoles.supportingBody.copyWith(
                             color: colorScheme.onSurfaceVariant,
                           ),
@@ -163,7 +163,7 @@ class _HoldingBoxIntroCard extends StatelessWidget {
               ),
               const SizedBox(height: AppSpacingTokens.cardInset),
               Text(
-                '보관함은 포기한 곳이 아니라, 지금 당장 붙잡지 않아도 되는 일을 조용히 두는 자리예요. 다시 꺼낼 준비가 되면 복원부터 하면 돼요.',
+                '보관함은 포기한 곳이 아니라, 지금 당장 붙잡지 않아도 되는 일을 편안히 두는 자리예요. 준비가 되면 조용히 다시 꺼내면 됩니다.',
                 style: theme.appTextRoles.body.copyWith(
                   height: 1.55,
                   color: surfaces.holdingHeroBody,
