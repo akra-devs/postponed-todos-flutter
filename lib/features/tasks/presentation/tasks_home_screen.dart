@@ -5,6 +5,7 @@ import '../../../core/config/ui_copy.dart';
 import '../../../core/theme/app_icon_tokens.dart';
 import '../../../core/theme/app_elevation_tokens.dart';
 import '../../../core/theme/app_radius_tokens.dart';
+import '../../../core/theme/app_motion_tokens.dart';
 import '../../../core/theme/app_spacing_tokens.dart';
 import '../../../core/theme/app_theme_ext.dart';
 import '../application/tasks_cubit.dart';
@@ -62,6 +63,11 @@ class _TasksHomeScreenState extends State<TasksHomeScreen> {
                 ),
                 const SizedBox(height: AppSpacingTokens.listGap),
                 BannerMotionSwitcher(
+                  duration: AppMotionTokens.homeSectionReveal,
+                  beginOffset: const Offset(
+                    0,
+                    AppMotionTokens.sectionSwitchShift,
+                  ),
                   child: state.recommendations.isEmpty
                       ? const _TaskSectionPlaceholder(
                           key: ValueKey('home-recommend-empty'),
@@ -73,6 +79,9 @@ class _TasksHomeScreenState extends State<TasksHomeScreen> {
                             'home-recommend-${state.recommendations.map((item) => item.task.id).join(',')}',
                           ),
                           recommendations: state.recommendations,
+                          cardDuration: AppMotionTokens.homeSectionReveal,
+                          staggerStep:
+                              AppMotionTokens.homeRecommendationStaggerStep,
                           buildCard: (context, index, recommendation) =>
                               HomeRecommendationCard(
                                 recommendation: recommendation,
@@ -97,6 +106,11 @@ class _TasksHomeScreenState extends State<TasksHomeScreen> {
                 ),
                 const SizedBox(height: AppSpacingTokens.listGap),
                 BannerMotionSwitcher(
+                  duration: AppMotionTokens.homeSectionReveal,
+                  beginOffset: const Offset(
+                    0,
+                    AppMotionTokens.sectionSwitchShift,
+                  ),
                   child: state.holdingBoxRevisitSuggestions.isEmpty
                       ? const _TaskSectionPlaceholder(
                           key: ValueKey('home-revisit-empty'),
@@ -109,6 +123,10 @@ class _TasksHomeScreenState extends State<TasksHomeScreen> {
                             'home-revisit-${state.holdingBoxRevisitSuggestions.map((item) => item.task.id).join(',')}',
                           ),
                           recommendations: state.holdingBoxRevisitSuggestions,
+                          cardDuration: AppMotionTokens.homeSectionReveal,
+                          staggerStartOffset:
+                              AppMotionTokens.homeRevisitStaggerOffset,
+                          staggerStep: AppMotionTokens.homeRevisitStaggerStep,
                           buildCard: (context, index, recommendation) =>
                               HomeRecommendationCard(
                                 recommendation: recommendation,
@@ -232,6 +250,9 @@ class _RevealingRecommendationList extends StatelessWidget {
     super.key,
     required this.recommendations,
     required this.buildCard,
+    this.cardDuration = AppMotionTokens.cardReveal,
+    this.staggerStartOffset = 0.0,
+    this.staggerStep = 0.08,
   });
 
   final List<TaskRecommendation> recommendations;
@@ -241,6 +262,9 @@ class _RevealingRecommendationList extends StatelessWidget {
     TaskRecommendation recommendation,
   )
   buildCard;
+  final Duration cardDuration;
+  final double staggerStartOffset;
+  final double staggerStep;
 
   @override
   Widget build(BuildContext context) {
@@ -251,6 +275,9 @@ class _RevealingRecommendationList extends StatelessWidget {
             padding: const EdgeInsets.only(bottom: AppSpacingTokens.listGap),
             child: StaggeredRevealCard(
               index: index,
+              duration: cardDuration,
+              staggerStart: staggerStartOffset,
+              staggerStep: staggerStep,
               child: buildCard(context, index, recommendations[index]),
             ),
           ),

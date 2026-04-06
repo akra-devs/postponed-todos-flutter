@@ -143,6 +143,9 @@ class StaggeredRevealCard extends StatefulWidget {
     this.lift = AppMotionTokens.homeCardLift,
     this.scaleFrom = 0.992,
     this.scaleTo = 1.0,
+    this.staggerStart = 0.0,
+    this.staggerStep = 0.08,
+    this.staggerSpan = 0.45,
   });
 
   final int index;
@@ -151,6 +154,9 @@ class StaggeredRevealCard extends StatefulWidget {
   final double lift;
   final double scaleFrom;
   final double scaleTo;
+  final double staggerStart;
+  final double staggerStep;
+  final double staggerSpan;
 
   @override
   State<StaggeredRevealCard> createState() => _StaggeredRevealCardState();
@@ -168,8 +174,9 @@ class _StaggeredRevealCardState extends State<StaggeredRevealCard>
   @override
   void initState() {
     super.initState();
-    final start = (widget.index * 0.08).clamp(0.0, 0.5);
-    final end = (start + 0.45).clamp(start + 0.01, 1.0);
+    final start = (widget.staggerStart + widget.index * widget.staggerStep)
+        .clamp(0.0, 0.6);
+    final end = (start + widget.staggerSpan).clamp(start + 0.01, 1.0);
     _animation = CurvedAnimation(
       parent: _controller,
       curve: Interval(start, end, curve: AppMotionTokens.microSpring),
