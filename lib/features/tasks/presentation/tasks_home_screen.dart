@@ -59,7 +59,7 @@ class _TasksHomeScreenState extends State<TasksHomeScreen> {
                 const SizedBox(height: AppSpacingTokens.sectionGap),
                 const _SectionHeader(
                   title: '홈 추천',
-                  subtitle: '지금 다시 붙잡기 쉬운 일을 먼저 놓아둘게요',
+                  subtitle: '지금은 가볍게 시작해볼 수 있는 일부터 보여드릴게요',
                 ),
                 const SizedBox(height: AppSpacingTokens.listGap),
                 BannerMotionSwitcher(
@@ -72,7 +72,7 @@ class _TasksHomeScreenState extends State<TasksHomeScreen> {
                       ? const _TaskSectionPlaceholder(
                           key: ValueKey('home-recommend-empty'),
                           title: '지금은 추천할 일이 없어요',
-                          message: '쿨다운이 끝난 일이 생기면 여기에서 다시 꺼내볼 수 있어요.',
+                          message: '쿨다운이 끝난 일이 생기면, 조용히 다시 보여줄게요.',
                         )
                       : _RevealingRecommendationList(
                           key: ValueKey(
@@ -102,7 +102,7 @@ class _TasksHomeScreenState extends State<TasksHomeScreen> {
                 const SizedBox(height: AppSpacingTokens.sectionGapLarge),
                 const _SectionHeader(
                   title: '보관함에서 다시 꺼내볼래',
-                  subtitle: '한동안 쉬어둔 일 중에서, 다시 붙잡아볼 만한 것만 가볍게 가져왔어요',
+                  subtitle: '한동안 쉬어둔 일 중, 다시 천천히 잡아볼 만한 것만 골라 보여드릴게요',
                 ),
                 const SizedBox(height: AppSpacingTokens.listGap),
                 BannerMotionSwitcher(
@@ -115,8 +115,7 @@ class _TasksHomeScreenState extends State<TasksHomeScreen> {
                       ? const _TaskSectionPlaceholder(
                           key: ValueKey('home-revisit-empty'),
                           title: '지금은 조용히 두고 있어요',
-                          message:
-                              '보관함에 넣은 지 14일이 지난 일만 낮은 강도로 다시 꺼내볼 수 있게 가져와요.',
+                          message: '보관함에 넣은 지 14일이 지난 일만, 천천히 꺼내볼 수 있게 가져와요.',
                         )
                       : _RevealingRecommendationList(
                           key: ValueKey(
@@ -321,7 +320,7 @@ class _QuickEntrySection extends StatelessWidget {
               children: [
                 Expanded(
                   child: Text(
-                    '목록 바로가기',
+                    '가볍게 들어가는 곳',
                     style: theme.appTextRoles.cardTitle.copyWith(
                       color:
                           theme.appTextRoles.cardTitle.color ??
@@ -340,7 +339,7 @@ class _QuickEntrySection extends StatelessWidget {
                       vertical: AppSpacingTokens.xxs,
                     ),
                     child: Text(
-                      '지금 바로',
+                      '천천히',
                       style: theme.textTheme.labelSmall?.copyWith(
                         color: colorScheme.onSurfaceVariant,
                         fontWeight: FontWeight.w600,
@@ -354,7 +353,7 @@ class _QuickEntrySection extends StatelessWidget {
         ),
         const SizedBox(height: AppSpacingTokens.eyebrowGap),
         Text(
-          '필요한 순간에만 가볍게 다시 여는 공간이에요',
+          '원할 때 살짝 열어볼 수 있는 가벼운 시작 공간이에요',
           style: theme.appTextRoles.supportingBody,
         ),
         const SizedBox(height: AppSpacingTokens.listGap),
@@ -367,7 +366,7 @@ class _QuickEntrySection extends StatelessWidget {
                     onPressed: onViewPostponing,
                     icon: AppIconTokens.quickEntryPostponing,
                     label: '미루는 중',
-                    detail: '가볍게 훑어보기 좋을 때로 남겨둔 목록',
+                    detail: '지금은 아니어도 좋을 만큼 쉬워요. 천천히 다시 볼 목록을 담아뒀어요',
                     accentSurface: surfaces.revisitPanel,
                     accent: colorScheme.onSurfaceVariant,
                     highlight: theme.appStatus.postponingFg,
@@ -379,7 +378,7 @@ class _QuickEntrySection extends StatelessWidget {
                     onPressed: onViewShelved,
                     icon: AppIconTokens.quickEntryShelved,
                     label: '보관함',
-                    detail: '급하게 밀어올리지 않고 안전하게 쉬어두는 자리',
+                    detail: '지금은 바로 올리지 않고, 마음 편하게 다시 꺼내둘 수 있는 자리',
                     accentSurface: surfaces.holdingHeroSurface,
                     accent: theme.appStatus.shelvedFg,
                     highlight: theme.appStatus.shelvedFg,
