@@ -45,12 +45,12 @@ jobs:
       - name: Run tests
         run: flutter test -r expanded
 
-      - name: Run Playwright smoke gate
+      - name: Run Playwright smoke gate checks
         env:
           PLAYWRIGHT_SMOKE_RUNS: 3
           PLAYWRIGHT_SMOKE_PASS_PERCENT: 95
           PLAYWRIGHT_SMOKE_GATE_SUMMARY_PATH: ${{ github.workspace }}/test-results/playwright-smoke-gate-summary.json
-        run: npm run playwright-smoke-gate
+        run: npm run playwright-smoke-gate-ci
 
       - name: Upload Playwright smoke gate summary
         if: always()

@@ -6,7 +6,8 @@
   "scripts": {
     "playwright-smoke": "playwright test --config=playwright.config.js e2e/playwright-web-smoke.spec.js",
     "playwright-smoke-gate": "node e2e/playwright-smoke-gate.js",
-    "playwright-smoke-gate-rules-test": "node --test e2e/playwright-smoke-gate-rules.test.js"
+    "playwright-smoke-gate-rules-test": "node --test e2e/playwright-smoke-gate-rules.test.js",
+    "playwright-smoke-gate-ci": "npm run playwright-smoke-gate-rules-test && npm run playwright-smoke-gate"
   },
   "devDependencies": {
     "@playwright/test": "^1.54.0"
