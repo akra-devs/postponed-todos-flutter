@@ -34,6 +34,23 @@ PLAYWRIGHT_SMOKE_RUNS=6 PLAYWRIGHT_SMOKE_PASS_PERCENT=95 npm run playwright-smok
 - 종료 코드는 pass/fail threshold 기준으로 설정되어 CI에서 바로 fail-fast 처리 가능
 - 실행 출력의 마지막에 JSON 요약(`PLAYWRIGHT_SMOKE_GATE_SUMMARY`)이 출력되어 로그 파싱에 사용 가능
 
+### D) 규칙 회귀 + 게이트를 한 번에 실행
+```bash
+cd /Users/lee/.openclaw/workspace-implementer
+npm run playwright-smoke-gate-ci
+```
+
+- failure 분류/권장조치 룰 회귀 테스트 + Playwright smoke gate를 연속 실행.
+- 규칙 실패 또는 게이트 실패 시 즉시 CI/로컬 체크를 중단한다.
+
+### E) PR 제출 전 체크리스트 (Playwright CI 게이트)
+- `e2e/playwright-smoke-gate-failure-samples.json`에 새 failure sample을 추가했다면,
+  - 샘플의 `expectedSignature`가 분류 규칙과 일치하는지 확인
+  - 해당 샘플이 실제 로그 패턴을 반영하는지 검토
+- 반드시 아래 명령을 실행해 결과를 체크한다:
+  - `npm run playwright-smoke-gate-ci`
+- 출력과 요약 파일(`test-results/playwright-smoke-gate-summary.json`)을 PR 본문에 첨부할 수 있도록 준비
+
 ## 현재 산출 체크 포인트
 - 페이지 Title 로드 확인 (`Postponed Todos`)
 - `flutter-view` DOM 존재/가시성 확인
