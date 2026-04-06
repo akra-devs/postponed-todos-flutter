@@ -299,7 +299,7 @@ class _QuickEntrySection extends StatelessWidget {
   final VoidCallback? onViewShelved;
   final int postponingCount;
   final int shelvedCount;
-  String _countBadgeText(int count) => '$count개';
+  String? _countBadgeText(int count) => count > 0 ? '$count개' : null;
 
   @override
   Widget build(BuildContext context) {
@@ -490,16 +490,6 @@ class _QuickEntryButtonContent extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (countBadge != null) ...[
-          Text(
-            countBadge!,
-            style: theme.textTheme.labelSmall?.copyWith(
-              color: accent,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          const SizedBox(height: AppSpacingTokens.xs),
-        ],
         DecoratedBox(
           decoration: BoxDecoration(
             color: background.withValues(alpha: 0.85),
@@ -519,6 +509,17 @@ class _QuickEntryButtonContent extends StatelessWidget {
           ),
           textAlign: TextAlign.center,
         ),
+        if (countBadge != null) ...[
+          const SizedBox(height: AppSpacingTokens.xxs),
+          Text(
+            countBadge!,
+            style: theme.textTheme.labelSmall?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+              fontWeight: FontWeight.w600,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
         const SizedBox(height: 4),
         Text(
           detail,

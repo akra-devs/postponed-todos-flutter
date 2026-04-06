@@ -881,6 +881,7 @@ void main() {
 
         expect(quickEntryTitle, findsOneWidget);
         expect(find.text('보관함'), findsOneWidget);
+        expect(find.text('1개'), findsNWidgets(2));
         expect(find.text('지금 다시 볼 수 있어요'), findsNothing);
         expect(find.text('조금 더 두는 중'), findsNothing);
 
