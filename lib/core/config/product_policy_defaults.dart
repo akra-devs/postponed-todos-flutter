@@ -12,7 +12,7 @@ class ProductPolicyDefaults {
   static const int homeDefaultCards = 4;
 
   static const Duration completionRewardThrottleCooldown = Duration(
-    minutes: 30,
+    minutes: 45,
   );
 
   static Duration cooldownForSnoozeCount(int consecutiveSnoozeCount) {
