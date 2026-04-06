@@ -11,8 +11,8 @@ class UiCopy {
   static const dropCancel = '다음에 볼게요';
   static const restoreDefer = '조금 뒤로 미루기';
 
-  static const holdingSuggestionTitle = '지금은 잠깐 쉬어가도 괜찮아요';
-  static const holdingSuggestionDescription = '지금은 부담이 덜할 때로 천천히 보이게 쉬어둘게요.';
+  static const holdingSuggestionTitle = '천천히 내려두는 쪽이 맞을 때가 있어요';
+  static const holdingSuggestionDescription = '지금은 부담이 줄어드는 타이밍이라, 잠깐 쉬어두는 것으로 정리해도 괜찮아요.';
 
   static const holdingRevisitTitle = '이 일, 천천히 다시 꺼낼래요?';
   static const holdingRevisitDescription =
