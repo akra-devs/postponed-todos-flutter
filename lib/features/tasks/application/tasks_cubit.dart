@@ -38,6 +38,7 @@ class TasksCubit extends Cubit<TasksState> {
   final TaskRecommendationService _recommendationService;
   final TaskSuggestionActionService _actionService;
   StreamSubscription<List<Task>>? _subscription;
+  int _completionRewardDisplayCount = 0;
 
   Future<Map<String, TaskSuggestionHistory>> _loadSuggestionHistories(
     List<Task> tasks,
@@ -103,6 +104,17 @@ class TasksCubit extends Cubit<TasksState> {
 
   Future<void> recordHoldingSuggestionDismissed(Task task) {
     return _actionService.recordHoldingSuggestionDismissed(task);
+  }
+
+  bool shouldShowCompletionReward() {
+    _completionRewardDisplayCount++;
+
+    if (_completionRewardDisplayCount == 1) {
+      return true;
+    }
+
+    // 첫 노출 1회 후 3회마다 1회 노출
+    return _completionRewardDisplayCount % 3 == 0;
   }
 
   @override

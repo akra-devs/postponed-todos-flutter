@@ -52,7 +52,7 @@ void main() {
     );
 
     testWidgets(
-      'shows completion celebration reward modal after finishing a task',
+      'throttles completion celebration feedback to low-frequency cadence',
       (tester) async {
         final repository = InMemoryTaskRepository();
         final now = DateTime(2026, 4, 5, 7, 30);
@@ -84,6 +84,24 @@ void main() {
             updatedAt: now,
           ),
         );
+        await repository.save(
+          Task(
+            id: 'task-5',
+            title: '다음 작업',
+            status: TaskStatus.postponing,
+            createdAt: now,
+            updatedAt: now,
+          ),
+        );
+        await repository.save(
+          Task(
+            id: 'task-6',
+            title: '세 번째 완료 전환 일',
+            status: TaskStatus.postponing,
+            createdAt: now,
+            updatedAt: now,
+          ),
+        );
 
         final cubit = TasksCubit(
           repository,
@@ -102,10 +120,36 @@ void main() {
         await tester.pumpAndSettle();
 
         expect(find.text('마무리했어요'), findsOneWidget);
-        expect(find.text('최근 마무리한 일'), findsOneWidget);
-        expect(find.textContaining('다음 항목들이 최근에 마무리됐어요'), findsOneWidget);
         expect(find.text('완료한 작업 A'), findsAtLeast(1));
         expect(find.text('방금 마칠 작업'), findsAtLeast(1));
+
+        await tester.tap(find.text('확인'));
+        await tester.pumpAndSettle();
+
+        await tester.pumpWidget(
+          _TestApp(
+            cubit: cubit,
+            child: const TaskDetailScreen(taskId: 'task-5'),
+          ),
+        );
+        await tester.pump();
+        await tester.tap(find.text('완료했어'));
+        await tester.pump();
+
+        expect(find.text('마무리했어요'), findsNothing);
+
+        await tester.pumpWidget(
+          _TestApp(
+            cubit: cubit,
+            child: const TaskDetailScreen(taskId: 'task-6'),
+          ),
+        );
+        await tester.pump();
+        await tester.tap(find.text('완료했어'));
+        await tester.pumpAndSettle();
+
+        expect(find.text('마무리했어요'), findsOneWidget);
+        expect(find.text('세 번째 완료 전환 일'), findsAtLeast(1));
 
         await tester.tap(find.text('확인'));
         await tester.pumpAndSettle();

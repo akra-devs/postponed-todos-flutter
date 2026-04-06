@@ -214,6 +214,11 @@ class TaskDetailScreen extends StatelessWidget {
       return;
     }
 
+    final shouldShowReward = cubit.shouldShowCompletionReward();
+    if (!shouldShowReward) {
+      return;
+    }
+
     final completedTasks =
         cubit.state.tasks
             .where((item) => item.status == TaskStatus.done)
