@@ -1056,14 +1056,14 @@ void main() {
           ),
         );
 
-        expect(find.text('오늘은 이 일만 다시'), findsOneWidget);
+        expect(find.text('오늘은 가볍게 다시 보기'), findsOneWidget);
         expect(find.text('천천히 다시 이어갈래요'), findsOneWidget);
         expect(find.text('보관함에 조용히 내려둘래요'), findsOneWidget);
 
-        expect(find.text('보관함에서 조심스럽게 다시'), findsOneWidget);
+        expect(find.text('보관함에서 천천히 다시 보기'), findsOneWidget);
         expect(find.text('다시 꺼내볼래요'), findsOneWidget);
         expect(find.text('조금 뒤로 미루기'), findsOneWidget);
-        expect(find.text('상세 보기'), findsOneWidget);
+        expect(find.text('자세히 보기'), findsOneWidget);
       },
     );
 

@@ -78,7 +78,7 @@ class HomeRecommendationCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       BannerTagChip(
-                        label: isRevisit ? '보관함에서 조심스럽게 다시' : '오늘은 이 일만 다시',
+                        label: isRevisit ? '보관함에서 천천히 다시 보기' : '오늘은 가볍게 다시 보기',
                         icon: isRevisit
                             ? AppIconTokens.statusRevisit
                             : AppIconTokens.statusPostponing,
@@ -113,7 +113,7 @@ class HomeRecommendationCard extends StatelessWidget {
             ],
             const SizedBox(height: AppSpacingTokens.listGap),
             _ReasonPanel(
-              label: isRevisit ? '왜 다시 보여주냐면' : '지금 꺼내본 이유',
+              label: isRevisit ? '다시 보여주는 이유' : '지금 꺼내본 이유',
               body: reason,
               highlighted: isRevisit,
             ),
@@ -182,7 +182,7 @@ class HomeRecommendationCard extends StatelessWidget {
                       Icon(AppIconTokens.actionHold, size: 18),
                       const SizedBox(width: 6),
                       Text(
-                        isRevisit ? '상세 보기' : UiCopy.homeHolding,
+                        isRevisit ? '자세히 보기' : UiCopy.homeHolding,
                         textAlign: TextAlign.center,
                       ),
                     ],
