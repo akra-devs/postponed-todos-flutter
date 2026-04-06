@@ -1,5 +1,7 @@
 const { describe, it } = require('node:test');
 const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
 
 const {
   classifyFailure,
@@ -7,6 +9,9 @@ const {
   recommendationCatalog,
   signatureCatalog,
 } = require('./playwright-smoke-gate-rules');
+
+const fixturePath = path.resolve(__dirname, 'playwright-smoke-gate-failure-samples.json');
+const failureSamples = JSON.parse(fs.readFileSync(fixturePath, 'utf8'));
 
 describe('playwright-smoke-gate failure classification', () => {
   it('classifies timeout-like output', () => {
@@ -54,5 +59,20 @@ describe('playwright-smoke-gate recommendation catalog', () => {
     assert.ok(Array.isArray(recommendations));
     assert.ok(recommendations.length >= 1);
     assert.deepEqual(recommendations, recommendationCatalog.unknown);
+  });
+});
+
+describe('playwright-smoke-gate failure sample fixtures', () => {
+  failureSamples.forEach((sample) => {
+    it(`classifies fixture sample: ${sample.name}`, () => {
+      const signature = classifyFailure(sample.log);
+      assert.equal(signature, sample.expectedSignature);
+    });
+
+    it(`returns recommendations for fixture sample: ${sample.name}`, () => {
+      const recommendations = getRecommendations(sample.expectedSignature);
+      assert.ok(Array.isArray(recommendations));
+      assert.ok(recommendations.length > 0);
+    });
   });
 });

@@ -34,7 +34,7 @@ const classifyFailure = (output = '') => {
   if (/Timeout|timed out|timedOut/i.test(joined)) {
     return 'timeout';
   }
-  if (/selector.*not found|no node found|Unable to locate|Target closed/i.test(joined)) {
+  if (/selector.*not found|was not found|no node found|Unable to locate|Target closed/i.test(joined)) {
     return 'selector_or_target';
   }
   if (/toHaveCount\(|Expected: 3|Received: 0|count/i.test(joined)) {

@@ -1,0 +1,32 @@
+[
+  {
+    "name": "timeout_wait",
+    "expectedSignature": "timeout",
+    "log": "Error: page.waitForSelector('.ready-marker'): Timeout 30000ms exceeded.\nTimeout while waiting for selector to become visible"
+  },
+  {
+    "name": "selector_not_found",
+    "expectedSignature": "selector_or_target",
+    "log": "Error: locator('button[data-role=quick-add]') was not found in DOM"
+  },
+  {
+    "name": "count_mismatch",
+    "expectedSignature": "count-mismatch",
+    "log": "expect(locator).toHaveCount(3)\nExpected: 3\nReceived: 0"
+  },
+  {
+    "name": "text_assertion",
+    "expectedSignature": "text-assertion",
+    "log": "Error: expect(page.getByText('미뤄둔 할일들')).toHaveText('Postponed Todos') failed\nexpected string mismatch"
+  },
+  {
+    "name": "interaction_failure",
+    "expectedSignature": "interaction",
+    "log": "Error: click failed: element handle is not attached to the DOM\nlocator.click: Target page, retrying click"
+  },
+  {
+    "name": "target_closed",
+    "expectedSignature": "selector_or_target",
+    "log": "Error: Target closed\nThe page was closed while waiting for response"
+  }
+]
