@@ -198,6 +198,19 @@ withTempFixture(
 );
 
 withTempFixture(
+  'fail:canonical missing backticks around header token',
+  (tmpRoot) => {
+    createTemplateFiles({
+      cwd: tmpRoot,
+      canonical: BASE_CANONICAL.replace('`playwright-smoke-gate` 요약 반영', 'playwright-smoke-gate 요약 반영'),
+      auxiliary: BASE_AUX,
+    });
+  },
+  1,
+  'Canonical template missing required item: Playwright summary fields format',
+);
+
+withTempFixture(
   'fail:canonical summary fields order mismatch',
   (tmpRoot) => {
     createTemplateFiles({
