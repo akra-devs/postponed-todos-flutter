@@ -55,6 +55,8 @@ class _TasksHomeScreenState extends State<TasksHomeScreen> {
                 _QuickEntrySection(
                   onViewPostponing: widget.onViewPostponing,
                   onViewShelved: widget.onViewShelved,
+                  postponingCount: state.postponingTasks.length,
+                  shelvedCount: state.shelvedTasks.length,
                 ),
                 const SizedBox(height: AppSpacingTokens.sectionGap),
                 const _SectionHeader(
@@ -289,10 +291,15 @@ class _QuickEntrySection extends StatelessWidget {
   const _QuickEntrySection({
     required this.onViewPostponing,
     required this.onViewShelved,
+    required this.postponingCount,
+    required this.shelvedCount,
   });
 
   final VoidCallback? onViewPostponing;
   final VoidCallback? onViewShelved;
+  final int postponingCount;
+  final int shelvedCount;
+  String _countBadgeText(int count) => '$count개';
 
   @override
   Widget build(BuildContext context) {
@@ -367,6 +374,7 @@ class _QuickEntrySection extends StatelessWidget {
                     icon: AppIconTokens.quickEntryPostponing,
                     label: '미루는 중',
                     detail: '지금은 아니어도 좋을 만큼 쉬워요. 천천히 다시 볼 목록을 담아뒀어요',
+                    countBadge: _countBadgeText(postponingCount),
                     accentSurface: surfaces.revisitPanel,
                     accent: colorScheme.onSurfaceVariant,
                     highlight: theme.appStatus.postponingFg,
@@ -379,6 +387,7 @@ class _QuickEntrySection extends StatelessWidget {
                     icon: AppIconTokens.quickEntryShelved,
                     label: '보관함',
                     detail: '지금은 바로 올리지 않고, 마음 편하게 다시 꺼내둘 수 있는 자리',
+                    countBadge: _countBadgeText(shelvedCount),
                     accentSurface: surfaces.holdingHeroSurface,
                     accent: theme.appStatus.shelvedFg,
                     highlight: theme.appStatus.shelvedFg,
@@ -402,6 +411,7 @@ class _QuickEntryCommandCard extends StatelessWidget {
     required this.accentSurface,
     required this.accent,
     required this.highlight,
+    this.countBadge,
   });
 
   final VoidCallback? onPressed;
@@ -411,6 +421,7 @@ class _QuickEntryCommandCard extends StatelessWidget {
   final Color accentSurface;
   final Color accent;
   final Color highlight;
+  final String? countBadge;
 
   @override
   Widget build(BuildContext context) {
@@ -444,6 +455,7 @@ class _QuickEntryCommandCard extends StatelessWidget {
               accent: accent,
               background: accentSurface,
               highlight: highlight,
+              countBadge: countBadge,
             ),
           ),
         ),
@@ -460,6 +472,7 @@ class _QuickEntryButtonContent extends StatelessWidget {
     required this.accent,
     required this.background,
     required this.highlight,
+    this.countBadge,
   });
 
   final String label;
@@ -468,6 +481,7 @@ class _QuickEntryButtonContent extends StatelessWidget {
   final Color accent;
   final Color background;
   final Color highlight;
+  final String? countBadge;
 
   @override
   Widget build(BuildContext context) {
@@ -476,6 +490,16 @@ class _QuickEntryButtonContent extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
+        if (countBadge != null) ...[
+          Text(
+            countBadge!,
+            style: theme.textTheme.labelSmall?.copyWith(
+              color: accent,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: AppSpacingTokens.xs),
+        ],
         DecoratedBox(
           decoration: BoxDecoration(
             color: background.withValues(alpha: 0.85),
