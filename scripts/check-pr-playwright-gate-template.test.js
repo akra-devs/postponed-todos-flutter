@@ -118,6 +118,59 @@ withTempFixture(
   'Auxiliary template missing: ',
 );
 
+
+withTempFixture(
+  'fail:canonical missing pass field',
+  (tmpRoot) => {
+    createTemplateFiles({
+      cwd: tmpRoot,
+      canonical: BASE_CANONICAL.replace('runs/pass/fail/passRate/threshold/ok', 'runs/fail/passRate/threshold/ok'),
+      auxiliary: BASE_AUX,
+    });
+  },
+  1,
+  'Canonical template missing required item: pass summary field',
+);
+
+withTempFixture(
+  'fail:canonical missing fail field',
+  (tmpRoot) => {
+    createTemplateFiles({
+      cwd: tmpRoot,
+      canonical: BASE_CANONICAL.replace('runs/pass/fail/passRate/threshold/ok', 'runs/pass/passRate/threshold/ok'),
+      auxiliary: BASE_AUX,
+    });
+  },
+  1,
+  'Canonical template missing required item: fail summary field',
+);
+
+withTempFixture(
+  'fail:canonical missing summary threshold',
+  (tmpRoot) => {
+    createTemplateFiles({
+      cwd: tmpRoot,
+      canonical: BASE_CANONICAL.replace('runs/pass/fail/passRate/threshold/ok', 'runs/pass/fail/passRate/ok'),
+      auxiliary: BASE_AUX,
+    });
+  },
+  1,
+  'Canonical template missing required item: threshold summary field',
+);
+
+withTempFixture(
+  'fail:canonical missing ok field',
+  (tmpRoot) => {
+    createTemplateFiles({
+      cwd: tmpRoot,
+      canonical: BASE_CANONICAL.replace('runs/pass/fail/passRate/threshold/ok', 'runs/pass/fail/passRate/threshold'),
+      auxiliary: BASE_AUX,
+    });
+  },
+  1,
+  'Canonical template missing required item: ok summary field',
+);
+
 withTempFixture(
   'fail:canonical missing sample path',
   (tmpRoot) => {

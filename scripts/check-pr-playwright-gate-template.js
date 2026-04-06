@@ -22,11 +22,14 @@ const canonical = fs.readFileSync(canonicalPath, 'utf8');
 
 const requiredPatterns = [
   { label: 'Playwright CI command marker', pattern: /npm run playwright-smoke-gate-ci/i },
-  { label: 'passRate summary field', pattern: /passRate/i },
   { label: 'runs summary field', pattern: /runs/i },
+  { label: 'pass summary field', pattern: /\bpass\b/i },
+  { label: 'fail summary field', pattern: /\bfail\b/i },
+  { label: 'passRate summary field', pattern: /passRate/i },
+  { label: 'threshold summary field', pattern: /threshold/i },
+  { label: 'ok summary field', pattern: /\bok\b/i },
   { label: 'Playwright failure sample path', pattern: /e2e\/playwright-smoke-gate-failure-samples\.json/ },
 ];
-
 for (const { label, pattern } of requiredPatterns) {
   if (!pattern.test(canonical)) {
     fail(`Canonical template missing required item: ${label}`);
