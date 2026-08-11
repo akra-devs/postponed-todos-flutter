@@ -1,0 +1,5 @@
+# Copy this file to android/key.properties. Do not commit the copied file.
+storePassword=replace-with-keystore-password
+keyPassword=replace-with-key-password
+keyAlias=replace-with-key-alias
+storeFile=../release-keystore.jks

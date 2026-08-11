@@ -81,6 +81,7 @@ class Task {
     String? id,
     String? title,
     String? note,
+    bool clearNote = false,
     TaskStatus? status,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -104,7 +105,7 @@ class Task {
     return Task(
       id: id ?? this.id,
       title: title ?? this.title,
-      note: note ?? this.note,
+      note: clearNote ? null : (note ?? this.note),
       status: status ?? this.status,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,

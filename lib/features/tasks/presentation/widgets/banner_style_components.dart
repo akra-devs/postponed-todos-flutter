@@ -100,11 +100,13 @@ class BannerMotionSwitcher extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final reduceMotion = MediaQuery.disableAnimationsOf(context);
     return AnimatedSwitcher(
-      duration: duration,
+      duration: reduceMotion ? Duration.zero : duration,
       switchInCurve: enterCurve,
       switchOutCurve: exitCurve,
       transitionBuilder: (switchChild, animation) {
+        if (reduceMotion) return switchChild;
         final curved = CurvedAnimation(parent: animation, curve: enterCurve);
         final transitionChild = SlideTransition(
           position: Tween<Offset>(
@@ -191,6 +193,9 @@ class _StaggeredRevealCardState extends State<StaggeredRevealCard>
 
   @override
   Widget build(BuildContext context) {
+    if (MediaQuery.disableAnimationsOf(context)) {
+      return widget.child;
+    }
     return FadeTransition(
       opacity: _animation,
       child: Transform.translate(
@@ -256,6 +261,9 @@ class _BreathingIconBadgeState extends State<BreathingIconBadge>
 
   @override
   Widget build(BuildContext context) {
+    if (MediaQuery.disableAnimationsOf(context)) {
+      return _BadgeContent(widget: widget);
+    }
     return AnimatedBuilder(
       animation: _controller,
       builder: (context, child) {
@@ -264,30 +272,35 @@ class _BreathingIconBadgeState extends State<BreathingIconBadge>
             (_controller.value * (widget.maxScale - widget.minScale));
         return Transform.scale(
           scale: scale,
-          child: Container(
-            width: widget.size,
-            height: widget.size,
-            decoration: BoxDecoration(
-              color: Theme.of(context).appSurfaces.holdingHeroIconSurface,
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: [
-                BoxShadow(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.shadow.withValues(alpha: 0.08),
-                  blurRadius: 10,
-                  offset: const Offset(0, 3),
-                ),
-              ],
-            ),
-            child: Icon(
-              widget.icon,
-              color: widget.color,
-              size: widget.iconSize,
-            ),
-          ),
+          child: _BadgeContent(widget: widget),
         );
       },
+    );
+  }
+}
+
+class _BadgeContent extends StatelessWidget {
+  const _BadgeContent({required this.widget});
+
+  final BreathingIconBadge widget;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: widget.size,
+      height: widget.size,
+      decoration: BoxDecoration(
+        color: Theme.of(context).appSurfaces.holdingHeroIconSurface,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.08),
+            blurRadius: 10,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Icon(widget.icon, color: widget.color, size: widget.iconSize),
     );
   }
 }

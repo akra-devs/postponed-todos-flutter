@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/theme/app_color_tokens.dart';
 import '../../../../core/theme/app_icon_tokens.dart';
 import '../../../../core/theme/app_elevation_tokens.dart';
 import '../../../../core/theme/app_radius_tokens.dart';
@@ -121,7 +120,7 @@ class TaskListCard extends StatelessWidget {
                               ? '준비되면 다시 꺼내볼 수 있어요.'
                               : '지금은 서두르지 말고 여기 두어도 괜찮아요.',
                           style: theme.appTextRoles.supportingBody.copyWith(
-                            color: AppColorTokens.warmForeground,
+                            color: theme.appSurfaces.holdingHeroBody,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -165,7 +164,7 @@ class _LeadingIntentMarker extends StatelessWidget {
             : AppIconTokens.quickEntryPostponing,
         size: 20,
         color: isShelved
-            ? AppColorTokens.warmAccentForeground
+            ? theme.appStatus.shelvedFg
             : colorScheme.onSurfaceVariant,
       ),
     );
@@ -197,7 +196,7 @@ class _StatusChip extends StatelessWidget {
         foregroundColor = statusTokens.mutedFg;
       case _ChipTone.shelf:
         backgroundColor = theme.appSurfaces.subtleAccent;
-        foregroundColor = AppColorTokens.warmAccentForeground;
+        foregroundColor = statusTokens.shelvedFg;
       case _ChipTone.warm:
         backgroundColor = statusTokens.revisitBg;
         foregroundColor = statusTokens.revisitFg;

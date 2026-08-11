@@ -7,10 +7,14 @@ class TaskEmptyStateCard extends StatelessWidget {
     super.key,
     required this.title,
     required this.message,
+    this.actionLabel,
+    this.onAction,
   });
 
   final String title;
   final String message;
+  final String? actionLabel;
+  final VoidCallback? onAction;
 
   @override
   Widget build(BuildContext context) {
@@ -24,6 +28,14 @@ class TaskEmptyStateCard extends StatelessWidget {
             Text(title, style: theme.textTheme.titleMedium),
             const SizedBox(height: AppSpacingTokens.eyebrowGap),
             Text(message, style: theme.textTheme.bodyMedium),
+            if (actionLabel != null && onAction != null) ...[
+              const SizedBox(height: AppSpacingTokens.cardInset),
+              FilledButton.tonalIcon(
+                onPressed: onAction,
+                icon: const Icon(Icons.add_task_outlined),
+                label: Text(actionLabel!),
+              ),
+            ],
           ],
         ),
       ),

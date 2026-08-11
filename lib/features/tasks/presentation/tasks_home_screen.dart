@@ -19,10 +19,16 @@ import 'widgets/task_empty_state_card.dart';
 import 'task_detail_screen.dart';
 
 class TasksHomeScreen extends StatefulWidget {
-  const TasksHomeScreen({super.key, this.onViewPostponing, this.onViewShelved});
+  const TasksHomeScreen({
+    super.key,
+    this.onViewPostponing,
+    this.onViewShelved,
+    this.onAddTask,
+  });
 
   final VoidCallback? onViewPostponing;
   final VoidCallback? onViewShelved;
+  final VoidCallback? onAddTask;
 
   @override
   State<TasksHomeScreen> createState() => _TasksHomeScreenState();
@@ -71,10 +77,12 @@ class _TasksHomeScreenState extends State<TasksHomeScreen> {
                     AppMotionTokens.sectionSwitchShift,
                   ),
                   child: state.recommendations.isEmpty
-                      ? const _TaskSectionPlaceholder(
+                      ? _TaskSectionPlaceholder(
                           key: ValueKey('home-recommend-empty'),
                           title: '지금은 추천할 일이 없어요',
-                          message: '쿨다운이 끝난 일이 생기면, 조용히 다시 보여줄게요.',
+                          message: '먼저 한 가지를 적어두면, 다시 볼 타이밍을 조용히 챙겨드릴게요.',
+                          actionLabel: '할 일 추가',
+                          onAction: widget.onAddTask,
                         )
                       : _RevealingRecommendationList(
                           key: ValueKey(
@@ -191,8 +199,8 @@ class _TasksHomeScreenState extends State<TasksHomeScreen> {
   }
 
   Future<void> _openTaskFromHome(BuildContext context, Task task) async {
-    await context.read<TasksCubit>().markTaskInteracted(task);
-    if (!context.mounted) return;
+    final recorded = await context.read<TasksCubit>().markTaskInteracted(task);
+    if (!recorded || !context.mounted) return;
     return _openDetail(context, task);
   }
 
@@ -235,14 +243,23 @@ class _TaskSectionPlaceholder extends StatelessWidget {
     super.key,
     required this.title,
     required this.message,
+    this.actionLabel,
+    this.onAction,
   });
 
   final String title;
   final String message;
+  final String? actionLabel;
+  final VoidCallback? onAction;
 
   @override
   Widget build(BuildContext context) {
-    return TaskEmptyStateCard(title: title, message: message);
+    return TaskEmptyStateCard(
+      title: title,
+      message: message,
+      actionLabel: actionLabel,
+      onAction: onAction,
+    );
   }
 }
 
@@ -364,35 +381,44 @@ class _QuickEntrySection extends StatelessWidget {
           style: theme.appTextRoles.supportingBody,
         ),
         const SizedBox(height: AppSpacingTokens.listGap),
-        BlocBuilder<TasksCubit, TasksState>(
-          builder: (context, _) {
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final stackActions = constraints.maxWidth < 420;
+            final first = _QuickEntryCommandCard(
+              onPressed: onViewPostponing,
+              icon: AppIconTokens.quickEntryPostponing,
+              label: '미루는 중',
+              detail: '지금은 아니어도 좋을 만큼 쉬워요. 천천히 다시 볼 목록을 담아뒀어요',
+              countBadge: _countBadgeText(postponingCount),
+              accentSurface: surfaces.revisitPanel,
+              accent: colorScheme.onSurfaceVariant,
+              highlight: theme.appStatus.postponingFg,
+            );
+            final second = _QuickEntryCommandCard(
+              onPressed: onViewShelved,
+              icon: AppIconTokens.quickEntryShelved,
+              label: '보관함',
+              detail: '지금은 바로 올리지 않고, 마음 편하게 다시 꺼내둘 수 있는 자리',
+              countBadge: _countBadgeText(shelvedCount),
+              accentSurface: surfaces.holdingHeroSurface,
+              accent: theme.appStatus.shelvedFg,
+              highlight: theme.appStatus.shelvedFg,
+            );
+
+            if (stackActions) {
+              return Column(
+                children: [
+                  first,
+                  const SizedBox(height: AppSpacingTokens.listGap),
+                  second,
+                ],
+              );
+            }
             return Row(
               children: [
-                Expanded(
-                  child: _QuickEntryCommandCard(
-                    onPressed: onViewPostponing,
-                    icon: AppIconTokens.quickEntryPostponing,
-                    label: '미루는 중',
-                    detail: '지금은 아니어도 좋을 만큼 쉬워요. 천천히 다시 볼 목록을 담아뒀어요',
-                    countBadge: _countBadgeText(postponingCount),
-                    accentSurface: surfaces.revisitPanel,
-                    accent: colorScheme.onSurfaceVariant,
-                    highlight: theme.appStatus.postponingFg,
-                  ),
-                ),
+                Expanded(child: first),
                 const SizedBox(width: AppSpacingTokens.listGap),
-                Expanded(
-                  child: _QuickEntryCommandCard(
-                    onPressed: onViewShelved,
-                    icon: AppIconTokens.quickEntryShelved,
-                    label: '보관함',
-                    detail: '지금은 바로 올리지 않고, 마음 편하게 다시 꺼내둘 수 있는 자리',
-                    countBadge: _countBadgeText(shelvedCount),
-                    accentSurface: surfaces.holdingHeroSurface,
-                    accent: theme.appStatus.shelvedFg,
-                    highlight: theme.appStatus.shelvedFg,
-                  ),
-                ),
+                Expanded(child: second),
               ],
             );
           },

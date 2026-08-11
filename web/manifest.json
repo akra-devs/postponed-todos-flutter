@@ -1,11 +1,11 @@
 {
-  "name": "Postponed Todos",
-  "short_name": "Postponed Todos",
+  "name": "미뤄둔 할일들",
+  "short_name": "미뤄둔 할일들",
   "start_url": ".",
   "display": "standalone",
-  "background_color": "#0175C2",
-  "theme_color": "#0175C2",
-  "description": "A low-pressure task app for postponed todos and gentle rediscovery.",
+  "background_color": "#F7F8FC",
+  "theme_color": "#5B7CFA",
+  "description": "부담 없이 다시 시작하도록 돕는 할 일 앱",
   "orientation": "portrait-primary",
   "prefer_related_applications": false,
   "icons": [

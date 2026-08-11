@@ -10,14 +10,30 @@ import '../domain/task_suggestion_event.dart';
 import '../../../core/config/product_policy_defaults.dart';
 import '../domain/task_suggestion_history.dart';
 import 'task_suggestion_action_service.dart';
+import 'task_draft_validator.dart';
 import 'tasks_state.dart';
 
 class TasksCubit extends Cubit<TasksState> {
   TasksCubit(this._repository, this._recommendationService)
     : _actionService = TaskSuggestionActionService(_repository),
       super(const TasksState()) {
-    _subscription = _repository.watchAll().listen((tasks) async {
+    _subscription = _repository.watchAll().listen(
+      _handleTasks,
+      onError: _handleLoadFailure,
+    );
+  }
+
+  static const String _completionRewardMetaTaskId = '__completion_reward__';
+
+  final TaskRepository _repository;
+  final TaskRecommendationService _recommendationService;
+  final TaskSuggestionActionService _actionService;
+  StreamSubscription<List<Task>>? _subscription;
+
+  Future<void> _handleTasks(List<Task> tasks) async {
+    try {
       final suggestionHistories = await _loadSuggestionHistories(tasks);
+      if (isClosed) return;
       emit(
         state.copyWith(
           tasks: tasks,
@@ -33,15 +49,10 @@ class TasksCubit extends Cubit<TasksState> {
           loading: false,
         ),
       );
-    });
+    } catch (_) {
+      _emitFailure(TaskOperationFailure.load);
+    }
   }
-
-  static const String _completionRewardMetaTaskId = '__completion_reward__';
-
-  final TaskRepository _repository;
-  final TaskRecommendationService _recommendationService;
-  final TaskSuggestionActionService _actionService;
-  StreamSubscription<List<Task>>? _subscription;
 
   Future<Map<String, TaskSuggestionHistory>> _loadSuggestionHistories(
     List<Task> tasks,
@@ -49,40 +60,84 @@ class TasksCubit extends Cubit<TasksState> {
     return _repository.getSuggestionHistories(tasks.map((task) => task.id));
   }
 
-  Future<void> addTask({required String title, String? note}) async {
-    final trimmed = title.trim();
-    if (trimmed.isEmpty) return;
+  Future<bool> addTask({required String title, String? note}) async {
+    final titleError = TaskDraftValidator.titleError(title);
+    final noteError = TaskDraftValidator.noteError(note);
+    if (titleError != null || noteError != null) {
+      _emitFailure(TaskOperationFailure.validation);
+      return false;
+    }
+
+    final trimmed = TaskDraftValidator.normalizeTitle(title);
     final now = DateTime.now();
     final task = Task(
       id: now.microsecondsSinceEpoch.toString(),
       title: trimmed,
-      note: note?.trim().isEmpty ?? true ? null : note?.trim(),
+      note: TaskDraftValidator.normalizeNote(note),
       status: TaskStatus.postponing,
       createdAt: now,
       updatedAt: now,
       lastInteractedAt: now,
     );
-    await _repository.save(task);
-    emit(state.copyWith(selectedTaskId: task.id));
+    return _perform(TaskOperationFailure.save, () async {
+      await _repository.save(task);
+      if (!isClosed) {
+        emit(state.copyWith(selectedTaskId: task.id));
+      }
+    });
+  }
+
+  Future<bool> updateTask({
+    required Task task,
+    required String title,
+    String? note,
+  }) async {
+    final titleError = TaskDraftValidator.titleError(title);
+    final noteError = TaskDraftValidator.noteError(note);
+    if (titleError != null || noteError != null) {
+      _emitFailure(TaskOperationFailure.validation);
+      return false;
+    }
+
+    final normalizedNote = TaskDraftValidator.normalizeNote(note);
+    return _perform(TaskOperationFailure.update, () {
+      return _repository.update(
+        task.copyWith(
+          title: TaskDraftValidator.normalizeTitle(title),
+          note: normalizedNote,
+          clearNote: normalizedNote == null,
+          updatedAt: DateTime.now(),
+        ),
+      );
+    });
   }
 
   void selectTask(String? id) {
     emit(state.copyWith(selectedTaskId: id));
   }
 
-  Future<void> markTaskInteracted(Task task) {
-    return _actionService.markTaskInteracted(task);
+  Future<bool> markTaskInteracted(Task task) {
+    return _perform(
+      TaskOperationFailure.action,
+      () => _actionService.markTaskInteracted(task),
+    );
   }
 
-  Future<void> transition(Task task, TaskStatus nextStatus) {
-    return _actionService.transition(task, nextStatus);
+  Future<bool> transition(Task task, TaskStatus nextStatus) {
+    return _perform(
+      TaskOperationFailure.action,
+      () => _actionService.transition(task, nextStatus),
+    );
   }
 
-  Future<void> snooze(Task task) {
-    return _actionService.snooze(task);
+  Future<bool> snooze(Task task) {
+    return _perform(
+      TaskOperationFailure.action,
+      () => _actionService.snooze(task),
+    );
   }
 
-  Future<void> reopenFromShelved(Task task) =>
+  Future<bool> reopenFromShelved(Task task) =>
       transition(task, TaskStatus.postponing);
 
   Future<void> recordHoldingBoxRevisitExposure(
@@ -91,12 +146,18 @@ class TasksCubit extends Cubit<TasksState> {
     return _actionService.recordHoldingBoxRevisitExposure(suggestions);
   }
 
-  Future<void> confirmHoldingBoxRevisit(Task task) {
-    return _actionService.confirmHoldingBoxRevisit(task);
+  Future<bool> confirmHoldingBoxRevisit(Task task) {
+    return _perform(
+      TaskOperationFailure.action,
+      () => _actionService.confirmHoldingBoxRevisit(task),
+    );
   }
 
-  Future<void> dismissHoldingBoxRevisit(Task task) {
-    return _actionService.dismissHoldingBoxRevisit(task);
+  Future<bool> dismissHoldingBoxRevisit(Task task) {
+    return _perform(
+      TaskOperationFailure.action,
+      () => _actionService.dismissHoldingBoxRevisit(task),
+    );
   }
 
   Future<void> recordRecommendationExposure(
@@ -151,6 +212,36 @@ class TasksCubit extends Cubit<TasksState> {
               event.type == TaskSuggestionEventType.completionRewardAttempted,
         )
         .length;
+  }
+
+  Future<bool> _perform(
+    TaskOperationFailure failure,
+    Future<void> Function() action,
+  ) async {
+    _clearFailure();
+    try {
+      await action();
+      return true;
+    } catch (_) {
+      _emitFailure(failure);
+      return false;
+    }
+  }
+
+  void _handleLoadFailure(Object error, StackTrace stackTrace) {
+    _emitFailure(TaskOperationFailure.load);
+  }
+
+  void _clearFailure() {
+    if (!isClosed && state.operationFailure != null) {
+      emit(state.copyWith(clearOperationFailure: true));
+    }
+  }
+
+  void _emitFailure(TaskOperationFailure failure) {
+    if (!isClosed) {
+      emit(state.copyWith(loading: false, operationFailure: failure));
+    }
   }
 
   @override

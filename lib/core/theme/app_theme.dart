@@ -6,22 +6,47 @@ import 'app_text_role_tokens.dart';
 import 'app_theme_ext.dart';
 import 'app_typography.dart';
 
-ThemeData buildAppTheme() {
+ThemeData buildAppTheme({Brightness brightness = Brightness.light}) {
   final colorScheme = ColorScheme.fromSeed(
     seedColor: AppColorTokens.seed,
-    brightness: Brightness.light,
+    brightness: brightness,
   );
+  final isDark = brightness == Brightness.dark;
   final textTheme = buildAppTextTheme(
-    ThemeData.light(useMaterial3: true).textTheme,
+    ThemeData(brightness: brightness, useMaterial3: true).textTheme,
   );
+  final card = isDark ? colorScheme.surfaceContainerLow : AppColorTokens.card;
+  final scaffold = isDark ? colorScheme.surface : AppColorTokens.scaffold;
+  final holdingSurface = isDark
+      ? const Color(0xFF211F1A)
+      : AppColorTokens.warmSurface;
+  final holdingBorder = isDark
+      ? const Color(0xFF5C5448)
+      : AppColorTokens.warmBorder;
+  final holdingHeroSurface = isDark
+      ? const Color(0xFF312D25)
+      : AppColorTokens.holdingHeroSurface;
+  final holdingHeroHighlight = isDark
+      ? const Color(0xFF29261F)
+      : AppColorTokens.holdingHeroHighlight;
+  final holdingHeroBackground = isDark
+      ? const Color(0xFF201E19)
+      : AppColorTokens.holdingHeroBackground;
+  final holdingHeroBody = isDark
+      ? const Color(0xFFF0E8DB)
+      : AppColorTokens.holdingHeroBody;
+  final warmMuted = isDark ? const Color(0xFF3A342B) : AppColorTokens.warmMuted;
+  final warmMutedStrong = isDark
+      ? const Color(0xFF4A4136)
+      : AppColorTokens.warmMutedStrong;
 
   return ThemeData(
     colorScheme: colorScheme,
     textTheme: textTheme,
-    scaffoldBackgroundColor: AppColorTokens.scaffold,
+    scaffoldBackgroundColor: scaffold,
     useMaterial3: true,
     appBarTheme: AppBarTheme(
-      backgroundColor: AppColorTokens.scaffold,
+      backgroundColor: scaffold,
       foregroundColor: colorScheme.onSurface,
       elevation: 0,
       centerTitle: false,
@@ -31,7 +56,7 @@ ThemeData buildAppTheme() {
     ),
     cardTheme: CardThemeData(
       elevation: 0,
-      color: AppColorTokens.card,
+      color: card,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AppRadiusTokens.lg),
       ),
@@ -59,7 +84,7 @@ ThemeData buildAppTheme() {
     ),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
-      fillColor: AppColorTokens.card,
+      fillColor: card,
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(18),
         borderSide: BorderSide.none,
@@ -67,32 +92,36 @@ ThemeData buildAppTheme() {
     ),
     extensions: <ThemeExtension<dynamic>>[
       AppSurfaceTokens(
-        card: AppColorTokens.card,
+        card: card,
         cardMuted: colorScheme.surfaceContainerLow,
-        holdingSurface: AppColorTokens.warmSurface,
-        holdingBorder: AppColorTokens.warmBorder,
-        holdingHeroSurface: AppColorTokens.holdingHeroSurface,
-        holdingHeroHighlight: AppColorTokens.holdingHeroHighlight,
-        holdingHeroBackground: AppColorTokens.holdingHeroBackground,
-        holdingHeroIconSurface: AppColorTokens.holdingHeroIconSurface,
-        holdingHeroBody: AppColorTokens.holdingHeroBody,
+        holdingSurface: holdingSurface,
+        holdingBorder: holdingBorder,
+        holdingHeroSurface: holdingHeroSurface,
+        holdingHeroHighlight: holdingHeroHighlight,
+        holdingHeroBackground: holdingHeroBackground,
+        holdingHeroIconSurface: isDark
+            ? const Color(0x1AFFFFFF)
+            : AppColorTokens.holdingHeroIconSurface,
+        holdingHeroBody: holdingHeroBody,
         reasonPanel: colorScheme.surfaceContainerLowest,
-        revisitPanel: AppColorTokens.warmMuted,
-        subtleAccent: AppColorTokens.warmAccent,
+        revisitPanel: warmMuted,
+        subtleAccent: isDark
+            ? const Color(0xFF4B4337)
+            : AppColorTokens.warmAccent,
       ),
       AppStatusTokens(
         postponingBg: colorScheme.primaryContainer,
         postponingFg: colorScheme.onPrimaryContainer,
-        shelvedBg: AppColorTokens.warmMutedStrong,
-        shelvedFg: const Color(0xFF6B4E1E),
+        shelvedBg: warmMutedStrong,
+        shelvedFg: isDark ? const Color(0xFFFFDC9B) : const Color(0xFF6B4E1E),
         doneBg: colorScheme.secondaryContainer,
         doneFg: colorScheme.onSecondaryContainer,
         droppedBg: colorScheme.surfaceContainerHighest,
         droppedFg: colorScheme.onSurfaceVariant,
-        revisitBg: AppColorTokens.revisitBg,
-        revisitFg: AppColorTokens.revisitFg,
-        mutedBg: AppColorTokens.warmMutedStrong,
-        mutedFg: const Color(0xFF6F6557),
+        revisitBg: isDark ? const Color(0xFF5B3A14) : AppColorTokens.revisitBg,
+        revisitFg: isDark ? const Color(0xFFFFDC9B) : AppColorTokens.revisitFg,
+        mutedBg: warmMutedStrong,
+        mutedFg: isDark ? const Color(0xFFE6DCCF) : const Color(0xFF6F6557),
       ),
       AppTextRoleTokens.fromTextTheme(textTheme),
     ],

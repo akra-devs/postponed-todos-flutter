@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 import '../core/theme/app_theme.dart';
 import '../features/tasks/application/default_task_recommendation_service.dart';
@@ -44,6 +45,10 @@ class _PostponedTodosAppState extends State<PostponedTodosApp> {
           debugShowCheckedModeBanner: false,
           title: '미뤄둔 할일들',
           theme: buildAppTheme(),
+          darkTheme: buildAppTheme(brightness: Brightness.dark),
+          themeMode: ThemeMode.system,
+          supportedLocales: const [Locale('ko'), Locale('en')],
+          localizationsDelegates: GlobalMaterialLocalizations.delegates,
           home: const TasksShellScreen(),
         ),
       ),

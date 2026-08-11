@@ -13,6 +13,7 @@ import '../application/tasks_cubit.dart';
 import '../application/tasks_state.dart';
 import '../domain/task.dart';
 import '../domain/task_status.dart';
+import 'widgets/quick_add_card.dart';
 
 const _detailSupportPanelRadius = 18.0;
 const _detailSupportPanelInset = 14.0;
@@ -55,7 +56,11 @@ class TaskDetailScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _TaskSummaryCard(task: task),
+                  _TaskSummaryCard(
+                    task: task,
+                    onEdit: () =>
+                        _editTask(context, task, context.read<TasksCubit>()),
+                  ),
                   if (task.status == TaskStatus.shelved) ...[
                     const SizedBox(height: AppSpacingTokens.cardInset),
                     _ShelvedTaskNotice(task: task),
@@ -208,9 +213,8 @@ class TaskDetailScreen extends StatelessWidget {
     Task task,
     TasksCubit cubit,
   ) async {
-    await cubit.transition(task, TaskStatus.done);
-
-    if (!context.mounted) {
+    final completed = await cubit.transition(task, TaskStatus.done);
+    if (!completed || !context.mounted) {
       return;
     }
 
@@ -321,12 +325,54 @@ class TaskDetailScreen extends StatelessWidget {
     if (!context.mounted) return;
     await cubit.transition(task, TaskStatus.shelved);
   }
+
+  Future<void> _editTask(BuildContext context, Task task, TasksCubit cubit) {
+    return showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (sheetContext) => SafeArea(
+        top: false,
+        child: Padding(
+          padding: EdgeInsets.only(
+            left: AppSpacingTokens.cardInset,
+            right: AppSpacingTokens.cardInset,
+            top: AppSpacingTokens.listGap,
+            bottom:
+                MediaQuery.of(sheetContext).viewInsets.bottom +
+                AppSpacingTokens.cardInset,
+          ),
+          child: SingleChildScrollView(
+            child: QuickAddCard(
+              initialTitle: task.title,
+              initialNote: task.note,
+              heading: '할 일 다듬기',
+              description: '지금의 마음에 맞게 짧게 고쳐도 괜찮아요.',
+              submitLabel: '수정 저장',
+              onSubmit: (title, note) async {
+                final updated = await cubit.updateTask(
+                  task: task,
+                  title: title,
+                  note: note,
+                );
+                if (updated && sheetContext.mounted) {
+                  Navigator.of(sheetContext).pop();
+                }
+                return updated;
+              },
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 class _TaskSummaryCard extends StatelessWidget {
-  const _TaskSummaryCard({required this.task});
+  const _TaskSummaryCard({required this.task, required this.onEdit});
 
   final Task task;
+  final VoidCallback onEdit;
 
   @override
   Widget build(BuildContext context) {
@@ -355,7 +401,17 @@ class _TaskSummaryCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _StatusPill(label: task.status.label, status: task.status),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                _StatusPill(label: task.status.label, status: task.status),
+                IconButton(
+                  onPressed: onEdit,
+                  tooltip: '할 일 수정',
+                  icon: const Icon(Icons.edit_outlined),
+                ),
+              ],
+            ),
             const SizedBox(height: 14),
             Text(task.title, style: theme.appTextRoles.heroTitle),
             const SizedBox(height: AppSpacingTokens.actionGap),

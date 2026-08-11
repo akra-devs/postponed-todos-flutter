@@ -28,7 +28,7 @@ Today’s prototype focuses on one loop:
   - holding-box revisit suggestions
 - **Quick add**
   - capture a task from the shared floating action button
-  - optionally leave a note
+  - optionally leave a note and edit it later
 - **Postponing hub**
   - browse active postponed tasks
   - switch between lightweight filters
@@ -72,8 +72,8 @@ flutter analyze
 
 ## Notes
 - The product is intentionally not a heavy productivity dashboard.
-- Web is good for exploring the story and flows, but native/platform verification is a separate concern.
-- Android identity/platform validation may still depend on the target environment setup.
+- Web is a flow preview only: its in-memory repository intentionally does not persist user data after refresh. Do not use it as a personal-data product.
+- Native mobile is the supported local-data experience. Android releases require a private `android/key.properties` based on `android/key.properties.example`; debug signing is never used for release output.
 
 ## Roadmap
 - keep tuning resurfacing so suggestions feel helpful without becoming noisy
