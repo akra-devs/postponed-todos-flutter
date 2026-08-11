@@ -1,25 +1,12 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/config/ui_copy.dart';
-import '../../../../core/theme/app_elevation_tokens.dart';
 import '../../../../core/theme/app_icon_tokens.dart';
 import '../../../../core/theme/app_radius_tokens.dart';
 import '../../../../core/theme/app_spacing_tokens.dart';
-import '../../../../core/theme/app_theme_ext.dart';
+import '../../../../core/theme/reentry_atlas_tokens.dart';
 import '../../domain/task_recommendation_service.dart';
-import 'banner_style_components.dart';
-
-const EdgeInsets _ctaButtonPadding = EdgeInsets.symmetric(
-  horizontal: 14,
-  vertical: 12,
-);
-const EdgeInsets _scorePillPadding = EdgeInsets.symmetric(
-  horizontal: 12,
-  vertical: 8,
-);
-const double _secondaryContextDotSize = 8;
-const double _secondaryContextDotTopOffset = 6;
-const double _secondaryContextContentGap = 10;
+import 'reentry_atlas_components.dart';
 
 class HomeRecommendationCard extends StatelessWidget {
   const HomeRecommendationCard({
@@ -38,155 +25,155 @@ class HomeRecommendationCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    final surfaces = theme.appSurfaces;
+    final atlas = theme.reentryAtlas;
+    final compact = MediaQuery.sizeOf(context).width < 420;
     final isRevisit = recommendation.suggestHoldingRevisit;
     final supportsHoldingSuggestion = recommendation.suggestHoldingBox;
+    final note = recommendation.task.note?.trim();
     final reason = recommendation.reasons.isEmpty
         ? isRevisit
               ? '한동안 쉬어뒀던 일이라 부담 없이 다시 꺼내볼 수 있어요'
               : '지금 다시 꺼내보기 괜찮아 보여요'
         : recommendation.reasons.first;
 
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: surfaces.card,
-        borderRadius: BorderRadius.circular(AppRadiusTokens.xl),
-        border: Border.all(
-          color: isRevisit
-              ? colorScheme.primary.withValues(alpha: 0.14)
-              : colorScheme.outlineVariant.withValues(alpha: 0.55),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: colorScheme.shadow.withValues(alpha: 0.04),
-            blurRadius: AppElevationTokens.heroBlur,
-            offset: const Offset(0, AppElevationTokens.heroOffsetY),
-          ),
-        ],
-      ),
+    return ReentryPorcelainTicket(
+      minimumHeight: 224,
+      notchPosition: 0.5,
       child: Padding(
-        padding: const EdgeInsets.all(AppSpacingTokens.cardInset),
+        padding: const EdgeInsets.fromLTRB(22, 20, 22, 18),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      BannerTagChip(
-                        label: isRevisit ? '보관함에서 천천히 다시 보기' : '오늘은 가볍게 다시 보기',
-                        icon: isRevisit
-                            ? AppIconTokens.statusRevisit
-                            : AppIconTokens.statusPostponing,
-                        highlighted: isRevisit,
-                      ),
-                      const SizedBox(height: AppSpacingTokens.eyebrowGap),
-                      Text(
-                        recommendation.task.title,
-                        style: theme.appTextRoles.cardTitle,
-                      ),
-                    ],
-                  ),
-                ),
+                _TicketStateMark(isRevisit: isRevisit),
                 const SizedBox(width: AppSpacingTokens.sm),
-                _CalmScorePill(
-                  label: isRevisit ? '가볍게' : '추천',
-                  icon: isRevisit
-                      ? AppIconTokens.statusRevisit
-                      : AppIconTokens.actionPrimary,
-                  highlighted: isRevisit,
+                Expanded(
+                  child: Text(
+                    isRevisit ? '보관함에서 천천히 다시 보기' : '오늘은 가볍게 다시 보기',
+                    style: theme.textTheme.labelMedium?.copyWith(
+                      color: isRevisit
+                          ? const Color(0xFF477F76)
+                          : atlas.periwinkleDeep,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
                 ),
               ],
             ),
-            if ((recommendation.task.note ?? '').isNotEmpty) ...[
-              const SizedBox(height: AppSpacingTokens.xs),
+            const SizedBox(height: AppSpacingTokens.xs),
+            Text(
+              recommendation.task.title,
+              style:
+                  (compact
+                          ? theme.textTheme.titleMedium
+                          : theme.textTheme.titleLarge)
+                      ?.copyWith(
+                        color: atlas.ink,
+                        fontWeight: FontWeight.w800,
+                        height: 1.2,
+                        letterSpacing: -0.45,
+                      ),
+            ),
+            if (note?.isNotEmpty ?? false) ...[
+              const SizedBox(height: AppSpacingTokens.sm),
               Text(
-                recommendation.task.note!,
-                style: theme.appTextRoles.body.copyWith(
-                  color: colorScheme.onSurfaceVariant,
+                note!,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: atlas.inkMuted,
+                  height: 1.42,
                 ),
               ),
             ],
-            const SizedBox(height: AppSpacingTokens.listGap),
-            _ReasonPanel(
+            const SizedBox(height: AppSpacingTokens.md),
+            Divider(color: atlas.ink.withValues(alpha: 0.12), height: 1),
+            const SizedBox(height: AppSpacingTokens.sm),
+            _TicketContextLine(
+              icon: isRevisit
+                  ? AppIconTokens.statusRevisit
+                  : Icons.auto_awesome_outlined,
               label: isRevisit ? '다시 보여주는 이유' : '지금 꺼내본 이유',
               body: reason,
-              highlighted: isRevisit,
+              accent: isRevisit
+                  ? const Color(0xFF477F76)
+                  : atlas.periwinkleDeep,
             ),
             if (isRevisit || supportsHoldingSuggestion) ...[
-              const SizedBox(height: AppSpacingTokens.actionGap),
-              _SecondaryContextPanel(
-                title: isRevisit
+              const SizedBox(height: AppSpacingTokens.sm),
+              _TicketContextLine(
+                icon: isRevisit
+                    ? AppIconTokens.quickEntryShelved
+                    : AppIconTokens.actionHold,
+                label: isRevisit
                     ? UiCopy.holdingRevisitTitle
                     : UiCopy.holdingSuggestionTitle,
-                description: isRevisit
+                body: isRevisit
                     ? UiCopy.holdingRevisitDescription
                     : UiCopy.holdingSuggestionDescription,
-                highlighted: isRevisit,
+                accent: isRevisit ? const Color(0xFF477F76) : atlas.inkMuted,
               ),
             ],
-            const SizedBox(height: AppSpacingTokens.listGap),
+            const SizedBox(height: AppSpacingTokens.md),
             Wrap(
               spacing: AppSpacingTokens.xs,
               runSpacing: AppSpacingTokens.xs,
               children: [
-                FilledButton(
+                FilledButton.icon(
                   onPressed: onOpen,
-                  style: FilledButton.styleFrom(padding: _ctaButtonPadding),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        isRevisit
-                            ? AppIconTokens.actionOpen
-                            : AppIconTokens.actionPrimary,
-                        size: 18,
-                      ),
-                      const SizedBox(width: 6),
-                      Text(
-                        isRevisit ? UiCopy.holdingRestore : UiCopy.homePrimary,
-                      ),
-                    ],
+                  style: FilledButton.styleFrom(
+                    backgroundColor: atlas.periwinkleDeep,
+                    foregroundColor: atlas.porcelain,
+                    minimumSize: const Size(0, 48),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(AppRadiusTokens.pill),
+                    ),
+                  ),
+                  icon: Icon(
+                    isRevisit
+                        ? AppIconTokens.actionOpen
+                        : AppIconTokens.actionPrimary,
+                    size: 19,
+                  ),
+                  label: Text(
+                    isRevisit ? UiCopy.holdingRestore : UiCopy.homePrimary,
                   ),
                 ),
-                FilledButton.tonal(
+                FilledButton.tonalIcon(
                   onPressed: onSnooze,
-                  style: FilledButton.styleFrom(padding: _ctaButtonPadding),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        isRevisit
-                            ? AppIconTokens.actionDefer
-                            : AppIconTokens.actionSnooze,
-                        size: 18,
-                      ),
-                      const SizedBox(width: 6),
-                      Text(
-                        isRevisit ? UiCopy.restoreDefer : UiCopy.homeSnooze,
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
+                  style: FilledButton.styleFrom(
+                    backgroundColor: atlas.periwinkleSoft.withValues(
+                      alpha: 0.58,
+                    ),
+                    foregroundColor: atlas.ink,
+                    minimumSize: const Size(0, 48),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(AppRadiusTokens.pill),
+                    ),
+                  ),
+                  icon: Icon(
+                    isRevisit
+                        ? AppIconTokens.actionDefer
+                        : AppIconTokens.actionSnooze,
+                    size: 19,
+                  ),
+                  label: Text(
+                    isRevisit ? UiCopy.restoreDefer : UiCopy.homeSnooze,
                   ),
                 ),
-                OutlinedButton(
+                OutlinedButton.icon(
                   onPressed: onShelf,
-                  style: OutlinedButton.styleFrom(padding: _ctaButtonPadding),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(AppIconTokens.actionHold, size: 18),
-                      const SizedBox(width: 6),
-                      Text(
-                        isRevisit ? '자세히 보기' : UiCopy.homeHolding,
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: atlas.inkMuted,
+                    minimumSize: const Size(0, 48),
+                    side: BorderSide(color: atlas.ink.withValues(alpha: 0.16)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(AppRadiusTokens.pill),
+                    ),
                   ),
+                  icon: Icon(AppIconTokens.actionHold, size: 19),
+                  label: Text(isRevisit ? '자세히 보기' : UiCopy.homeHolding),
                 ),
               ],
             ),
@@ -197,152 +184,96 @@ class HomeRecommendationCard extends StatelessWidget {
   }
 }
 
-class _CalmScorePill extends StatelessWidget {
-  const _CalmScorePill({
-    required this.label,
-    required this.icon,
-    required this.highlighted,
-  });
+class _TicketStateMark extends StatelessWidget {
+  const _TicketStateMark({required this.isRevisit});
 
-  final String label;
-  final IconData icon;
-  final bool highlighted;
+  final bool isRevisit;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    final surfaces = theme.appSurfaces;
-    return DecoratedBox(
+    final atlas = Theme.of(context).reentryAtlas;
+    final color = isRevisit ? atlas.mint : atlas.periwinkle;
+    return Container(
+      width: 48,
+      height: 48,
+      padding: const EdgeInsets.all(6),
       decoration: BoxDecoration(
-        color: highlighted
-            ? colorScheme.primary.withValues(alpha: 0.08)
-            : surfaces.cardMuted,
-        borderRadius: BorderRadius.circular(AppRadiusTokens.md),
+        color: atlas.porcelain,
+        shape: BoxShape.circle,
+        boxShadow: [
+          BoxShadow(
+            color: atlas.ink.withValues(alpha: 0.18),
+            blurRadius: 10,
+            offset: const Offset(0, 5),
+          ),
+        ],
       ),
-      child: Padding(
-        padding: _scorePillPadding,
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              icon,
-              size: 15,
-              color: highlighted ? colorScheme.primary : colorScheme.onSurface,
-            ),
-            const SizedBox(width: 6),
-            Text(
-              label,
-              style: theme.appTextRoles.emphasisLabel.copyWith(
-                color: highlighted
-                    ? colorScheme.primary
-                    : colorScheme.onSurface,
-              ),
-            ),
-          ],
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          gradient: RadialGradient(
+            center: const Alignment(-0.35, -0.45),
+            colors: [Color.lerp(color, Colors.white, 0.34)!, color],
+          ),
+        ),
+        child: Icon(
+          isRevisit ? Icons.inventory_2_outlined : Icons.refresh_rounded,
+          color: atlas.ink.withValues(alpha: 0.72),
+          size: 21,
         ),
       ),
     );
   }
 }
 
-class _ReasonPanel extends StatelessWidget {
-  const _ReasonPanel({
+class _TicketContextLine extends StatelessWidget {
+  const _TicketContextLine({
+    required this.icon,
     required this.label,
     required this.body,
-    required this.highlighted,
+    required this.accent,
   });
 
+  final IconData icon;
   final String label;
   final String body;
-  final bool highlighted;
+  final Color accent;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: highlighted
-            ? colorScheme.primary.withValues(alpha: 0.05)
-            : theme.appSurfaces.reasonPanel,
-        borderRadius: BorderRadius.circular(AppRadiusTokens.lg),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacingTokens.sm),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              label,
-              style: theme.appTextRoles.eyebrow.copyWith(
-                color: colorScheme.onSurfaceVariant,
-              ),
-            ),
-            const SizedBox(height: AppSpacingTokens.compactTextGap),
-            Text(body, style: theme.appTextRoles.body),
-          ],
+    final atlas = theme.reentryAtlas;
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(top: 2),
+          child: Icon(icon, color: accent, size: 19),
         ),
-      ),
-    );
-  }
-}
-
-class _SecondaryContextPanel extends StatelessWidget {
-  const _SecondaryContextPanel({
-    required this.title,
-    required this.description,
-    required this.highlighted,
-  });
-
-  final String title;
-  final String description;
-  final bool highlighted;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: highlighted
-            ? colorScheme.secondaryContainer.withValues(alpha: 0.45)
-            : theme.appSurfaces.cardMuted.withValues(alpha: 0.9),
-        borderRadius: BorderRadius.circular(AppRadiusTokens.lg),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacingTokens.sm),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              width: _secondaryContextDotSize,
-              height: _secondaryContextDotSize,
-              margin: const EdgeInsets.only(top: _secondaryContextDotTopOffset),
-              decoration: BoxDecoration(
-                color: highlighted ? colorScheme.primary : colorScheme.outline,
-                shape: BoxShape.circle,
+        const SizedBox(width: 10),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: theme.textTheme.labelMedium?.copyWith(
+                  color: accent,
+                  fontWeight: FontWeight.w800,
+                ),
               ),
-            ),
-            const SizedBox(width: _secondaryContextContentGap),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(title, style: theme.appTextRoles.panelTitle),
-                  const SizedBox(height: AppSpacingTokens.compactTextGap),
-                  Text(
-                    description,
-                    style: theme.appTextRoles.supportingBody.copyWith(
-                      color: colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                ],
+              const SizedBox(height: 3),
+              Text(
+                body,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: atlas.inkMuted,
+                  height: 1.42,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
-      ),
+      ],
     );
   }
 }

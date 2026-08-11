@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_icon_tokens.dart';
-import '../../../../core/theme/app_elevation_tokens.dart';
-import '../../../../core/theme/app_radius_tokens.dart';
 import '../../../../core/theme/app_spacing_tokens.dart';
-import '../../../../core/theme/app_theme_ext.dart';
+import '../../../../core/theme/reentry_atlas_tokens.dart';
 import '../../domain/task.dart';
 import '../../domain/task_status.dart';
+import 'reentry_atlas_components.dart';
 
 class TaskListCard extends StatelessWidget {
   const TaskListCard({super.key, required this.task, required this.onTap});
@@ -17,202 +16,127 @@ class TaskListCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    final surfaces = theme.appSurfaces;
-    final isCoolingDown = task.resurfaceAt?.isAfter(DateTime.now()) ?? false;
-    final hasNote = (task.note ?? '').isNotEmpty;
+    final atlas = theme.reentryAtlas;
     final isShelved = task.status == TaskStatus.shelved;
+    final isReadyToRevisit =
+        isShelved && task.isEligibleForHoldingBoxRevisitSuggestion;
+    final isCoolingDown = task.resurfaceAt?.isAfter(DateTime.now()) ?? false;
+    final note = task.note?.trim();
+    final accent = isReadyToRevisit
+        ? const Color(0xFF477F76)
+        : isShelved
+        ? const Color(0xFF6E7B80)
+        : atlas.periwinkleDeep;
+    final contextLabel = switch ((isShelved, isReadyToRevisit, isCoolingDown)) {
+      (_, true, _) => '다시 꺼내볼 때가 됐어요',
+      (true, false, _) => '마음에 두는 중',
+      (false, _, true) => '조금 더 쉬고 다시 보기',
+      _ => '지금 다시 보기 좋아요',
+    };
 
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(AppRadiusTokens.xl),
-        onTap: onTap,
-        child: Ink(
-          decoration: BoxDecoration(
-            color: isShelved ? surfaces.holdingSurface : surfaces.card,
-            borderRadius: BorderRadius.circular(AppRadiusTokens.xl),
-            border: Border.all(
-              color: isShelved
-                  ? surfaces.holdingBorder
-                  : colorScheme.outlineVariant.withValues(alpha: 0.6),
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: colorScheme.shadow.withValues(
-                  alpha: isShelved ? 0.025 : 0.035,
-                ),
-                blurRadius: isShelved
-                    ? AppElevationTokens.cardBlur - 2
-                    : AppElevationTokens.cardBlur,
-                offset: const Offset(0, AppElevationTokens.cardOffsetY),
-              ),
-            ],
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(AppSpacingTokens.cardInset),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
+    return ReentryPorcelainTicket(
+      onTap: onTap,
+      semanticLabel: '${task.title}, $contextLabel, 자세히 보기',
+      minimumHeight: 128,
+      notchPosition: 0.5,
+      elevation: 7,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(20, 18, 20, 16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
               children: [
-                _LeadingIntentMarker(status: task.status),
-                const SizedBox(width: 14),
+                _TaskClayNode(
+                  color: isReadyToRevisit
+                      ? atlas.mint
+                      : isShelved
+                      ? atlas.porcelainLow
+                      : atlas.periwinkle,
+                  icon: isShelved
+                      ? AppIconTokens.quickEntryShelved
+                      : AppIconTokens.quickEntryPostponing,
+                ),
+                const SizedBox(width: AppSpacingTokens.sm),
                 Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(
-                            child: Text(
-                              task.title,
-                              style: theme.appTextRoles.cardTitle,
-                            ),
-                          ),
-                          const SizedBox(width: AppSpacingTokens.xs),
-                          Icon(
-                            AppIconTokens.listChevron,
-                            color: colorScheme.outline,
-                          ),
-                        ],
-                      ),
-                      if (hasNote) ...[
-                        const SizedBox(height: AppSpacingTokens.xs),
-                        Text(
-                          task.note!,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: theme.appTextRoles.body.copyWith(
-                            color: colorScheme.onSurfaceVariant,
-                          ),
-                        ),
-                      ],
-                      const SizedBox(height: AppSpacingTokens.listGap),
-                      Wrap(
-                        spacing: AppSpacingTokens.xs,
-                        runSpacing: AppSpacingTokens.xs,
-                        children: [
-                          _StatusChip(
-                            label: task.status.label,
-                            tone: task.status == TaskStatus.shelved
-                                ? _ChipTone.shelf
-                                : _ChipTone.neutral,
-                          ),
-                          if (isShelved)
-                            _StatusChip(label: '보관 중', tone: _ChipTone.muted),
-                          if (isCoolingDown)
-                            const _StatusChip(
-                              label: '조금 더 쉬고 다시 보기 대기 중',
-                              tone: _ChipTone.muted,
-                            ),
-                          if (task.status == TaskStatus.shelved &&
-                              task.isEligibleForHoldingBoxRevisitSuggestion)
-                            const _StatusChip(
-                              label: '다시 꺼내볼 때가 됐어요',
-                              tone: _ChipTone.warm,
-                            ),
-                        ],
-                      ),
-                      if (isShelved) ...[
-                        const SizedBox(height: AppSpacingTokens.listGap),
-                        Text(
-                          task.isEligibleForHoldingBoxRevisitSuggestion
-                              ? '준비되면 다시 꺼내볼 수 있어요.'
-                              : '지금은 서두르지 말고 여기 두어도 괜찮아요.',
-                          style: theme.appTextRoles.supportingBody.copyWith(
-                            color: theme.appSurfaces.holdingHeroBody,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ],
+                  child: Text(
+                    contextLabel,
+                    style: theme.textTheme.labelMedium?.copyWith(
+                      color: accent,
+                      fontWeight: FontWeight.w800,
+                    ),
                   ),
+                ),
+                const SizedBox(width: AppSpacingTokens.xs),
+                Icon(
+                  AppIconTokens.listChevron,
+                  color: atlas.inkMuted,
+                  size: 20,
                 ),
               ],
             ),
+            const SizedBox(height: AppSpacingTokens.sm),
+            Text(
+              task.title,
+              style: theme.textTheme.titleMedium?.copyWith(
+                color: atlas.ink,
+                fontWeight: FontWeight.w800,
+                height: 1.25,
+                letterSpacing: -0.35,
+              ),
+            ),
+            if (note?.isNotEmpty ?? false) ...[
+              const SizedBox(height: 6),
+              Text(
+                note!,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: atlas.inkMuted,
+                  height: 1.4,
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _TaskClayNode extends StatelessWidget {
+  const _TaskClayNode({required this.color, required this.icon});
+
+  final Color color;
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) {
+    final atlas = Theme.of(context).reentryAtlas;
+    return Container(
+      width: 42,
+      height: 42,
+      padding: const EdgeInsets.all(5),
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: atlas.porcelain,
+        boxShadow: [
+          BoxShadow(
+            color: atlas.ink.withValues(alpha: 0.18),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          gradient: RadialGradient(
+            center: const Alignment(-0.35, -0.45),
+            colors: [Color.lerp(color, Colors.white, 0.34)!, color],
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _LeadingIntentMarker extends StatelessWidget {
-  const _LeadingIntentMarker({required this.status});
-
-  final TaskStatus status;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    final surfaces = theme.appSurfaces;
-    final isShelved = status == TaskStatus.shelved;
-
-    return Container(
-      width: 40,
-      height: 40,
-      decoration: BoxDecoration(
-        color: isShelved
-            ? surfaces.subtleAccent
-            : colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(AppRadiusTokens.sm),
-      ),
-      child: Icon(
-        isShelved
-            ? AppIconTokens.quickEntryShelved
-            : AppIconTokens.quickEntryPostponing,
-        size: 20,
-        color: isShelved
-            ? theme.appStatus.shelvedFg
-            : colorScheme.onSurfaceVariant,
-      ),
-    );
-  }
-}
-
-enum _ChipTone { neutral, muted, shelf, warm }
-
-class _StatusChip extends StatelessWidget {
-  const _StatusChip({required this.label, required this.tone});
-
-  final String label;
-  final _ChipTone tone;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    final statusTokens = theme.appStatus;
-
-    final Color backgroundColor;
-    final Color foregroundColor;
-    switch (tone) {
-      case _ChipTone.neutral:
-        backgroundColor = colorScheme.surfaceContainerHighest;
-        foregroundColor = colorScheme.onSurfaceVariant;
-      case _ChipTone.muted:
-        backgroundColor = statusTokens.mutedBg;
-        foregroundColor = statusTokens.mutedFg;
-      case _ChipTone.shelf:
-        backgroundColor = theme.appSurfaces.subtleAccent;
-        foregroundColor = statusTokens.shelvedFg;
-      case _ChipTone.warm:
-        backgroundColor = statusTokens.revisitBg;
-        foregroundColor = statusTokens.revisitFg;
-    }
-
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: backgroundColor,
-        borderRadius: BorderRadius.circular(AppRadiusTokens.pill),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-        child: Text(
-          label,
-          style: theme.appTextRoles.eyebrow.copyWith(color: foregroundColor),
-        ),
+        child: Icon(icon, color: atlas.ink.withValues(alpha: 0.68), size: 18),
       ),
     );
   }

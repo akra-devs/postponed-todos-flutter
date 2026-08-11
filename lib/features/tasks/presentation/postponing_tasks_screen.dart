@@ -1,17 +1,24 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../core/theme/app_icon_tokens.dart';
 import '../../../core/theme/app_radius_tokens.dart';
 import '../../../core/theme/app_spacing_tokens.dart';
+import '../../../core/theme/reentry_atlas_tokens.dart';
 import '../application/tasks_cubit.dart';
 import '../application/tasks_state.dart';
+import '../domain/task.dart';
 import 'task_detail_screen.dart';
+import 'widgets/banner_style_components.dart';
+import 'widgets/reentry_atlas_components.dart';
 import 'widgets/task_empty_state_card.dart';
 import 'widgets/task_list_card.dart';
 
 class PostponingTasksScreen extends StatefulWidget {
-  const PostponingTasksScreen({super.key});
+  const PostponingTasksScreen({super.key, this.onAddTask});
+
+  final VoidCallback? onAddTask;
 
   @override
   State<PostponingTasksScreen> createState() => _PostponingTasksScreenState();
@@ -23,67 +30,100 @@ class _PostponingTasksScreenState extends State<PostponingTasksScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('미루는 중')),
-      body: SafeArea(
-        child: BlocBuilder<TasksCubit, TasksState>(
-          builder: (context, state) {
-            if (state.loading) {
-              return const Center(child: CircularProgressIndicator());
-            }
+      backgroundColor: Colors.transparent,
+      body: ReentryAtlasBackdrop(
+        child: SafeArea(
+          bottom: false,
+          child: BlocBuilder<TasksCubit, TasksState>(
+            builder: (context, state) {
+              if (state.loading) {
+                return const Center(child: CircularProgressIndicator());
+              }
 
-            final visibleTasks = switch (_selectedFilter) {
-              _PostponingFilter.all => state.postponingTasks,
-              _PostponingFilter.available => state.availablePostponingTasks,
-              _PostponingFilter.coolingDown => state.coolingDownTasks,
-            };
+              final visibleTasks = switch (_selectedFilter) {
+                _PostponingFilter.all => state.postponingTasks,
+                _PostponingFilter.available => state.availablePostponingTasks,
+                _PostponingFilter.coolingDown => state.coolingDownTasks,
+              };
 
-            return ListView(
-              padding: const EdgeInsets.all(AppSpacingTokens.screenInset),
-              children: [
-                _PostponingIntro(selectedFilter: _selectedFilter),
-                const SizedBox(height: AppSpacingTokens.sectionGap),
-                _PostponingFilterSection(
-                  selectedFilter: _selectedFilter,
-                  onSelected: (filter) {
-                    setState(() {
-                      _selectedFilter = filter;
-                    });
-                  },
-                ),
-                const SizedBox(height: AppSpacingTokens.listGap),
-                _VisibleListContext(
-                  title: _selectedFilter.listTitle,
-                  description: _selectedFilter.listDescription(
-                    totalCount: state.postponingTasks.length,
-                    visibleCount: visibleTasks.length,
-                  ),
-                ),
-                const SizedBox(height: AppSpacingTokens.cardInset),
-                if (visibleTasks.isEmpty)
-                  TaskEmptyStateCard(
-                    title: _selectedFilter.emptyTitle,
-                    message: _selectedFilter.emptyMessage,
-                  )
-                else
-                  ...visibleTasks.map(
-                    (task) => Padding(
-                      padding: const EdgeInsets.only(
-                        bottom: AppSpacingTokens.listGap,
-                      ),
-                      child: TaskListCard(
-                        task: task,
-                        onTap: () => Navigator.of(
-                          context,
-                        ).push(TaskDetailScreen.route(task.id)),
+              return LayoutBuilder(
+                builder: (context, constraints) {
+                  final canvasWidth = math.min(constraints.maxWidth, 1080.0);
+                  final wide = canvasWidth >= 760;
+                  final inset = wide ? 32.0 : AppSpacingTokens.screenInset;
+                  return Align(
+                    alignment: Alignment.topCenter,
+                    child: SizedBox(
+                      width: canvasWidth,
+                      height: constraints.maxHeight,
+                      child: ListView(
+                        padding: EdgeInsets.fromLTRB(inset, 24, inset, 56),
+                        children: [
+                          _PostponingHero(wide: wide),
+                          SizedBox(height: wide ? 30 : AppSpacingTokens.lg),
+                          if (wide)
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                SizedBox(
+                                  width: 252,
+                                  child: _PostponingControlRail(
+                                    selectedFilter: _selectedFilter,
+                                    totalCount: state.postponingTasks.length,
+                                    availableCount:
+                                        state.availablePostponingTasks.length,
+                                    coolingCount: state.coolingDownTasks.length,
+                                    onSelected: _selectFilter,
+                                    onAddTask: widget.onAddTask,
+                                  ),
+                                ),
+                                const SizedBox(width: AppSpacingTokens.xl),
+                                Expanded(
+                                  child: _PostponingRouteBody(
+                                    filter: _selectedFilter,
+                                    tasks: visibleTasks,
+                                    totalCount: state.postponingTasks.length,
+                                    onAddTask: widget.onAddTask,
+                                    showAddButton: false,
+                                  ),
+                                ),
+                              ],
+                            )
+                          else ...[
+                            _PostponingFilterDeck(
+                              selectedFilter: _selectedFilter,
+                              totalCount: state.postponingTasks.length,
+                              availableCount:
+                                  state.availablePostponingTasks.length,
+                              coolingCount: state.coolingDownTasks.length,
+                              onSelected: _selectFilter,
+                              vertical: false,
+                            ),
+                            const SizedBox(height: AppSpacingTokens.xl),
+                            _PostponingRouteBody(
+                              filter: _selectedFilter,
+                              tasks: visibleTasks,
+                              totalCount: state.postponingTasks.length,
+                              onAddTask: widget.onAddTask,
+                              showAddButton: true,
+                            ),
+                          ],
+                        ],
                       ),
                     ),
-                  ),
-              ],
-            );
-          },
+                  );
+                },
+              );
+            },
+          ),
         ),
       ),
     );
+  }
+
+  void _selectFilter(_PostponingFilter filter) {
+    if (_selectedFilter == filter) return;
+    setState(() => _selectedFilter = filter);
   }
 }
 
@@ -135,65 +175,384 @@ enum _PostponingFilter {
             : '잠시 쉬어가는 항목은 천천히 다시 올릴 준비를 기다리는 흐름이에요.',
     };
   }
+
+  int count({
+    required int total,
+    required int available,
+    required int cooling,
+  }) {
+    return switch (this) {
+      _PostponingFilter.all => total,
+      _PostponingFilter.available => available,
+      _PostponingFilter.coolingDown => cooling,
+    };
+  }
 }
 
-class _PostponingIntro extends StatelessWidget {
-  const _PostponingIntro({required this.selectedFilter});
+class _PostponingHero extends StatelessWidget {
+  const _PostponingHero({required this.wide});
 
-  final _PostponingFilter selectedFilter;
+  final bool wide;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
-    return Container(
-      padding: const EdgeInsets.all(AppSpacingTokens.cardInset),
-      decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(AppRadiusTokens.xl),
-        border: Border.all(color: colorScheme.outlineVariant),
+    final atlas = theme.reentryAtlas;
+    return Semantics(
+      header: true,
+      label: '미루는 중. 서두르지 않아도 괜찮아요.',
+      child: SizedBox(
+        height: wide ? 228 : 242,
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            Positioned.fill(
+              child: ExcludeSemantics(
+                child: CustomPaint(
+                  painter: _PostponingHeroRoutePainter(
+                    route: atlas.route,
+                    periwinkle: atlas.periwinkle,
+                    porcelain: atlas.porcelain,
+                  ),
+                ),
+              ),
+            ),
+            Positioned(
+              left: 0,
+              top: 0,
+              right: wide ? 320 : 62,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '미루는 중',
+                    style: theme.textTheme.headlineLarge?.copyWith(
+                      color: atlas.onMidnight,
+                      fontSize: wide ? 44 : 36,
+                      height: 1.04,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: -1.2,
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacingTokens.sm),
+                  Text(
+                    '서두르지 않아도 괜찮아요',
+                    style: theme.textTheme.titleLarge?.copyWith(
+                      color: atlas.onMidnightMuted,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Positioned(
+              left: 0,
+              bottom: wide ? 16 : 10,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: atlas.midnightSoft.withValues(alpha: 0.94),
+                  borderRadius: BorderRadius.circular(AppRadiusTokens.pill),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.26),
+                      blurRadius: 13,
+                      offset: const Offset(0, 7),
+                    ),
+                  ],
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 10,
+                  ),
+                  child: Text(
+                    '가까운 일부터, 천천히 다시 닿기',
+                    style: theme.textTheme.labelLarge?.copyWith(
+                      color: atlas.onMidnight,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('당장은 아니어도 잊지 않는 보관 목록', style: theme.textTheme.titleMedium),
-          const SizedBox(height: AppSpacingTokens.listGap),
-          Text(
-            '부담 없이, 원할 때만 살짝 열어보는 운영 목록이에요.',
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: colorScheme.onSurfaceVariant,
+    );
+  }
+}
+
+class _PostponingControlRail extends StatelessWidget {
+  const _PostponingControlRail({
+    required this.selectedFilter,
+    required this.totalCount,
+    required this.availableCount,
+    required this.coolingCount,
+    required this.onSelected,
+    this.onAddTask,
+  });
+
+  final _PostponingFilter selectedFilter;
+  final int totalCount;
+  final int availableCount;
+  final int coolingCount;
+  final ValueChanged<_PostponingFilter> onSelected;
+  final VoidCallback? onAddTask;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final atlas = theme.reentryAtlas;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        ReentryPorcelainTicket(
+          elevation: 10,
+          notchPosition: 0.34,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 22, 20, 20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '지금의 결을 고르기',
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    color: atlas.ink,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                const SizedBox(height: AppSpacingTokens.xs),
+                Text(
+                  '보고 싶은 온도만 남겨둘게요.',
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: atlas.inkMuted,
+                  ),
+                ),
+                const SizedBox(height: AppSpacingTokens.lg),
+                _PostponingFilterDeck(
+                  selectedFilter: selectedFilter,
+                  totalCount: totalCount,
+                  availableCount: availableCount,
+                  coolingCount: coolingCount,
+                  onSelected: onSelected,
+                  vertical: true,
+                ),
+              ],
             ),
           ),
-          const SizedBox(height: AppSpacingTokens.cardInset),
-          Wrap(
-            spacing: AppSpacingTokens.xs,
-            runSpacing: AppSpacingTokens.xs,
+        ),
+        if (onAddTask != null) ...[
+          const SizedBox(height: AppSpacingTokens.lg),
+          ReentryAddButton(onPressed: onAddTask!),
+        ],
+      ],
+    );
+  }
+}
+
+class _PostponingFilterDeck extends StatelessWidget {
+  const _PostponingFilterDeck({
+    required this.selectedFilter,
+    required this.totalCount,
+    required this.availableCount,
+    required this.coolingCount,
+    required this.onSelected,
+    required this.vertical,
+  });
+
+  final _PostponingFilter selectedFilter;
+  final int totalCount;
+  final int availableCount;
+  final int coolingCount;
+  final ValueChanged<_PostponingFilter> onSelected;
+  final bool vertical;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final atlas = theme.reentryAtlas;
+    final chips = _PostponingFilter.values
+        .map((filter) {
+          final selected = filter == selectedFilter;
+          final count = filter.count(
+            total: totalCount,
+            available: availableCount,
+            cooling: coolingCount,
+          );
+          final filterLabel = Text(
+            filter.label,
+            maxLines: vertical ? 2 : 1,
+            overflow: TextOverflow.ellipsis,
+          );
+          final label = Row(
+            mainAxisSize: vertical ? MainAxisSize.max : MainAxisSize.min,
             children: [
-              _SummaryPill(
-                label: '전체',
-                selected: selectedFilter == _PostponingFilter.all,
-                icon: Icons.all_inbox_outlined,
-              ),
-              _SummaryPill(
-                label: '지금 다시 보기 쉬운',
-                selected: selectedFilter == _PostponingFilter.available,
-                icon: AppIconTokens.quickEntryPostponing,
-              ),
-              _SummaryPill(
-                label: '조금 더 두는 중',
-                selected: selectedFilter == _PostponingFilter.coolingDown,
-                icon: AppIconTokens.quickEntryShelved,
+              if (vertical) Expanded(child: filterLabel) else filterLabel,
+              const SizedBox(width: AppSpacingTokens.xs),
+              Container(
+                constraints: const BoxConstraints(minWidth: 24, minHeight: 24),
+                padding: const EdgeInsets.symmetric(horizontal: 6),
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: selected
+                      ? atlas.porcelain.withValues(alpha: 0.2)
+                      : atlas.periwinkleSoft,
+                ),
+                child: Text(
+                  '$count',
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: selected ? atlas.porcelain : atlas.periwinkleDeep,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
               ),
             ],
+          );
+          final chip = ChoiceChip(
+            label: vertical ? SizedBox(width: 144, child: label) : label,
+            selected: selected,
+            onSelected: (_) => onSelected(filter),
+            showCheckmark: false,
+            selectedColor: atlas.periwinkleDeep,
+            backgroundColor: atlas.porcelain,
+            side: BorderSide.none,
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(AppRadiusTokens.md),
+            ),
+            labelStyle: theme.textTheme.labelMedium?.copyWith(
+              color: selected ? atlas.porcelain : atlas.inkMuted,
+              fontWeight: FontWeight.w800,
+            ),
+          );
+          return vertical
+              ? Padding(
+                  padding: const EdgeInsets.only(bottom: AppSpacingTokens.xs),
+                  child: chip,
+                )
+              : chip;
+        })
+        .toList(growable: false);
+
+    if (vertical) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: chips,
+      );
+    }
+    return Wrap(
+      spacing: AppSpacingTokens.xs,
+      runSpacing: AppSpacingTokens.xs,
+      children: chips,
+    );
+  }
+}
+
+class _PostponingRouteBody extends StatelessWidget {
+  const _PostponingRouteBody({
+    required this.filter,
+    required this.tasks,
+    required this.totalCount,
+    required this.onAddTask,
+    required this.showAddButton,
+  });
+
+  final _PostponingFilter filter;
+  final List<Task> tasks;
+  final int totalCount;
+  final VoidCallback? onAddTask;
+  final bool showAddButton;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final atlas = theme.reentryAtlas;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          filter.listTitle,
+          style: theme.textTheme.headlineSmall?.copyWith(
+            color: atlas.onMidnight,
+            fontWeight: FontWeight.w800,
+            letterSpacing: -0.45,
           ),
-          const SizedBox(height: AppSpacingTokens.eyebrowGap),
-          Text(
-            selectedFilter == _PostponingFilter.all
-                ? '원하는 흐름만 가볍게 골라보세요.'
-                : '현재는 ${selectedFilter.label} 기준으로 조용히 정리하고 있어요.',
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: colorScheme.onSurfaceVariant,
+        ),
+        const SizedBox(height: AppSpacingTokens.xs),
+        ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 620),
+          child: Text(
+            filter.listDescription(
+              totalCount: totalCount,
+              visibleCount: tasks.length,
+            ),
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: atlas.onMidnightMuted,
+              height: 1.48,
+            ),
+          ),
+        ),
+        const SizedBox(height: AppSpacingTokens.lg),
+        if (tasks.isEmpty)
+          _PostponingEmptyStage(
+            title: filter.emptyTitle,
+            message: filter.emptyMessage,
+            onAddTask: showAddButton ? onAddTask : null,
+          )
+        else
+          _PostponingTaskStage(
+            tasks: tasks,
+            onOpen: (task) =>
+                Navigator.of(context).push(TaskDetailScreen.route(task.id)),
+          ),
+        if (tasks.isNotEmpty && showAddButton && onAddTask != null) ...[
+          const SizedBox(height: AppSpacingTokens.lg),
+          ReentryAddButton(onPressed: onAddTask!),
+        ],
+      ],
+    );
+  }
+}
+
+class _PostponingEmptyStage extends StatelessWidget {
+  const _PostponingEmptyStage({
+    required this.title,
+    required this.message,
+    this.onAddTask,
+  });
+
+  final String title;
+  final String message;
+  final VoidCallback? onAddTask;
+
+  @override
+  Widget build(BuildContext context) {
+    final atlas = Theme.of(context).reentryAtlas;
+    return _RouteStageShell(
+      minimumHeight: 420,
+      child: Stack(
+        children: [
+          Positioned.fill(
+            child: ExcludeSemantics(
+              child: CustomPaint(
+                painter: _EmptyRouteStagePainter(
+                  route: atlas.route,
+                  accent: atlas.periwinkle,
+                ),
+              ),
+            ),
+          ),
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(20, 98, 20, 22),
+              child: TaskEmptyStateCard(
+                title: title,
+                message: message,
+                actionLabel: onAddTask == null ? null : '떠오른 일 남기기',
+                onAction: onAddTask,
+              ),
             ),
           ),
         ],
@@ -202,120 +561,323 @@ class _PostponingIntro extends StatelessWidget {
   }
 }
 
-class _PostponingFilterSection extends StatelessWidget {
-  const _PostponingFilterSection({
-    required this.selectedFilter,
-    required this.onSelected,
-  });
+class _PostponingTaskStage extends StatelessWidget {
+  const _PostponingTaskStage({required this.tasks, required this.onOpen});
 
-  final _PostponingFilter selectedFilter;
-  final ValueChanged<_PostponingFilter> onSelected;
+  final List<Task> tasks;
+  final ValueChanged<Task> onOpen;
 
   @override
   Widget build(BuildContext context) {
-    return Wrap(
-      spacing: AppSpacingTokens.xs,
-      runSpacing: AppSpacingTokens.xs,
-      children: _PostponingFilter.values
-          .map(
-            (filter) => ChoiceChip(
-              label: Text(filter.label),
-              selected: selectedFilter == filter,
-              onSelected: (_) => onSelected(filter),
-              showCheckmark: false,
-              shape: const StadiumBorder(),
-              labelStyle: Theme.of(context).textTheme.labelMedium,
-              selectedColor: Theme.of(
-                context,
-              ).colorScheme.primary.withValues(alpha: 0.12),
-              backgroundColor: Theme.of(context).colorScheme.surface,
-              side: BorderSide(
-                color: selectedFilter == filter
-                    ? Theme.of(
-                        context,
-                      ).colorScheme.primary.withValues(alpha: 0.4)
-                    : Theme.of(context).colorScheme.outlineVariant,
-              ),
-            ),
-          )
-          .toList(growable: false),
-    );
-  }
-}
-
-class _VisibleListContext extends StatelessWidget {
-  const _VisibleListContext({required this.title, required this.description});
-
-  final String title;
-  final String description;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(title, style: theme.textTheme.titleSmall),
-        const SizedBox(height: AppSpacingTokens.xs),
-        Text(
-          description,
-          style: theme.textTheme.bodySmall?.copyWith(
-            color: colorScheme.onSurfaceVariant,
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _SummaryPill extends StatelessWidget {
-  const _SummaryPill({
-    required this.label,
-    required this.selected,
-    required this.icon,
-  });
-
-  final String label;
-  final bool selected;
-  final IconData icon;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
-    final backgroundColor = selected
-        ? colorScheme.primary.withValues(alpha: 0.1)
-        : colorScheme.surface;
-    final borderColor = selected
-        ? colorScheme.primary.withValues(alpha: 0.35)
-        : colorScheme.outlineVariant;
-    final textColor = selected
-        ? colorScheme.primary
-        : colorScheme.onSurfaceVariant;
-
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: backgroundColor,
-        borderRadius: BorderRadius.circular(AppRadiusTokens.pill),
-        border: Border.all(color: borderColor),
-      ),
+    return _RouteStageShell(
+      minimumHeight: 260,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
+        padding: const EdgeInsets.fromLTRB(16, 22, 20, 18),
+        child: Column(
           children: [
-            Icon(icon, size: 16, color: textColor),
-            const SizedBox(width: 6),
-            Text(
-              label,
-              style: theme.textTheme.labelMedium?.copyWith(color: textColor),
-            ),
+            for (var index = 0; index < tasks.length; index++)
+              Padding(
+                padding: const EdgeInsets.only(
+                  bottom: AppSpacingTokens.listGap,
+                ),
+                child: StaggeredRevealCard(
+                  index: index,
+                  child: _TimelineTaskRow(
+                    active: index == 0,
+                    isLast: index == tasks.length - 1,
+                    child: TaskListCard(
+                      task: tasks[index],
+                      onTap: () => onOpen(tasks[index]),
+                    ),
+                  ),
+                ),
+              ),
           ],
         ),
       ),
     );
   }
+}
+
+class _RouteStageShell extends StatelessWidget {
+  const _RouteStageShell({required this.child, required this.minimumHeight});
+
+  final Widget child;
+  final double minimumHeight;
+
+  @override
+  Widget build(BuildContext context) {
+    final atlas = Theme.of(context).reentryAtlas;
+    return ConstrainedBox(
+      constraints: BoxConstraints(minHeight: minimumHeight),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: atlas.midnightRaised.withValues(alpha: 0.9),
+          borderRadius: BorderRadius.circular(30),
+          border: Border.all(color: atlas.onMidnight.withValues(alpha: 0.08)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.32),
+              blurRadius: 24,
+              offset: const Offset(0, 14),
+            ),
+          ],
+        ),
+        child: ClipRRect(borderRadius: BorderRadius.circular(30), child: child),
+      ),
+    );
+  }
+}
+
+class _TimelineTaskRow extends StatelessWidget {
+  const _TimelineTaskRow({
+    required this.active,
+    required this.isLast,
+    required this.child,
+  });
+
+  final bool active;
+  final bool isLast;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final atlas = Theme.of(context).reentryAtlas;
+    return IntrinsicHeight(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          SizedBox(
+            width: 54,
+            child: CustomPaint(
+              painter: _TimelineRailPainter(
+                active: active,
+                isLast: isLast,
+                routeColor: atlas.route,
+                nodeColor: active ? atlas.periwinkle : atlas.porcelain,
+              ),
+            ),
+          ),
+          Expanded(child: child),
+        ],
+      ),
+    );
+  }
+}
+
+class _PostponingHeroRoutePainter extends CustomPainter {
+  const _PostponingHeroRoutePainter({
+    required this.route,
+    required this.periwinkle,
+    required this.porcelain,
+  });
+
+  final Color route;
+  final Color periwinkle;
+  final Color porcelain;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final path = Path()
+      ..moveTo(size.width * 0.22, size.height + 18)
+      ..cubicTo(
+        size.width * 0.42,
+        size.height * 0.82,
+        size.width * 0.48,
+        size.height * 0.7,
+        size.width * 0.62,
+        size.height * 0.7,
+      )
+      ..cubicTo(
+        size.width * 0.8,
+        size.height * 0.7,
+        size.width * 0.78,
+        size.height * 0.28,
+        size.width + 26,
+        size.height * 0.18,
+      );
+    canvas.drawPath(
+      path,
+      Paint()
+        ..color = Colors.black.withValues(alpha: 0.38)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 21
+        ..strokeCap = StrokeCap.round
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 9),
+    );
+    canvas.drawPath(
+      path,
+      Paint()
+        ..color = route
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 15
+        ..strokeCap = StrokeCap.round,
+    );
+    canvas.drawPath(
+      path,
+      Paint()
+        ..color = Colors.white.withValues(alpha: 0.54)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2
+        ..strokeCap = StrokeCap.round,
+    );
+    _drawNode(
+      canvas,
+      Offset(size.width * 0.48, size.height * 0.76),
+      24,
+      periwinkle,
+    );
+    _drawNode(
+      canvas,
+      Offset(size.width * 0.76, size.height * 0.58),
+      19,
+      porcelain,
+    );
+    _drawNode(
+      canvas,
+      Offset(size.width * 0.92, size.height * 0.28),
+      27,
+      porcelain,
+    );
+  }
+
+  void _drawNode(Canvas canvas, Offset center, double radius, Color color) {
+    canvas.drawCircle(
+      center.translate(0, 6),
+      radius + 5,
+      Paint()
+        ..color = Colors.black.withValues(alpha: 0.34)
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 8),
+    );
+    canvas.drawCircle(center, radius + 3, Paint()..color = route);
+    canvas.drawCircle(center, radius, Paint()..color = color);
+    canvas.drawCircle(
+      center.translate(-radius * 0.28, -radius * 0.34),
+      radius * 0.27,
+      Paint()..color = Colors.white.withValues(alpha: 0.42),
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant _PostponingHeroRoutePainter oldDelegate) =>
+      oldDelegate.route != route ||
+      oldDelegate.periwinkle != periwinkle ||
+      oldDelegate.porcelain != porcelain;
+}
+
+class _EmptyRouteStagePainter extends CustomPainter {
+  const _EmptyRouteStagePainter({required this.route, required this.accent});
+
+  final Color route;
+  final Color accent;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final path = Path()
+      ..moveTo(-22, size.height * 0.26)
+      ..cubicTo(
+        size.width * 0.16,
+        size.height * 0.08,
+        size.width * 0.38,
+        size.height * 0.34,
+        size.width * 0.54,
+        size.height * 0.2,
+      )
+      ..cubicTo(
+        size.width * 0.68,
+        size.height * 0.08,
+        size.width * 0.82,
+        size.height * 0.14,
+        size.width + 24,
+        size.height * 0.04,
+      );
+    canvas.drawPath(
+      path,
+      Paint()
+        ..color = Colors.black.withValues(alpha: 0.42)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 17
+        ..strokeCap = StrokeCap.round
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 8),
+    );
+    canvas.drawPath(
+      path,
+      Paint()
+        ..color = route
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 11
+        ..strokeCap = StrokeCap.round,
+    );
+    final center = Offset(size.width * 0.54, size.height * 0.2);
+    canvas.drawCircle(center, 19, Paint()..color = route);
+    canvas.drawCircle(center, 13, Paint()..color = accent);
+    canvas.drawCircle(
+      center.translate(-4, -5),
+      4,
+      Paint()..color = Colors.white.withValues(alpha: 0.48),
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant _EmptyRouteStagePainter oldDelegate) =>
+      oldDelegate.route != route || oldDelegate.accent != accent;
+}
+
+class _TimelineRailPainter extends CustomPainter {
+  const _TimelineRailPainter({
+    required this.active,
+    required this.isLast,
+    required this.routeColor,
+    required this.nodeColor,
+  });
+
+  final bool active;
+  final bool isLast;
+  final Color routeColor;
+  final Color nodeColor;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    const center = Offset(26, 34);
+    if (!isLast) {
+      canvas.drawLine(
+        center,
+        Offset(center.dx, size.height + 12),
+        Paint()
+          ..color = Colors.black.withValues(alpha: 0.34)
+          ..strokeWidth = 12
+          ..strokeCap = StrokeCap.round
+          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 6),
+      );
+      canvas.drawLine(
+        center,
+        Offset(center.dx, size.height + 12),
+        Paint()
+          ..color = routeColor
+          ..strokeWidth = 8
+          ..strokeCap = StrokeCap.round,
+      );
+    }
+    canvas.drawCircle(
+      center.translate(0, 5),
+      21,
+      Paint()
+        ..color = Colors.black.withValues(alpha: 0.36)
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 6),
+    );
+    canvas.drawCircle(center, 19, Paint()..color = routeColor);
+    canvas.drawCircle(center, 13, Paint()..color = nodeColor);
+    canvas.drawCircle(
+      center.translate(-4, -5),
+      4,
+      Paint()..color = Colors.white.withValues(alpha: 0.42),
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant _TimelineRailPainter oldDelegate) =>
+      oldDelegate.active != active ||
+      oldDelegate.isLast != isLast ||
+      oldDelegate.routeColor != routeColor ||
+      oldDelegate.nodeColor != nodeColor;
 }

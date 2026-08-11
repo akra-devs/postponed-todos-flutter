@@ -1,22 +1,21 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../core/config/ui_copy.dart';
-import '../../../core/theme/app_icon_tokens.dart';
-import '../../../core/theme/app_elevation_tokens.dart';
-import '../../../core/theme/app_radius_tokens.dart';
 import '../../../core/theme/app_motion_tokens.dart';
 import '../../../core/theme/app_spacing_tokens.dart';
-import '../../../core/theme/app_theme_ext.dart';
+import '../../../core/theme/reentry_atlas_tokens.dart';
 import '../application/tasks_cubit.dart';
 import '../application/tasks_state.dart';
 import '../domain/task.dart';
 import '../domain/task_recommendation_service.dart';
 import '../domain/task_status.dart';
-import 'widgets/home_recommendation_card.dart';
-import 'widgets/banner_style_components.dart';
-import 'widgets/task_empty_state_card.dart';
 import 'task_detail_screen.dart';
+import 'widgets/banner_style_components.dart';
+import 'widgets/home_recommendation_card.dart';
+import 'widgets/reentry_atlas_components.dart';
 
 class TasksHomeScreen extends StatefulWidget {
   const TasksHomeScreen({
@@ -41,125 +40,245 @@ class _TasksHomeScreenState extends State<TasksHomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('미뤄둔 할일들')),
-      body: SafeArea(
-        child: BlocBuilder<TasksCubit, TasksState>(
-          builder: (context, state) {
-            if (state.loading) {
-              return const Center(child: CircularProgressIndicator());
-            }
+      backgroundColor: Colors.transparent,
+      body: ReentryAtlasBackdrop(
+        child: SafeArea(
+          bottom: false,
+          child: BlocBuilder<TasksCubit, TasksState>(
+            builder: (context, state) {
+              if (state.loading) {
+                return const Center(child: CircularProgressIndicator());
+              }
 
-            _recordExposureIfNeeded(context, state.recommendations);
-            _recordHoldingRevisitExposureIfNeeded(
-              context,
-              state.holdingBoxRevisitSuggestions,
-            );
+              _recordExposureIfNeeded(context, state.recommendations);
+              _recordHoldingRevisitExposureIfNeeded(
+                context,
+                state.holdingBoxRevisitSuggestions,
+              );
 
-            return ListView(
-              padding: const EdgeInsets.all(AppSpacingTokens.screenInset),
-              children: [
-                _QuickEntrySection(
-                  onViewPostponing: widget.onViewPostponing,
-                  onViewShelved: widget.onViewShelved,
-                  postponingCount: state.postponingTasks.length,
-                  shelvedCount: state.shelvedTasks.length,
-                ),
-                const SizedBox(height: AppSpacingTokens.sectionGap),
-                const _SectionHeader(
-                  title: '홈 추천',
-                  subtitle: '지금은 가볍게 시작해볼 수 있는 일부터 보여드릴게요',
-                ),
-                const SizedBox(height: AppSpacingTokens.listGap),
-                BannerMotionSwitcher(
-                  duration: AppMotionTokens.homeSectionReveal,
-                  beginOffset: const Offset(
-                    0,
-                    AppMotionTokens.sectionSwitchShift,
-                  ),
-                  child: state.recommendations.isEmpty
-                      ? _TaskSectionPlaceholder(
-                          key: ValueKey('home-recommend-empty'),
-                          title: '지금은 추천할 일이 없어요',
-                          message: '먼저 한 가지를 적어두면, 다시 볼 타이밍을 조용히 챙겨드릴게요.',
-                          actionLabel: '할 일 추가',
-                          onAction: widget.onAddTask,
-                        )
-                      : _RevealingRecommendationList(
-                          key: ValueKey(
-                            'home-recommend-${state.recommendations.map((item) => item.task.id).join(',')}',
-                          ),
-                          recommendations: state.recommendations,
-                          cardDuration: AppMotionTokens.homeSectionReveal,
-                          staggerStep:
-                              AppMotionTokens.homeRecommendationStaggerStep,
-                          buildCard: (context, index, recommendation) =>
-                              HomeRecommendationCard(
-                                recommendation: recommendation,
-                                onOpen: () => _openTaskFromHome(
-                                  context,
-                                  recommendation.task,
-                                ),
-                                onSnooze: () => context
-                                    .read<TasksCubit>()
-                                    .snooze(recommendation.task),
-                                onShelf: () => _confirmShelve(
-                                  context,
-                                  recommendation.task,
-                                ),
-                              ),
+              final spotlight = state.recommendations.isNotEmpty
+                  ? state.recommendations.first
+                  : state.holdingBoxRevisitSuggestions.firstOrNull;
+              final remainingRecommendations = state.recommendations.length > 1
+                  ? state.recommendations.skip(1).toList(growable: false)
+                  : const <TaskRecommendation>[];
+
+              return LayoutBuilder(
+                builder: (context, constraints) {
+                  final contentWidth = math.min(constraints.maxWidth, 640.0);
+                  final horizontalInset = contentWidth >= 560
+                      ? 28.0
+                      : AppSpacingTokens.screenInset;
+                  return Align(
+                    alignment: Alignment.topCenter,
+                    child: SizedBox(
+                      width: contentWidth,
+                      height: constraints.maxHeight,
+                      child: ListView(
+                        padding: EdgeInsets.fromLTRB(
+                          horizontalInset,
+                          AppSpacingTokens.lg,
+                          horizontalInset,
+                          48,
                         ),
-                ),
-                const SizedBox(height: AppSpacingTokens.sectionGapLarge),
-                const _SectionHeader(
-                  title: '보관함에서 다시 꺼내볼래',
-                  subtitle: '한동안 쉬어둔 일 중, 다시 천천히 잡아볼 만한 것만 골라 보여드릴게요',
-                ),
-                const SizedBox(height: AppSpacingTokens.listGap),
-                BannerMotionSwitcher(
-                  duration: AppMotionTokens.homeSectionReveal,
-                  beginOffset: const Offset(
-                    0,
-                    AppMotionTokens.sectionSwitchShift,
-                  ),
-                  child: state.holdingBoxRevisitSuggestions.isEmpty
-                      ? const _TaskSectionPlaceholder(
-                          key: ValueKey('home-revisit-empty'),
-                          title: '지금은 조용히 두고 있어요',
-                          message: '보관함에 넣은 지 14일이 지난 일만, 천천히 꺼내볼 수 있게 가져와요.',
-                        )
-                      : _RevealingRecommendationList(
-                          key: ValueKey(
-                            'home-revisit-${state.holdingBoxRevisitSuggestions.map((item) => item.task.id).join(',')}',
+                        children: [
+                          const ReentryBrandHeader(),
+                          const SizedBox(height: AppSpacingTokens.lg),
+                          ReentryJourneyRail(
+                            postponingCount: state.postponingTasks.length,
+                            shelvedCount: state.shelvedTasks.length,
+                            onAdd: widget.onAddTask,
+                            onViewPostponing: widget.onViewPostponing,
+                            onViewShelved: widget.onViewShelved,
+                            onReconnect: spotlight == null
+                                ? widget.onAddTask
+                                : () => _activateSpotlight(context, spotlight),
                           ),
-                          recommendations: state.holdingBoxRevisitSuggestions,
-                          cardDuration: AppMotionTokens.homeSectionReveal,
-                          staggerStartOffset:
-                              AppMotionTokens.homeRevisitStaggerOffset,
-                          staggerStep: AppMotionTokens.homeRevisitStaggerStep,
-                          buildCard: (context, index, recommendation) =>
-                              HomeRecommendationCard(
-                                recommendation: recommendation,
-                                onOpen: () => context
-                                    .read<TasksCubit>()
-                                    .confirmHoldingBoxRevisit(
-                                      recommendation.task,
+                          _buildSpotlight(context, spotlight),
+                          const SizedBox(height: AppSpacingTokens.xl),
+                          const ReentryThoughtHint(),
+                          const SizedBox(height: AppSpacingTokens.sm),
+                          if (widget.onAddTask != null)
+                            ReentryAddButton(onPressed: widget.onAddTask!),
+                          const SizedBox(height: 44),
+                          const ReentrySectionHeader(
+                            title: '홈 추천',
+                            subtitle: '한 번에 하나씩, 다시 닿기 좋은 순서로 놓아둘게요',
+                          ),
+                          const SizedBox(height: AppSpacingTokens.listGap),
+                          BannerMotionSwitcher(
+                            duration: AppMotionTokens.homeSectionReveal,
+                            beginOffset: const Offset(
+                              0,
+                              AppMotionTokens.sectionSwitchShift,
+                            ),
+                            child: remainingRecommendations.isEmpty
+                                ? _AtlasSectionPlaceholder(
+                                    key: const ValueKey('home-recommend-empty'),
+                                    title: state.recommendations.isEmpty
+                                        ? '지금은 추천할 일이 없어요'
+                                        : '첫 번째 추천을 위에 꺼내두었어요',
+                                    message: state.recommendations.isEmpty
+                                        ? '한 가지를 남겨두면 다시 볼 타이밍을 조용히 챙겨드릴게요.'
+                                        : '위 티켓에서 다시 닿거나, 지금은 넘길 수 있어요.',
+                                    actionLabel: state.recommendations.isEmpty
+                                        ? '할 일 추가'
+                                        : null,
+                                    onAction: state.recommendations.isEmpty
+                                        ? widget.onAddTask
+                                        : null,
+                                  )
+                                : _RevealingRecommendationList(
+                                    key: ValueKey(
+                                      'home-recommend-${remainingRecommendations.map((item) => item.task.id).join(',')}',
                                     ),
-                                onSnooze: () => context
-                                    .read<TasksCubit>()
-                                    .dismissHoldingBoxRevisit(
-                                      recommendation.task,
+                                    recommendations: remainingRecommendations,
+                                    cardDuration:
+                                        AppMotionTokens.homeSectionReveal,
+                                    staggerStep: AppMotionTokens
+                                        .homeRecommendationStaggerStep,
+                                    buildCard:
+                                        (context, index, recommendation) =>
+                                            HomeRecommendationCard(
+                                              recommendation: recommendation,
+                                              onOpen: () => _openTaskFromHome(
+                                                context,
+                                                recommendation.task,
+                                              ),
+                                              onSnooze: () => context
+                                                  .read<TasksCubit>()
+                                                  .snooze(recommendation.task),
+                                              onShelf: () => _confirmShelve(
+                                                context,
+                                                recommendation.task,
+                                              ),
+                                            ),
+                                  ),
+                          ),
+                          const SizedBox(height: 40),
+                          const ReentrySectionHeader(
+                            title: '보관함에서 다시 꺼내볼래',
+                            subtitle: '오래 쉬어둔 일 가운데, 지금 다시 만나도 좋은 것만 보여드려요',
+                          ),
+                          const SizedBox(height: AppSpacingTokens.listGap),
+                          BannerMotionSwitcher(
+                            duration: AppMotionTokens.homeSectionReveal,
+                            beginOffset: const Offset(
+                              0,
+                              AppMotionTokens.sectionSwitchShift,
+                            ),
+                            child: state.holdingBoxRevisitSuggestions.isEmpty
+                                ? const _AtlasSectionPlaceholder(
+                                    key: ValueKey('home-revisit-empty'),
+                                    title: '지금은 조용히 두고 있어요',
+                                    message:
+                                        '보관한 지 14일이 지난 일만, 다시 닿을 수 있게 천천히 가져와요.',
+                                  )
+                                : _RevealingRecommendationList(
+                                    key: ValueKey(
+                                      'home-revisit-${state.holdingBoxRevisitSuggestions.map((item) => item.task.id).join(',')}',
                                     ),
-                                onShelf: () =>
-                                    _openDetail(context, recommendation.task),
-                              ),
-                        ),
-                ),
-              ],
-            );
-          },
+                                    recommendations:
+                                        state.holdingBoxRevisitSuggestions,
+                                    cardDuration:
+                                        AppMotionTokens.homeSectionReveal,
+                                    staggerStartOffset: AppMotionTokens
+                                        .homeRevisitStaggerOffset,
+                                    staggerStep:
+                                        AppMotionTokens.homeRevisitStaggerStep,
+                                    buildCard:
+                                        (context, index, recommendation) =>
+                                            HomeRecommendationCard(
+                                              recommendation: recommendation,
+                                              onOpen: () => context
+                                                  .read<TasksCubit>()
+                                                  .confirmHoldingBoxRevisit(
+                                                    recommendation.task,
+                                                  ),
+                                              onSnooze: () => context
+                                                  .read<TasksCubit>()
+                                                  .dismissHoldingBoxRevisit(
+                                                    recommendation.task,
+                                                  ),
+                                              onShelf: () => _openDetail(
+                                                context,
+                                                recommendation.task,
+                                              ),
+                                            ),
+                                  ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              );
+            },
+          ),
         ),
       ),
     );
+  }
+
+  Widget _buildSpotlight(
+    BuildContext context,
+    TaskRecommendation? recommendation,
+  ) {
+    if (recommendation == null) {
+      return ReentryAtlasTicket(
+        title: '아직 다시 닿을 일이 없어요',
+        supportingText: '떠오른 일을 한 줄 남겨두면, 다시 볼 때를 조용히 챙겨드릴게요.',
+        primaryLabel: '떠오른 일 남기기',
+        onPrimary: widget.onAddTask ?? () {},
+        icon: Icons.lightbulb_outline_rounded,
+      );
+    }
+
+    final isRevisit = recommendation.suggestHoldingRevisit;
+    final note = recommendation.task.note?.trim();
+    final reason = recommendation.reasons.firstOrNull;
+    final supportingText = switch ((note?.isNotEmpty ?? false, reason)) {
+      (true, _) => note!,
+      (false, final reason?) => reason,
+      _ =>
+        isRevisit ? '오래 쉬어둔 일이라, 지금 천천히 다시 꺼내볼 수 있어요.' : '작게 다시 시작하기 좋은 때예요.',
+    };
+
+    return ReentryAtlasTicket(
+      key: ValueKey('spotlight-${recommendation.task.id}'),
+      title: recommendation.task.title,
+      supportingText: supportingText,
+      primaryLabel: isRevisit ? '다시 꺼내볼래요' : '다시 닿기',
+      onPrimary: () => _activateSpotlight(context, recommendation),
+      secondaryLabel: '지금은 넘기기',
+      onSecondary: () => _deferSpotlight(context, recommendation),
+      onDetails: () => _openDetail(context, recommendation.task),
+      icon: isRevisit ? Icons.inventory_2_outlined : Icons.refresh_rounded,
+    );
+  }
+
+  Future<void> _activateSpotlight(
+    BuildContext context,
+    TaskRecommendation recommendation,
+  ) {
+    if (recommendation.suggestHoldingRevisit) {
+      return context.read<TasksCubit>().confirmHoldingBoxRevisit(
+        recommendation.task,
+      );
+    }
+    return _openTaskFromHome(context, recommendation.task);
+  }
+
+  Future<void> _deferSpotlight(
+    BuildContext context,
+    TaskRecommendation recommendation,
+  ) {
+    if (recommendation.suggestHoldingRevisit) {
+      return context.read<TasksCubit>().dismissHoldingBoxRevisit(
+        recommendation.task,
+      );
+    }
+    return context.read<TasksCubit>().snooze(recommendation.task);
   }
 
   void _recordExposureIfNeeded(
@@ -238,8 +357,8 @@ class _TasksHomeScreenState extends State<TasksHomeScreen> {
   }
 }
 
-class _TaskSectionPlaceholder extends StatelessWidget {
-  const _TaskSectionPlaceholder({
+class _AtlasSectionPlaceholder extends StatelessWidget {
+  const _AtlasSectionPlaceholder({
     super.key,
     required this.title,
     required this.message,
@@ -254,11 +373,46 @@ class _TaskSectionPlaceholder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TaskEmptyStateCard(
-      title: title,
-      message: message,
-      actionLabel: actionLabel,
-      onAction: onAction,
+    final theme = Theme.of(context);
+    final atlas = theme.reentryAtlas;
+    return ReentryPorcelainTicket(
+      minimumHeight: 152,
+      elevation: 6,
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacingTokens.lg),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
+              style: theme.textTheme.titleMedium?.copyWith(
+                color: atlas.ink,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+            const SizedBox(height: AppSpacingTokens.xs),
+            Text(
+              message,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: atlas.inkMuted,
+                height: 1.45,
+              ),
+            ),
+            if (actionLabel != null && onAction != null) ...[
+              const SizedBox(height: AppSpacingTokens.md),
+              FilledButton.icon(
+                onPressed: onAction,
+                style: FilledButton.styleFrom(
+                  backgroundColor: atlas.periwinkleDeep,
+                  foregroundColor: atlas.porcelain,
+                ),
+                icon: const Icon(Icons.add_rounded),
+                label: Text(actionLabel!),
+              ),
+            ],
+          ],
+        ),
+      ),
     );
   }
 }
@@ -299,308 +453,6 @@ class _RevealingRecommendationList extends StatelessWidget {
               child: buildCard(context, index, recommendations[index]),
             ),
           ),
-      ],
-    );
-  }
-}
-
-class _QuickEntrySection extends StatelessWidget {
-  const _QuickEntrySection({
-    required this.onViewPostponing,
-    required this.onViewShelved,
-    required this.postponingCount,
-    required this.shelvedCount,
-  });
-
-  final VoidCallback? onViewPostponing;
-  final VoidCallback? onViewShelved;
-  final int postponingCount;
-  final int shelvedCount;
-  String? _countBadgeText(int count) => count > 0 ? '$count개' : null;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    final surfaces = theme.appSurfaces;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        DecoratedBox(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                colorScheme.primary.withValues(alpha: 0.1),
-                colorScheme.surfaceContainerLowest,
-              ],
-            ),
-            borderRadius: BorderRadius.circular(AppRadiusTokens.md),
-            border: Border.all(color: colorScheme.outlineVariant),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(AppSpacingTokens.md),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    '가볍게 들어가는 곳',
-                    style: theme.appTextRoles.cardTitle.copyWith(
-                      color:
-                          theme.appTextRoles.cardTitle.color ??
-                          colorScheme.onSurface,
-                    ),
-                  ),
-                ),
-                DecoratedBox(
-                  decoration: BoxDecoration(
-                    color: surfaces.revisitPanel,
-                    borderRadius: BorderRadius.circular(AppRadiusTokens.pill),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: AppSpacingTokens.xs,
-                      vertical: AppSpacingTokens.xxs,
-                    ),
-                    child: Text(
-                      '천천히',
-                      style: theme.textTheme.labelSmall?.copyWith(
-                        color: colorScheme.onSurfaceVariant,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-        const SizedBox(height: AppSpacingTokens.eyebrowGap),
-        Text(
-          '원할 때 살짝 열어볼 수 있는 가벼운 시작 공간이에요',
-          style: theme.appTextRoles.supportingBody,
-        ),
-        const SizedBox(height: AppSpacingTokens.listGap),
-        LayoutBuilder(
-          builder: (context, constraints) {
-            final stackActions = constraints.maxWidth < 420;
-            final first = _QuickEntryCommandCard(
-              onPressed: onViewPostponing,
-              icon: AppIconTokens.quickEntryPostponing,
-              label: '미루는 중',
-              detail: '지금은 아니어도 좋을 만큼 쉬워요. 천천히 다시 볼 목록을 담아뒀어요',
-              countBadge: _countBadgeText(postponingCount),
-              accentSurface: surfaces.revisitPanel,
-              accent: colorScheme.onSurfaceVariant,
-              highlight: theme.appStatus.postponingFg,
-            );
-            final second = _QuickEntryCommandCard(
-              onPressed: onViewShelved,
-              icon: AppIconTokens.quickEntryShelved,
-              label: '보관함',
-              detail: '지금은 바로 올리지 않고, 마음 편하게 다시 꺼내둘 수 있는 자리',
-              countBadge: _countBadgeText(shelvedCount),
-              accentSurface: surfaces.holdingHeroSurface,
-              accent: theme.appStatus.shelvedFg,
-              highlight: theme.appStatus.shelvedFg,
-            );
-
-            if (stackActions) {
-              return Column(
-                children: [
-                  first,
-                  const SizedBox(height: AppSpacingTokens.listGap),
-                  second,
-                ],
-              );
-            }
-            return Row(
-              children: [
-                Expanded(child: first),
-                const SizedBox(width: AppSpacingTokens.listGap),
-                Expanded(child: second),
-              ],
-            );
-          },
-        ),
-      ],
-    );
-  }
-}
-
-class _QuickEntryCommandCard extends StatelessWidget {
-  const _QuickEntryCommandCard({
-    required this.onPressed,
-    required this.label,
-    required this.detail,
-    required this.icon,
-    required this.accentSurface,
-    required this.accent,
-    required this.highlight,
-    this.countBadge,
-  });
-
-  final VoidCallback? onPressed;
-  final String label;
-  final String detail;
-  final IconData icon;
-  final Color accentSurface;
-  final Color accent;
-  final Color highlight;
-  final String? countBadge;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
-    return Material(
-      color: colorScheme.surface,
-      borderRadius: BorderRadius.circular(AppRadiusTokens.md),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(AppRadiusTokens.md),
-        onTap: onPressed,
-        child: Ink(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(AppRadiusTokens.md),
-            border: Border.all(color: colorScheme.outlineVariant),
-            boxShadow: [
-              BoxShadow(
-                color: colorScheme.shadow.withValues(alpha: 0.05),
-                blurRadius: AppElevationTokens.cardBlur,
-                offset: const Offset(0, AppElevationTokens.cardOffsetY),
-              ),
-            ],
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(AppSpacingTokens.cardInset),
-            child: _QuickEntryButtonContent(
-              label: label,
-              detail: detail,
-              icon: icon,
-              accent: accent,
-              background: accentSurface,
-              highlight: highlight,
-              countBadge: countBadge,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _QuickEntryButtonContent extends StatelessWidget {
-  const _QuickEntryButtonContent({
-    required this.label,
-    required this.detail,
-    required this.icon,
-    required this.accent,
-    required this.background,
-    required this.highlight,
-    this.countBadge,
-  });
-
-  final String label;
-  final String detail;
-  final IconData icon;
-  final Color accent;
-  final Color background;
-  final Color highlight;
-  final String? countBadge;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        DecoratedBox(
-          decoration: BoxDecoration(
-            color: background.withValues(alpha: 0.85),
-            borderRadius: BorderRadius.circular(AppRadiusTokens.pill),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(AppSpacingTokens.xxs),
-            child: Icon(icon, size: 18, color: accent),
-          ),
-        ),
-        const SizedBox(height: AppSpacingTokens.compactTextGap),
-        Text(
-          label,
-          style: theme.appTextRoles.cardTitle.copyWith(
-            fontWeight: FontWeight.w700,
-            color: highlight,
-          ),
-          textAlign: TextAlign.center,
-        ),
-        if (countBadge != null) ...[
-          const SizedBox(height: AppSpacingTokens.xxs),
-          Text(
-            countBadge!,
-            style: theme.textTheme.labelSmall?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
-              fontWeight: FontWeight.w600,
-            ),
-            textAlign: TextAlign.center,
-          ),
-        ],
-        const SizedBox(height: 4),
-        Text(
-          detail,
-          textAlign: TextAlign.center,
-          style: theme.appTextRoles.supportingBody.copyWith(height: 1.28),
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-        ),
-      ],
-    );
-  }
-}
-
-class _SectionHeader extends StatelessWidget {
-  const _SectionHeader({required this.title, required this.subtitle});
-
-  final String title;
-  final String subtitle;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Container(
-              width: 4,
-              height: 22,
-              decoration: BoxDecoration(
-                color: colorScheme.primary,
-                borderRadius: BorderRadius.circular(999),
-              ),
-            ),
-            const SizedBox(width: AppSpacingTokens.xs),
-            Expanded(
-              child: Text(
-                title,
-                style: theme.appTextRoles.sectionTitle.copyWith(
-                  fontWeight: FontWeight.w700,
-                  height: 1.25,
-                ),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: AppSpacingTokens.compactTextGap),
-        Text(
-          subtitle,
-          style: theme.appTextRoles.supportingBody.copyWith(height: 1.42),
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-        ),
       ],
     );
   }

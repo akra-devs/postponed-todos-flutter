@@ -46,7 +46,7 @@ class _PostponedTodosAppState extends State<PostponedTodosApp> {
           title: '미뤄둔 할일들',
           theme: buildAppTheme(),
           darkTheme: buildAppTheme(brightness: Brightness.dark),
-          themeMode: ThemeMode.system,
+          themeMode: ThemeMode.dark,
           supportedLocales: const [Locale('ko'), Locale('en')],
           localizationsDelegates: GlobalMaterialLocalizations.delegates,
           home: const TasksShellScreen(),
